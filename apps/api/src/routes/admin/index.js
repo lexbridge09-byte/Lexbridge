@@ -1,0 +1,32 @@
+import { Router } from 'express';
+import { requireAdmin, requireFeature } from '../../middleware/index.js';
+import { adminArticlesRouter } from './articles.routes.js';
+import { adminCallbacksRouter } from './callbacks.routes.js';
+import { adminConsultationsRouter } from './consultations.routes.js';
+import { adminCouponsRouter } from './coupons.routes.js';
+import { adminDocumentReviewsRouter } from './documentReviews.routes.js';
+import { adminDocumentsRouter } from './documents.routes.js';
+import { adminOrdersRouter } from './orders.routes.js';
+import { adminOverviewRouter } from './overview.routes.js';
+import { adminProductsRouter } from './products.routes.js';
+import { adminServiceRequestsRouter } from './serviceRequests.routes.js';
+import { adminSlotsRouter } from './slots.routes.js';
+import { adminUsersRouter } from './users.routes.js';
+import { adminWhatsAppRouter } from './whatsapp.routes.js';
+
+export const adminRouter = Router();
+
+adminRouter.use(requireAdmin);
+adminRouter.use('/overview', adminOverviewRouter);
+adminRouter.use('/service-requests', adminServiceRequestsRouter);
+adminRouter.use('/consultations', requireFeature('consultationBooking'), adminConsultationsRouter);
+adminRouter.use('/slots', requireFeature('consultationBooking'), adminSlotsRouter);
+adminRouter.use('/articles', requireFeature('legalInsights'), adminArticlesRouter);
+adminRouter.use('/documents', requireFeature('documentUploads'), adminDocumentsRouter);
+adminRouter.use('/users', adminUsersRouter);
+adminRouter.use('/whatsapp', requireFeature('whatsAppAiAssistant'), adminWhatsAppRouter);
+adminRouter.use('/products', requireFeature('serviceCatalog'), adminProductsRouter);
+adminRouter.use('/orders', requireFeature('onlinePayments'), adminOrdersRouter);
+adminRouter.use('/coupons', requireFeature('coupons'), adminCouponsRouter);
+adminRouter.use('/document-reviews', requireFeature('aiDocumentReview'), adminDocumentReviewsRouter);
+adminRouter.use('/callbacks', requireFeature('callbackRequests'), adminCallbacksRouter);

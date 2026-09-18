@@ -1,0 +1,40 @@
+{
+  "name": "@lexbridge/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch --env-file=.env src/server.js",
+    "start": "node --env-file=.env src/server.js",
+    "start:cluster": "node --env-file=.env src/cluster.js",
+    "db:sync-indexes": "node --env-file=.env scripts/syncIndexes.js",
+    "db:explain": "node --env-file=.env scripts/explainQueries.js",
+    "seed:load": "node --env-file=.env scripts/seedLoadData.js",
+    "load:test": "node --env-file=.env scripts/loadTest.js",
+    "test:whatsapp": "node scripts/testWhatsAppAgent.js",
+    "db:seed-products": "node --env-file=.env scripts/seedProducts.js",
+    "test:commerce": "node scripts/testCommerce.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.125.0",
+    "@aws-sdk/client-s3": "^3.1131.0",
+    "@lexbridge/shared": "workspace:*",
+    "compression": "^1.8.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.10.0",
+    "multer": "^2.3.0",
+    "nodemailer": "^10.0.9",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
+    "zod": "^4.6.4"
+  },
+  "devDependencies": {
+    "autocannon": "^8.0.0"
+  }
+}

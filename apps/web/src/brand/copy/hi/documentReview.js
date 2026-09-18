@@ -1,0 +1,127 @@
+// AI दस्तावेज़ समीक्षा
+export const documentReview = {
+  landing: {
+    metadata: {
+      title: 'AI दस्तावेज़ समीक्षा',
+      description: 'PDF एग्रीमेंट अपलोड करें और आसान भाषा में सार और जोखिम पाएं।',
+    },
+    header: {
+      title: 'दस्तावेज़ जल्दी समझें',
+      lead: 'PDF अपलोड करें। आसान सार और मुख्य जोखिम पाएं।',
+    },
+    checks: ['आसान सार', 'जोखिम पर निशान', 'ज़रूरत पर वकील'],
+    disclaimer: 'यह स्वचालित सार है, कानूनी सलाह नहीं।',
+    outputs: {
+      title: "आपकी रिपोर्ट में क्या होगा",
+      description: "आसान भाषा में, लगभग एक मिनट में तैयार।",
+      items: [
+        { icon: "summary", title: "आसान सार", description: "दस्तावेज़ क्या कहता है, बिना कानूनी शब्दजाल के।" },
+        { icon: "contract", title: "मुख्य ज़िम्मेदारियाँ", description: "आपको क्या करना, चुकाना या टालना है, और कब तक।" },
+        { icon: "risk", title: "जोखिम चिह्नित", description: "एकतरफ़ा या असामान्य शर्तें, जोखिम के स्तर के साथ।" },
+        { icon: "lawyer", title: "वकील से पूछने वाले सवाल", description: "साइन करने से पहले क्या पूछें।" },
+      ],
+    },
+    steps: {
+      title: "यह कैसे काम करता है",
+      items: [
+        { title: "PDF अपलोड करें", description: "ईमेल कोड से साइन इन करें और अपलोड करें।" },
+        { title: "AI इसे पढ़ता है", description: "हर शर्त जाँची जाती है, आमतौर पर एक मिनट में।" },
+        { title: "रिपोर्ट पढ़ें", description: "सार, ज़िम्मेदारियाँ और जोखिम आपके अकाउंट में।" },
+        { title: "वकील से बात करें", description: "वैकल्पिक। प्रोफ़ेशनल जाँच कर आपको कॉल करेंगे।" },
+      ],
+    },
+    documents: {
+      title: "कौन-से दस्तावेज़ जाँच सकते हैं",
+      description: "एग्रीमेंट, नोटिस और कॉन्ट्रैक्ट पर सबसे अच्छा काम करता है।",
+      items: ["रेंट एग्रीमेंट", "नौकरी का कॉन्ट्रैक्ट", "बिक्री एग्रीमेंट", "लोन एग्रीमेंट", "NDA", "कानूनी नोटिस", "सर्विस एग्रीमेंट", "पार्टनरशिप डीड"],
+    },
+    faq: {
+      title: "सवाल",
+      ids: ["privacy", "law-firm", "cost"],
+    },
+  },
+
+  labels: {
+    statuses: {
+      queued: 'कतार में',
+      processing: 'जांच जारी',
+      completed: 'तैयार',
+      failed: 'नहीं हुआ',
+    },
+    riskLevels: {
+      low: 'कम जोखिम',
+      moderate: 'मध्यम जोखिम',
+      high: 'ज़्यादा जोखिम',
+    },
+  },
+
+  list: {
+    navLabel: 'दस्तावेज़ समीक्षा',
+    metadataTitle: 'दस्तावेज़ समीक्षा',
+    title: 'दस्तावेज़ समीक्षा',
+    intro: 'आपकी PDF फ़ाइलों के AI सार।',
+    empty: 'अभी कोई समीक्षा नहीं है।',
+    allowance: (remaining, limit) => `आज ${limit} में से ${remaining} मुफ़्त समीक्षा बाकी`,
+    limitReached: 'आज की सीमा पूरी हो गई। कल फिर कोशिश करें।',
+    meta: (referenceCode, dateLabel) => `${referenceCode}, ${dateLabel}`,
+  },
+
+  dropzone: {
+    title: 'अपनी PDF यहां छोड़ें',
+    dragActive: 'अपलोड के लिए छोड़ें',
+    hint: (maxSizeLabel) => `PDF, ${maxSizeLabel} तक`,
+    choose: 'PDF चुनें',
+    signIn: 'शुरू करने के लिए साइन इन करें',
+    busy: 'अपलोड हो रहा है…',
+    signedOutBadge: 'मुफ़्त — साइन इन करके शुरू करें',
+    signInNote: 'साइन इन के बाद फ़ाइल फिर से चुननी होगी।',
+    trust: (days) => `सुरक्षित अपलोड। फ़ाइल ${days} दिन बाद हटा दी जाती है।`,
+    wrongType: 'सिर्फ़ PDF फ़ाइल की समीक्षा हो सकती है।',
+    tooLarge: (maxSizeLabel) => `फ़ाइल ${maxSizeLabel} तक हो सकती है।`,
+  },
+
+  report: {
+    metadataTitle: 'दस्तावेज़ समीक्षा',
+    breadcrumb: 'दस्तावेज़ समीक्षा',
+    notFoundTitle: 'समीक्षा नहीं मिली',
+    notFoundBody: 'हो सकता है यह किसी और खाते की हो।',
+    back: 'समीक्षाओं पर वापस',
+    meta: (referenceCode, dateLabel) => `${referenceCode}, ${dateLabel} को अपलोड`,
+    processingTitle: 'आपका दस्तावेज़ जांचा जा रहा है',
+    processingBody: 'आमतौर पर लगभग एक मिनट। यह पेज अपने आप अपडेट होगा।',
+    stages: ["दस्तावेज़ अपलोड हुआ", "हर शर्त पढ़ी जा रही है", "ज़िम्मेदारियाँ और जोखिम जाँचे जा रहे हैं", "आपका सार लिखा जा रहा है"],
+    failedTitle: 'समीक्षा पूरी नहीं हुई',
+    declined: 'इस दस्तावेज़ की समीक्षा नहीं हो सकी। शायद यह कानूनी दस्तावेज़ नहीं है।',
+    error: 'कुछ गड़बड़ हुई। यह आपकी सीमा में नहीं गिना गया।',
+    notLegal: 'यह शायद कानूनी दस्तावेज़ नहीं है, इसलिए रिपोर्ट सीमित है।',
+    documentType: 'दस्तावेज़ का प्रकार',
+    overallRisk: 'कुल जोखिम',
+    summaryTitle: 'सार',
+    obligationsTitle: 'मुख्य ज़िम्मेदारियां',
+    risksTitle: 'जोखिम',
+    missingTitle: 'छूटी या असामान्य शर्तें',
+    questionsTitle: 'वकील से पूछने के सवाल',
+    fileDeleted: 'अपलोड की गई फ़ाइल हटा दी गई है।',
+  },
+
+  lawyer: {
+    title: 'वकील से समीक्षा कराएं',
+    body: 'एक प्रोफ़ेशनल इसे देखकर आपको कॉल करेंगे।',
+    open: 'वकील से समीक्षा कराएं',
+    fullName: 'पूरा नाम',
+    phone: 'फ़ोन',
+    phonePlaceholder: '+91',
+    notes: 'कुछ खास पूछना है?',
+    notesHint: 'ज़रूरी नहीं।',
+    languageLabel: 'पसंदीदा भाषा',
+    consentBefore: 'मैं ',
+    consentLink: 'प्राइवेसी पॉलिसी',
+    consentAfter: ' से सहमत हूं। LexBridge लॉ फ़र्म नहीं है।',
+    consentRequired: 'आगे बढ़ने के लिए सहमति दें।',
+    submit: 'समीक्षा का अनुरोध करें',
+    busy: 'भेजा जा रहा है…',
+    requested: (referenceCode) => `अनुरोध भेज दिया। नंबर ${referenceCode}।`,
+    viewRequest: 'अनुरोध देखें',
+    unavailable: 'इस दस्तावेज़ के लिए वकील समीक्षा उपलब्ध नहीं है।',
+  },
+};

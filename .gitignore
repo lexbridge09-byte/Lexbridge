@@ -1,0 +1,21 @@
+node_modules/
+.next/
+.env
+.env.*
+!.env.example
+uploads/
+*.log
+.claude/settings.local.json
+
+# local verification scratch
+/.tmp-verify/
+
+.claude
+.temp-verify
+.vscode
+API_CONTRACT.md
+Lexibridge
+MOTION_SPEC.md
+SCALING.md
+UX_RESEARCH.md
+

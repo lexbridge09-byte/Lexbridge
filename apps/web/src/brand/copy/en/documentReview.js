@@ -1,0 +1,127 @@
+// AI document review (flag aiDocumentReview)
+export const documentReview = {
+  landing: {
+    metadata: {
+      title: 'AI document review',
+      description: 'Upload a PDF agreement and get a plain-language summary and risks.',
+    },
+    header: {
+      title: 'Understand a document fast',
+      lead: 'Upload a PDF. Get a plain summary and key risks.',
+    },
+    checks: ['Plain summary', 'Risks flagged', 'Lawyer on request'],
+    disclaimer: 'Automated summary, not legal advice.',
+    outputs: {
+      title: "What your report includes",
+      description: "Written in plain language, ready in about a minute.",
+      items: [
+        { icon: "summary", title: "Plain summary", description: "What the document says, without the legal jargon." },
+        { icon: "contract", title: "Key obligations", description: "What you must do, pay or avoid, and by when." },
+        { icon: "risk", title: "Risks flagged", description: "One-sided or unusual clauses, rated by risk." },
+        { icon: "lawyer", title: "Questions for a lawyer", description: "What to ask before you sign." },
+      ],
+    },
+    steps: {
+      title: "How it works",
+      items: [
+        { title: "Upload a PDF", description: "Sign in with an email code and upload." },
+        { title: "AI reads it", description: "Every clause is checked, usually in a minute." },
+        { title: "Read your report", description: "Summary, obligations and risks in your account." },
+        { title: "Talk to a lawyer", description: "Optional. A professional reviews and calls you." },
+      ],
+    },
+    documents: {
+      title: "Documents you can check",
+      description: "Works best on agreements, notices and contracts.",
+      items: ["Rent agreement", "Employment contract", "Sale agreement", "Loan agreement", "NDA", "Legal notice", "Service agreement", "Partnership deed"],
+    },
+    faq: {
+      title: "Questions",
+      ids: ["privacy", "law-firm", "cost"],
+    },
+  },
+
+  labels: {
+    statuses: {
+      queued: 'Queued',
+      processing: 'Reviewing',
+      completed: 'Ready',
+      failed: 'Failed',
+    },
+    riskLevels: {
+      low: 'Low risk',
+      moderate: 'Moderate risk',
+      high: 'High risk',
+    },
+  },
+
+  list: {
+    navLabel: 'Document reviews',
+    metadataTitle: 'Document reviews',
+    title: 'Document reviews',
+    intro: 'AI summaries of your PDFs.',
+    empty: 'No reviews yet.',
+    allowance: (remaining, limit) => `${remaining} of ${limit} free reviews left today`,
+    limitReached: 'Daily limit reached. Try again tomorrow.',
+    meta: (referenceCode, dateLabel) => `${referenceCode}, ${dateLabel}`,
+  },
+
+  dropzone: {
+    title: 'Drop your PDF here',
+    dragActive: 'Drop to upload',
+    hint: (maxSizeLabel) => `PDF, up to ${maxSizeLabel}`,
+    choose: 'Choose PDF',
+    signIn: 'Sign in to start',
+    busy: 'Uploading…',
+    signedOutBadge: 'Free — sign in to start',
+    signInNote: 'You’ll choose the file again after signing in.',
+    trust: (days) => `Encrypted upload. File deleted after ${days} days.`,
+    wrongType: 'Only PDF files can be reviewed.',
+    tooLarge: (maxSizeLabel) => `Files can be up to ${maxSizeLabel}.`,
+  },
+
+  report: {
+    metadataTitle: 'Document review',
+    breadcrumb: 'Document reviews',
+    notFoundTitle: 'Review not found',
+    notFoundBody: 'It may belong to another account.',
+    back: 'Back to reviews',
+    meta: (referenceCode, dateLabel) => `${referenceCode}, uploaded ${dateLabel}`,
+    processingTitle: 'Reviewing your document',
+    processingBody: 'Usually about a minute. This page updates itself.',
+    stages: ["Document uploaded", "Reading every clause", "Checking obligations and risks", "Writing your summary"],
+    failedTitle: 'Review not completed',
+    declined: 'This document couldn’t be reviewed. It may not be a legal document.',
+    error: 'Something went wrong. This didn’t count toward your limit.',
+    notLegal: 'This may not be a legal document, so the report is limited.',
+    documentType: 'Document type',
+    overallRisk: 'Overall risk',
+    summaryTitle: 'Summary',
+    obligationsTitle: 'Key obligations',
+    risksTitle: 'Risks',
+    missingTitle: 'Missing or unusual clauses',
+    questionsTitle: 'Questions for a lawyer',
+    fileDeleted: 'The uploaded file has been deleted.',
+  },
+
+  lawyer: {
+    title: 'Get a lawyer review',
+    body: 'A professional reviews it and calls you.',
+    open: 'Get a lawyer review',
+    fullName: 'Full name',
+    phone: 'Phone',
+    phonePlaceholder: '+91',
+    notes: 'Anything specific?',
+    notesHint: 'Optional.',
+    languageLabel: 'Preferred language',
+    consentBefore: 'I agree to the ',
+    consentLink: 'privacy policy',
+    consentAfter: '. LexBridge is not a law firm.',
+    consentRequired: 'Please accept to continue.',
+    submit: 'Request review',
+    busy: 'Sending…',
+    requested: (referenceCode) => `Requested. Reference ${referenceCode}.`,
+    viewRequest: 'View request',
+    unavailable: 'Lawyer review isn’t available for this document.',
+  },
+};

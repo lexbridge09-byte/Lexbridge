@@ -1,0 +1,670 @@
+@import "tailwindcss";
+
+/*
+  LexBridge design tokens. Deep garnet hero, white reading surfaces, one gradient reserved for the
+  primary action, saffron only for offers and highlights. Every text/background pair meets WCAG AA.
+  Motion follows MOTION_SPEC.md: tokens only, transform/opacity only, nothing loops except progress.
+*/
+@theme {
+  --color-primary: #a3163f;
+  --color-primary-dark: #6e0f2c;
+  --color-primary-deep: #2e0716;
+  --color-primary-bright: #d8344f;
+  --color-primary-50: #fbeff2;
+  --color-primary-100: #f5d6de;
+  --color-accent: #f4a62a;
+  --color-accent-50: #fff6e6;
+  --color-success: #15803d;
+  --color-success-50: #e9f6ee;
+  --color-warning: #b45309;
+  --color-warning-50: #fdf3e7;
+  --color-danger: #c62828;
+  --color-danger-50: #fdecec;
+  --color-surface: #ffffff;
+  --color-surface-alt: #fbf6f3;
+  --color-line: #eadfe3;
+  --color-line-hover: #cdbfc5;
+  --color-line-strong: #9c8f96;
+  --color-ink: #1f1720;
+  --color-ink-muted: #625a66;
+  --color-ink-subtle: #756d7a;
+
+  /* Latin glyphs come from the first font; Devanagari falls through to Noto Sans Devanagari */
+  --font-display: var(--font-jakarta), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
+
+  /* Radius by hierarchy: controls 12, cards 16, panels 20, pills full */
+  --radius-control: 12px;
+  --radius-card: 16px;
+  --radius-panel: 20px;
+
+  /* Restrained elevation: hairline, card, raised, floating */
+  --shadow-hairline: 0 1px 2px rgb(31 23 32 / 0.05);
+  --shadow-card: 0 1px 2px rgb(31 23 32 / 0.04), 0 6px 16px -6px rgb(31 23 32 / 0.1);
+  --shadow-raised: 0 14px 32px -12px rgb(31 23 32 / 0.2);
+  --shadow-soft: 8px 10px 48px rgb(110 15 44 / 0.08);
+  --shadow-glow: 0 6px 18px -4px rgb(163 22 63 / 0.35);
+  --shadow-float: 0 18px 40px -14px rgb(46 7 22 / 0.35);
+
+  /* Easing (MOTION_SPEC.md) */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --ease-out-soft: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-productive: cubic-bezier(0.2, 0, 0.38, 0.9);
+  --ease-spring: linear(0, 0.035 2.1%, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017 20.5%, 1.029 24.5%, 1.004 33%, 1);
+
+  --container-site: 75rem;
+
+  /* Decorative extras only (never the hero text or primary action) */
+  --animate-fade-in: fade-in 300ms var(--ease-out-soft) both;
+  --animate-spin: spin 800ms linear infinite;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+:root {
+  --dur-100: 100ms;
+  --dur-150: 150ms;
+  --dur-200: 200ms;
+  --dur-300: 300ms;
+  --dur-400: 400ms;
+  --dur-600: 600ms;
+  interpolate-size: allow-keywords;
+}
+
+/* Type scale: mobile first, desktop from the lg breakpoint */
+@utility text-h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 2.5rem;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  @media (width >= 64rem) {
+    font-size: 3.25rem;
+    line-height: 4rem;
+  }
+}
+
+@utility text-h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.75rem;
+  line-height: 2.25rem;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  @media (width >= 64rem) {
+    font-size: 2.5rem;
+    line-height: 3.125rem;
+  }
+}
+
+/* Section headings: smaller than page titles so the content starts sooner */
+@utility text-section {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.625rem;
+  line-height: 2.125rem;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  @media (width >= 64rem) {
+    font-size: 2rem;
+    line-height: 2.5rem;
+  }
+}
+
+@utility text-h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  letter-spacing: -0.02em;
+  @media (width >= 64rem) {
+    font-size: 1.5rem;
+    line-height: 1.875rem;
+  }
+}
+
+@utility text-h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  line-height: 1.5rem;
+  @media (width >= 64rem) {
+    font-size: 1.125rem;
+    line-height: 1.625rem;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility bg-cta {
+  background-image: linear-gradient(135deg, var(--color-primary), var(--color-primary-bright));
+}
+
+@utility bg-hero {
+  background-color: var(--color-primary-deep);
+  background-image:
+    radial-gradient(48rem 28rem at 88% 8%, rgb(216 52 79 / 0.3), transparent 62%),
+    linear-gradient(135deg, #2e0716 0%, #5a0c24 55%, #8a1440 100%);
+}
+
+@utility bg-grid-lines {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+@utility bg-assistant {
+  background-image:
+    radial-gradient(40rem 22rem at 12% 0%, rgb(245 214 222 / 0.9), transparent 70%),
+    radial-gradient(36rem 20rem at 100% 100%, rgb(255 246 230 / 0.95), transparent 70%),
+    linear-gradient(#fff, #fff);
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Horizontal chip/tab rows: scrollable, bar hidden, static edge fade on small screens */
+@utility scroll-row {
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 28px), transparent);
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  @media (width >= 64rem) {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* Long below-the-fold sections skip rendering work until they approach the viewport */
+@utility defer-render {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 640px;
+}
+
+/*
+  One-time below-the-fold reveal (max 3 marketing sections site-wide). Content is fully visible without
+  support or JavaScript; browsers with scroll-driven animations get a 12px lift as the section enters.
+*/
+@utility reveal {
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0.001;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Card hover lift for pointer devices; touch taps never trigger it */
+@utility lift {
+  transition:
+    transform var(--dur-200) var(--ease-out-soft),
+    box-shadow var(--dur-200) var(--ease-out-soft),
+    border-color var(--dur-200) var(--ease-out-soft);
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-2px);
+      border-color: var(--color-primary-100);
+      box-shadow: var(--shadow-card);
+    }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(98 90 102 / 0.4) transparent;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.5rem;
+    caret-color: var(--color-primary);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgb(98 90 102 / 0.35);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(163 22 63 / 0.55);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-primary-100);
+    color: var(--color-ink);
+  }
+
+  /* Devanagari needs room above and below the headline for matras; negative tracking breaks conjuncts */
+  :lang(hi) {
+    letter-spacing: 0 !important;
+  }
+
+  /* Slightly taller than English for matras, but close enough that switching language barely moves the layout */
+  :lang(hi) body {
+    line-height: 1.6;
+  }
+
+  :lang(hi) :is(h1, h2, h3, h4, .text-h1, .text-h2, .text-section, .text-h3, .text-h4) {
+    line-height: 1.4;
+  }
+}
+
+@layer components {
+  /* Sticky header: hairline shadow fades in once the page scrolls (set by ScrollChrome) */
+  .site-header::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -12px;
+    height: 12px;
+    background: linear-gradient(rgb(31 23 32 / 0.07), transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-150) var(--ease-out-soft);
+  }
+
+  html[data-scrolled] .site-header::after {
+    opacity: 1;
+  }
+
+  /* Hover/focus menus (mega menu, help menu): enter 200ms, exit 150ms */
+  .menu-panel {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+    transform-origin: top left;
+    transition:
+      opacity var(--dur-150) var(--ease-exit),
+      transform var(--dur-150) var(--ease-exit),
+      visibility 0s linear var(--dur-150);
+  }
+
+  .menu-trigger:is(:hover, :focus-within) > .menu-panel {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--dur-200) var(--ease-enter),
+      transform var(--dur-200) var(--ease-enter),
+      visibility 0s;
+  }
+
+  .menu-trigger:is(:hover, :focus-within) .menu-chevron {
+    transform: rotate(180deg);
+  }
+
+  .menu-chevron {
+    transition: transform var(--dur-200) var(--ease-standard);
+  }
+
+  /* Accordions: native <details>; height animates where ::details-content is supported */
+  .disclosure::details-content {
+    block-size: 0;
+    overflow: clip;
+    opacity: 0;
+    transition:
+      block-size var(--dur-200) var(--ease-standard),
+      opacity var(--dur-200) var(--ease-standard),
+      content-visibility var(--dur-200) allow-discrete;
+  }
+
+  .disclosure[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+    transition-duration: var(--dur-300);
+  }
+
+  .disclosure .disclosure-chevron {
+    transition: transform var(--dur-200) var(--ease-standard);
+  }
+
+  .disclosure[open] .disclosure-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Text inputs, selects and textareas share one control style */
+  .control {
+    display: block;
+    width: 100%;
+    min-height: 2.875rem;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-control);
+    background-color: var(--color-surface);
+    box-shadow: inset 0 1px 2px rgb(31 23 32 / 0.05);
+    padding: 0.625rem 0.875rem;
+    color: var(--color-ink);
+    font-size: 1rem;
+    line-height: 1.5rem;
+    transition:
+      border-color var(--dur-150) var(--ease-out-soft),
+      box-shadow var(--dur-150) var(--ease-out-soft),
+      background-color var(--dur-150) var(--ease-out-soft);
+  }
+
+  .control::placeholder {
+    color: var(--color-ink-subtle);
+    opacity: 1;
+  }
+
+  .control:hover:not(:disabled):not(:focus) {
+    border-color: #6f6470;
+  }
+
+  .control:focus,
+  .control:focus-visible {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow:
+      inset 0 1px 2px rgb(31 23 32 / 0.04),
+      0 0 0 3px rgb(163 22 63 / 0.16);
+  }
+
+  .control:disabled {
+    cursor: not-allowed;
+    border-color: var(--color-line);
+    background-color: var(--color-surface-alt);
+    box-shadow: none;
+    color: var(--color-ink-muted);
+  }
+
+  .control[aria-invalid='true'] {
+    border-color: var(--color-danger);
+  }
+
+  .control[aria-invalid='true']:focus {
+    box-shadow: 0 0 0 3px rgb(198 40 40 / 0.16);
+  }
+
+  .control::-webkit-outer-spin-button,
+  .control::-webkit-inner-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+  }
+
+  .control[type='number'] {
+    -moz-appearance: textfield;
+  }
+
+  textarea.control {
+    min-height: 6rem;
+    resize: vertical;
+  }
+
+  select.control {
+    appearance: none;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23625a66' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.875rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+  }
+
+  /* Checkbox and radio: drawn by CSS so focus, checked and error states match the brand */
+  .check,
+  .radio {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0;
+    appearance: none;
+    border: 1.5px solid var(--color-line-strong);
+    background-color: var(--color-surface);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-100) var(--ease-out-soft),
+      border-color var(--dur-100) var(--ease-out-soft);
+  }
+
+  .check {
+    border-radius: 5px;
+  }
+
+  .radio {
+    border-radius: 999px;
+  }
+
+  .check::before {
+    content: '';
+    width: 0.7rem;
+    height: 0.7rem;
+    background-color: #fff;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    opacity: 0;
+    transform: scale(0.6);
+    transition:
+      opacity var(--dur-150) var(--ease-out-soft) 50ms,
+      transform var(--dur-150) var(--ease-out-soft) 50ms;
+  }
+
+  .radio::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background-color: #fff;
+    opacity: 0;
+    transform: scale(0.4);
+    transition:
+      opacity var(--dur-150) var(--ease-spring),
+      transform var(--dur-150) var(--ease-spring);
+  }
+
+  .check:hover:not(:disabled),
+  .radio:hover:not(:disabled) {
+    border-color: var(--color-primary);
+  }
+
+  .check:checked,
+  .radio:checked {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
+  }
+
+  .check:checked::before,
+  .radio:checked::before {
+    opacity: 1;
+    transform: none;
+  }
+
+  .check:focus-visible,
+  .radio:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  .check[aria-invalid='true'],
+  .radio[aria-invalid='true'] {
+    border-color: var(--color-danger);
+  }
+
+  .check:disabled,
+  .radio:disabled {
+    cursor: not-allowed;
+    border-color: var(--color-line);
+    background-color: var(--color-surface-alt);
+  }
+
+  /* Loading placeholder that matches the final layout; appears only after 300ms */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #f1eaed;
+    animation: fade-in var(--dur-150) var(--ease-out-soft) 300ms both;
+  }
+
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.6), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1500ms linear infinite;
+  }
+
+  @keyframes shimmer {
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Styled tooltip for icon-only controls: opens after 400ms, closes quickly */
+  [data-tooltip] {
+    position: relative;
+  }
+
+  [data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    z-index: 60;
+    padding: 0.375rem 0.625rem;
+    border-radius: 8px;
+    background-color: var(--color-ink);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1rem;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -4px);
+    transition:
+      opacity var(--dur-100) var(--ease-out-soft),
+      transform var(--dur-100) var(--ease-out-soft);
+  }
+
+  @media (hover: hover) {
+    [data-tooltip]:hover::after {
+      opacity: 1;
+      transform: translate(-50%, 0);
+      transition-duration: var(--dur-150);
+      transition-delay: 400ms;
+    }
+  }
+
+  [data-tooltip]:focus-visible::after {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    transition-delay: 400ms;
+  }
+}
+
+/* Reduced motion: movement removed, short crossfades kept */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .rm-keep-fade {
+    transition-property: opacity !important;
+    transition-duration: var(--dur-150) !important;
+  }
+
+  .skeleton::after {
+    display: none;
+  }
+}
+
+/* E2 booking/order confirmation: the badge pops in, then the tick draws itself (once, under 600ms) */
+@media (prefers-reduced-motion: no-preference) {
+  .success-mark {
+    animation: success-pop var(--dur-400) var(--ease-spring) both;
+  }
+  .success-mark path:last-child {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: success-draw var(--dur-300) var(--ease-out-soft) 200ms forwards;
+  }
+}
+
+@keyframes success-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes success-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
