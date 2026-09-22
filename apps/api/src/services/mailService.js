@@ -1,13 +1,14 @@
-import nodemailer from 'nodemailer';
-import { IS_PRODUCTION, MAIL_FROM, SMTP_URL } from '../config/index.js';
+import { Resend } from 'resend';
+import { IS_PRODUCTION, MAIL_FROM, RESEND_API_KEY } from '../config/index.js';
 
-const transporter = SMTP_URL ? nodemailer.createTransport(SMTP_URL) : null;
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
 export async function sendMail({ to, subject, text }) {
-  if (!transporter) {
-    if (IS_PRODUCTION) throw new Error('SMTP_URL is not configured');
+  if (!resend) {
+    if (IS_PRODUCTION) throw new Error('RESEND_API_KEY is not configured');
     console.log(`[mail:dev] to=${to} subject="${subject}"\n${text}\n`);
     return;
   }
-  await transporter.sendMail({ from: MAIL_FROM, to, subject, text });
+  const { error } = await resend.emails.send({ from: MAIL_FROM, to, subject, text });
+  if (error) throw new Error(`Resend email failed: ${error.message}`);
 }

@@ -129,7 +129,7 @@ let apiOutput = '';
 function startApi({ port, dbName, extraEnv = {} }) {
   const env = { ...process.env };
   for (const key of Object.keys(env)) {
-    if (/^(ANTHROPIC_|WHATSAPP_|RAZORPAY_|MONGO_|SMTP_|S3_|DOCUMENT_REVIEW_|ADMIN_EMAILS|PUBLIC_SITE_URL|FEATURE_FLAGS_OVERRIDE|UPLOAD_DIR|STORAGE_DRIVER|CALLBACK_)/.test(key)) {
+    if (/^(ANTHROPIC_|WHATSAPP_|RAZORPAY_|MONGO_|RESEND_|S3_|DOCUMENT_REVIEW_|ADMIN_EMAILS|PUBLIC_SITE_URL|FEATURE_FLAGS_OVERRIDE|UPLOAD_DIR|STORAGE_DRIVER|CALLBACK_)/.test(key)) {
       delete env[key];
     }
   }

@@ -44,8 +44,11 @@ export const ADMIN_EMAILS = new Set(
     .filter(Boolean),
 );
 
-export const SMTP_URL = process.env.SMTP_URL ?? '';
+export const RESEND_API_KEY = process.env.RESEND_API_KEY ?? '';
 export const MAIL_FROM = process.env.MAIL_FROM ?? 'LexBridge <no-reply@example.com>';
+if (IS_PRODUCTION && !RESEND_API_KEY) {
+  throw new Error('RESEND_API_KEY is required in production');
+}
 
 export const SESSION_COOKIE_NAME = 'lexbridge_session';
 
@@ -64,7 +67,7 @@ export const SHUTDOWN_TIMEOUT_MS = readInt('SHUTDOWN_TIMEOUT_MS', 15000, { min: 
 export const WEB_CONCURRENCY = readInt('WEB_CONCURRENCY', os.availableParallelism(), { min: 1 });
 
 // Private document storage; never served statically
-export const STORAGE_DRIVER = process.env.STORAGE_DRIVER || 'local';
+export const STORAGE_DRIVER = process.env.STORAGE_DRIVER || (IS_PRODUCTION ? 's3' : 'local');
 if (!['local', 's3'].includes(STORAGE_DRIVER)) {
   throw new Error('STORAGE_DRIVER must be "local" or "s3"');
 }
