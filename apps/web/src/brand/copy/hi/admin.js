@@ -117,7 +117,13 @@ export const admin = {
 
   consultations: {
     title: 'सलाह',
-    description: 'तारीख के क्रम में बुकिंग। अपडेट के लिए खोलें।',
+    description: 'तारीख के क्रम में बुकिंग। बुकिंग अपडेट करने के लिए प्रबंधित करें दबाएँ।',
+    columns: { when: 'कब', client: 'क्लाइंट', topic: 'विषय' },
+    detailsTitle: 'बुकिंग विवरण',
+    referenceLabel: 'रेफ़रेंस',
+    manageCta: 'प्रबंधित करें',
+    count: (total) => `${total} बुकिंग`,
+    updating: 'अपडेट हो रहा है…',
     empty: 'कोई सलाह नहीं मिली।',
     when: (dayLabel, timeLabel) => `${dayLabel}, ${timeLabel} IST`,
     summary: (clientLabel, typeLabel, modeLabel, referenceCode) => `${clientLabel}, ${typeLabel}, ${modeLabel}, ${referenceCode}`,
@@ -164,7 +170,7 @@ export const admin = {
       chooseDate: 'तारीख चुनें।',
       invalidTimes: (times) => `10:00 जैसा 24 घंटे वाला समय लिखें। जाँचें: ${times}।`,
       addTime: 'कम से कम एक समय जोड़ें।',
-      added: (created, skipped) => `${created} स्लॉट जोड़े गए।${skipped ? ` ${skipped} छोड़े गए (दोहराए या बीते हुए)।` : ''}`,
+      added: (created, skipped) => `${created} स्लॉट जोड़े गए।${skipped ? ` ${skipped} पहले से जोड़े गए।` : ''}`,
       adding: 'जोड़ रहे हैं…',
       submit: 'स्लॉट जोड़ें',
     },

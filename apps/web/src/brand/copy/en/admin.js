@@ -117,7 +117,13 @@ export const admin = {
 
   consultations: {
     title: 'Consultations',
-    description: 'Bookings in date order. Open one to update it.',
+    description: 'Bookings in date order. Use Manage to update a booking.',
+    columns: { when: 'When', client: 'Client', topic: 'Topic' },
+    detailsTitle: 'Booking details',
+    referenceLabel: 'Reference',
+    manageCta: 'Manage',
+    count: (total) => `${total} ${total === 1 ? 'booking' : 'bookings'}`,
+    updating: 'Updating…',
     empty: 'No consultations match.',
     when: (dayLabel, timeLabel) => `${dayLabel}, ${timeLabel} IST`,
     summary: (clientLabel, typeLabel, modeLabel, referenceCode) => `${clientLabel}, ${typeLabel}, ${modeLabel}, ${referenceCode}`,
@@ -165,7 +171,7 @@ export const admin = {
       invalidTimes: (times) => `Use 24-hour times like 10:00. Check: ${times}.`,
       addTime: 'Add at least one start time.',
       added: (created, skipped) =>
-        `${created} ${created === 1 ? 'slot' : 'slots'} added.${skipped ? ` ${skipped} skipped (duplicate or past).` : ''}`,
+        `${created} ${created === 1 ? 'slot' : 'slots'} added.${skipped ? ` ${skipped} already added.` : ''}`,
       adding: 'Adding…',
       submit: 'Add slots',
     },

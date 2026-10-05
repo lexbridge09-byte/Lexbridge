@@ -1,52 +1,31 @@
 'use client';
 
+import { UserPlus } from 'lucide-react';
 import { useState } from 'react';
 import { useDictionary } from '@/brand/localeContext';
-import { ADMIN_CONTROL_CLASS, ADMIN_LABEL_CLASS, ADMIN_LINK_CLASS, AdminPageHeading, AdminPanel, AdminTable } from '@/components/admin/adminStyles';
+import { ADMIN_CONTROL_CLASS, ADMIN_LABEL_CLASS, AdminPageHeading, AdminPanel, AdminTable, ADMIN_TD_CLASS, ADMIN_TH_CLASS } from '@/components/admin/adminStyles';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
 import { Button } from '@/components/ui';
+import { Modal } from '@/components/ui/modal';
 import { requestApi } from '@/lib/apiClient';
 import { localizeApiError } from '@/lib/apiErrors';
 import { useFormatters } from '@/lib/localeTools';
 import { redirectToLogin, useApiData } from '@/lib/useApiData';
 
-// The 2nd owner's lawyer onboarding: invite by email, manage pending invites,
+// The 2nd owner's lawyer onboarding: invite by email (popup), manage pending invites,
 // and remove team access (blocked while the lawyer still has open assignments).
 export function LawyersPanel() {
   const dictionary = useDictionary();
   const copy = dictionary.team.lawyers;
   const format = useFormatters();
   const { data, error, isLoading, reload } = useApiData('/invites');
-  const [email, setEmail] = useState('');
-  const [isInviting, setIsInviting] = useState(false);
-  const [message, setMessage] = useState(null);
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [rowBusy, setRowBusy] = useState('');
+  const [message, setMessage] = useState(null);
 
   const invites = data?.invites ?? [];
   const pendingInvites = invites.filter((invite) => invite.Status === 'pending');
   const lawyers = (data?.staff ?? []).filter((member) => member.Role === 'lawyer');
-
-  async function handleInvite(event) {
-    event.preventDefault();
-    const value = email.trim();
-    if (!value) return;
-    setIsInviting(true);
-    setMessage(null);
-    try {
-      await requestApi('/invites', { method: 'POST', body: { Email: value, Role: 'lawyer' } });
-      setMessage({ tone: 'success', text: copy.inviteSent(value) });
-      setEmail('');
-      reload();
-    } catch (err) {
-      if (err.status === 401) {
-        redirectToLogin();
-        return;
-      }
-      setMessage({ tone: 'error', text: localizeApiError(err, dictionary) });
-    } finally {
-      setIsInviting(false);
-    }
-  }
 
   async function inviteAction(inviteId, action) {
     setRowBusy(`${inviteId}:${action}`);
@@ -65,7 +44,7 @@ export function LawyersPanel() {
     }
   }
 
-  async function removeAccess(userId, userEmail) {
+  async function removeAccess(userId) {
     setRowBusy(`remove:${userId}`);
     setMessage(null);
     try {
@@ -86,36 +65,20 @@ export function LawyersPanel() {
     <div>
       <AdminPageHeading title={copy.title} description={copy.description} />
 
-      <AdminPanel as="form" title={copy.inviteTitle} onSubmit={handleInvite} className="mb-5">
-        <p className="mb-3 text-sm leading-6 text-ink-muted">{copy.inviteIntro}</p>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-          <div className="flex-1">
-            <label htmlFor="lawyer-invite-email" className={ADMIN_LABEL_CLASS}>
-              {copy.emailLabel}
-            </label>
-            <input
-              id="lawyer-invite-email"
-              type="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder={copy.emailPlaceholder}
-              className={`mt-1 ${ADMIN_CONTROL_CLASS}`}
-            />
-          </div>
-          <Button type="submit" size="sm" isLoading={isInviting}>
-            {copy.inviteAction}
-          </Button>
-        </div>
-        {message && <div className="mt-3"><FormMessage message={message} /></div>}
-      </AdminPanel>
+      <div className="mb-3 flex flex-wrap items-center gap-3">
+        <Button size="sm" onClick={() => setIsInviteOpen(true)}>
+          <UserPlus aria-hidden="true" className="size-4" strokeWidth={1.75} />
+          {copy.inviteAction}
+        </Button>
+        <FormMessage message={message} />
+      </div>
 
       {isLoading && !data ? (
         <LoadingNote />
       ) : error ? (
         <ErrorNote error={error} onRetry={reload} />
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-4">
           <AdminPanel title={copy.pendingTitle}>
             {pendingInvites.length === 0 ? (
               <p className="text-sm text-ink-muted">{copy.pendingEmpty}</p>
@@ -168,7 +131,7 @@ export function LawyersPanel() {
                       <td className={ADMIN_TD_CLASS}>{lawyer.FullName || copy.notProvided}</td>
                       <td className={`${ADMIN_TD_CLASS} break-all`}>{lawyer.Email}</td>
                       <td className={ADMIN_TD_CLASS}>
-                        <Button variant="ghost" size="sm" disabled={rowBusy !== ''} onClick={() => removeAccess(lawyer._id, lawyer.Email)} className="text-danger">
+                        <Button variant="ghost" size="sm" disabled={rowBusy !== ''} onClick={() => removeAccess(lawyer._id)} className="text-danger">
                           {rowBusy === `remove:${lawyer._id}` ? copy.busy : copy.removeAccess}
                         </Button>
                       </td>
@@ -180,6 +143,70 @@ export function LawyersPanel() {
           </AdminPanel>
         </div>
       )}
+
+      {isInviteOpen && (
+        <InviteModal
+          copy={copy}
+          onClose={() => setIsInviteOpen(false)}
+          onInvited={(sentMessage) => {
+            setIsInviteOpen(false);
+            setMessage({ tone: 'success', text: sentMessage });
+            reload();
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+function InviteModal({ copy, onClose, onInvited }) {
+  const dictionary = useDictionary();
+  const [email, setEmail] = useState('');
+  const [isInviting, setIsInviting] = useState(false);
+  const [message, setMessage] = useState(null);
+
+  async function handleInvite(event) {
+    event.preventDefault();
+    const value = email.trim();
+    if (!value) return;
+    setIsInviting(true);
+    setMessage(null);
+    try {
+      await requestApi('/invites', { method: 'POST', body: { Email: value, Role: 'lawyer' } });
+      onInvited(copy.inviteSent(value));
+    } catch (err) {
+      if (err.status === 401) {
+        redirectToLogin();
+        return;
+      }
+      setMessage({ tone: 'error', text: localizeApiError(err, dictionary) });
+      setIsInviting(false);
+    }
+  }
+
+  return (
+    <Modal title={copy.inviteTitle} onClose={onClose}>
+      <form onSubmit={handleInvite} className="space-y-3">
+        <p className="text-sm leading-6 text-ink-muted">{copy.inviteIntro}</p>
+        <div>
+          <label htmlFor="lawyer-invite-email" className={ADMIN_LABEL_CLASS}>
+            {copy.emailLabel}
+          </label>
+          <input
+            id="lawyer-invite-email"
+            type="email"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder={copy.emailPlaceholder}
+            className={`mt-1 ${ADMIN_CONTROL_CLASS}`}
+          />
+        </div>
+        {message && <FormMessage message={message} />}
+        <Button type="submit" size="sm" isLoading={isInviting} className="w-full">
+          {copy.inviteAction}
+        </Button>
+      </form>
+    </Modal>
   );
 }

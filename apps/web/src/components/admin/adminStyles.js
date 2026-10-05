@@ -3,7 +3,7 @@ import { LocaleLink } from '@/components/localeLink';
 
 // Dense back-office styles on the shared design tokens
 export const ADMIN_CONTROL_CLASS =
-  'block w-full rounded-lg border border-line-strong bg-card px-3 py-2 text-sm text-ink focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-100';
+  'block w-full rounded-lg border border-line-strong bg-card pl-3 pr-10 py-2 text-sm text-ink focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-100';
 
 export const ADMIN_LABEL_CLASS = 'block text-xs font-semibold text-ink-muted';
 
