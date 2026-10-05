@@ -9,6 +9,7 @@
     "start": "node --env-file=.env src/server.js",
     "start:cluster": "node --env-file=.env src/cluster.js",
     "db:sync-indexes": "node --env-file=.env scripts/syncIndexes.js",
+    "db:migrate-roles": "node --env-file=.env scripts/migrateRoles.js",
     "db:explain": "node --env-file=.env scripts/explainQueries.js",
     "seed:load": "node --env-file=.env scripts/seedLoadData.js",
     "load:test": "node --env-file=.env scripts/loadTest.js",

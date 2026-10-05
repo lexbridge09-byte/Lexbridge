@@ -211,11 +211,13 @@ export const admin = {
 
   users: {
     title: 'यूज़र',
-    description: 'जिन्होंने साइन इन किया है। एडमिन ADMIN_EMAILS से तय होते हैं।',
+    description: 'जिन्होंने साइन इन किया है। ओनर यहाँ टीम की भूमिकाएँ तय करते हैं।',
     role: 'भूमिका',
     allRoles: 'सभी भूमिकाएँ',
     clients: 'क्लाइंट',
-    admins: 'एडमिन',
+    admins: 'ओनर',
+    changeRole: 'भूमिका बदलें',
+    youLabel: 'आप',
     searchPlaceholder: 'नाम, ईमेल या फ़ोन',
     searchHint: 'ईमेल की शुरुआत, फ़ोन के आखिरी अंक या नाम के पूरे शब्द।',
     empty: 'कोई यूज़र नहीं मिला।',

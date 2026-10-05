@@ -767,7 +767,7 @@ async function runFeatureFlagTests() {
   });
   try {
     await waitForApi(FLAGS_OFF_API_PORT, child);
-    const offAdmin = await createUser(flagsOffDb, { email: 'admin@flags.test', role: 'admin', fullName: 'Flags Admin' });
+    const offAdmin = await createUser(flagsOffDb, { email: 'admin@flags.test', role: 'owner', fullName: 'Flags Owner' });
     const offClient = await createUser(flagsOffDb, { email: 'client@flags.test', fullName: 'Flags Client' });
     const offApi = (pathname, options) => callApi(FLAGS_OFF_API_PORT, pathname, options);
 
@@ -820,7 +820,7 @@ async function main() {
     await waitForApi(API_PORT, apiProcess);
     await waitForIndexes(db);
     const context = {
-      admin: await createUser(db, { email: 'admin@lexbridge.test', role: 'admin', fullName: 'Asha Admin' }),
+      admin: await createUser(db, { email: 'admin@lexbridge.test', role: 'owner', fullName: 'Asha Owner' }),
       client: await createUser(db, { email: CLIENT_EMAIL, fullName: 'Priya Sharma' }),
       otherClient: await createUser(db, { email: 'other@lexbridge.test', fullName: 'Other Client' }),
     };

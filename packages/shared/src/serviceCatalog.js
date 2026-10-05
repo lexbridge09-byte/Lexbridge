@@ -47,11 +47,15 @@ export const SERVICE_CATEGORY_KEYS = SERVICE_CATALOG.map((service) => service.ke
 export const REQUEST_STATUSES = [
   'submitted',
   'under-review',
+  'assigned',
   'in-progress',
   'awaiting-client',
   'completed',
   'closed',
 ];
+
+// Statuses the assigned lawyer may set on their own work; manager/owner can set everything
+export const LAWYER_ALLOWED_STATUSES = ['in-progress', 'awaiting-client', 'completed'];
 
 export const REQUEST_SOURCES = [
   'contact-form',

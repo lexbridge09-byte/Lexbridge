@@ -1,7 +1,9 @@
 import mongoose from 'mongoose';
 import { applyPhoneLast10Hooks } from './phoneSearchHooks.js';
 
-export const USER_ROLES = ['client', 'admin'];
+// client submits requests; lawyer does assigned work; manager assigns and tracks; owner has everything
+export const USER_ROLES = ['client', 'lawyer', 'manager', 'owner'];
+export const STAFF_ROLES = ['lawyer', 'manager', 'owner'];
 
 const userSchema = new mongoose.Schema(
   {

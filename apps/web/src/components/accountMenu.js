@@ -63,7 +63,8 @@ export function AccountMenu({ signInHref, signInLabel }) {
     isFeatureEnabled('onlinePayments') && { key: 'orders', href: '/dashboard/orders', label: copy.orders },
     isFeatureEnabled('documentUploads') && { key: 'documents', href: '/dashboard/documents', label: copy.documents },
     isFeatureEnabled('aiDocumentReview') && { key: 'reviews', href: '/dashboard/document-reviews', label: copy.documentReviews },
-    user.Role === 'admin' && { key: 'admin', href: '/admin', label: copy.admin },
+    user.Role === 'lawyer' && { key: 'team', href: '/team', label: copy.team },
+    (user.Role === 'owner' || user.Role === 'manager') && { key: 'admin', href: '/admin', label: copy.admin },
   ].filter(Boolean);
 
   function focusItem(offset) {

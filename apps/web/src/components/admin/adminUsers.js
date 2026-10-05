@@ -7,17 +7,70 @@ import { buildAdminQuery } from '@/components/admin/adminRequests';
 import { ErrorNote, LoadingNote } from '@/components/loadState';
 import { Pagination } from '@/components/pagination';
 import { Button } from '@/components/ui';
+import { localizeApiError } from '@/lib/apiErrors';
 import { useCatalogLabels, useFormatters } from '@/lib/localeTools';
+import { useSession } from '@/lib/session';
 import { useApiData } from '@/lib/useApiData';
+import { requestApi } from '@/lib/apiClient';
 
 const PAGE_LIMIT = 25;
+const FILTER_ROLES = ['client', 'lawyer', 'manager', 'owner'];
+const ASSIGNABLE_ROLES = ['client', 'lawyer', 'manager', 'owner'];
+
+function RoleSelect({ user, canManage, isCurrentUser, labels, copy, onRoleChanged }) {
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  if (!canManage) return <span className="whitespace-nowrap">{labels.role(user.Role)}</span>;
+
+  async function handleRoleChange(event) {
+    const nextRole = event.target.value;
+    if (nextRole === user.Role) return;
+    setIsSaving(true);
+    setError(null);
+    try {
+      const { user: updated } = await requestApi(`/admin/users/${user._id}/role`, {
+        method: 'PATCH',
+        body: { Role: nextRole },
+      });
+      onRoleChanged(updated);
+    } catch (err) {
+      setError(err);
+      event.target.value = user.Role;
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  return (
+    <div>
+      <select
+        aria-label={`${copy.changeRole}: ${user.Email}`}
+        defaultValue={user.Role}
+        onChange={handleRoleChange}
+        disabled={isSaving || isCurrentUser}
+        title={isCurrentUser ? copy.youLabel : undefined}
+        className={`${ADMIN_CONTROL_CLASS} min-h-9 w-36 py-1.5`}
+      >
+        {ASSIGNABLE_ROLES.map((roleKey) => (
+          <option key={roleKey} value={roleKey}>
+            {labels.role(roleKey)}
+          </option>
+        ))}
+      </select>
+      {error && <p className="mt-1 text-xs text-danger">{localizeApiError(error)}</p>}
+    </div>
+  );
+}
 
 export function AdminUsers() {
   const dictionary = useDictionary();
+  const { user: viewer } = useSession();
   const copy = dictionary.admin.users;
   const common = dictionary.admin.common;
   const labels = useCatalogLabels();
   const format = useFormatters();
+  const canManage = viewer?.Role === 'owner';
   const [filters, setFilters] = useState({ role: '', q: '' });
   const [page, setPage] = useState(1);
   const { data, error, isLoading, reload } = useApiData(`/admin/users?${buildAdminQuery(filters, page, PAGE_LIMIT)}`);
@@ -41,8 +94,11 @@ export function AdminUsers() {
           </label>
           <select id="user-role" name="role" defaultValue={filters.role} className={`mt-1 ${ADMIN_CONTROL_CLASS}`}>
             <option value="">{copy.allRoles}</option>
-            <option value="client">{copy.clients}</option>
-            <option value="admin">{copy.admins}</option>
+            {FILTER_ROLES.map((roleKey) => (
+              <option key={roleKey} value={roleKey}>
+                {labels.role(roleKey)}
+              </option>
+            ))}
           </select>
         </div>
         <div>
@@ -89,7 +145,16 @@ export function AdminUsers() {
                   <td className={ADMIN_TD_CLASS}>{user.FullName || common.notProvided}</td>
                   <td className={`${ADMIN_TD_CLASS} break-all`}>{user.Email}</td>
                   <td className={ADMIN_TD_CLASS}>{user.Phone || common.notProvided}</td>
-                  <td className={ADMIN_TD_CLASS}>{labels.role(user.Role)}</td>
+                  <td className={ADMIN_TD_CLASS}>
+                    <RoleSelect
+                      user={user}
+                      canManage={canManage}
+                      isCurrentUser={viewer?.id === user._id}
+                      labels={labels}
+                      copy={copy}
+                      onRoleChanged={() => reload()}
+                    />
+                  </td>
                   <td className={`${ADMIN_TD_CLASS} whitespace-nowrap`}>{format.date(user.createdAt)}</td>
                   <td className={`${ADMIN_TD_CLASS} whitespace-nowrap`}>{user.lastLoginAt ? format.dateTime(user.lastLoginAt) : copy.never}</td>
                 </tr>

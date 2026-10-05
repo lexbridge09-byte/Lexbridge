@@ -45,7 +45,7 @@ adminDocumentsRouter.post('/', uploadSingleDocument, async (req, res) => {
     file: req.file,
     ownerId,
     requestReference: RequestReference,
-    uploadedByRole: 'admin',
+    uploadedByRole: req.user.role,
     uploadedById: req.user.id,
   });
   res.status(201).json({ document: extractClientDocument(document) });

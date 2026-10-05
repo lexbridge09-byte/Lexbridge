@@ -44,6 +44,8 @@ const serviceRequestSchema = new mongoose.Schema(
       },
     },
     AssignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    AssignedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    AssignedAt: { type: Date, default: null },
     WhatsAppOptIn: { type: Boolean, default: false },
     PreferredLanguage: { type: String, enum: SUPPORTED_LANGUAGE_KEYS, default: 'en' },
     ConsentGiven: { type: Boolean, required: true },
@@ -61,6 +63,7 @@ serviceRequestSchema.index({ Status: 1, createdAt: -1 });
 serviceRequestSchema.index({ ServiceCategory: 1, createdAt: -1 });
 serviceRequestSchema.index({ Status: 1, ServiceCategory: 1, createdAt: -1 });
 serviceRequestSchema.index({ createdAt: -1 });
+serviceRequestSchema.index({ AssignedTo: 1, createdAt: -1 });
 serviceRequestSchema.index({ PhoneLast10: 1, createdAt: -1 });
 serviceRequestSchema.index({ FullName: 'text' }, { name: 'FullName_text', default_language: 'none' });
 

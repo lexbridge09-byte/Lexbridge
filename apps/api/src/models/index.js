@@ -1,10 +1,10 @@
-export { UserModel, USER_ROLES } from './userModel.js';
+export { UserModel, USER_ROLES, STAFF_ROLES } from './userModel.js';
 export { OtpModel } from './otpModel.js';
 export { ServiceRequestModel, STATUS_HISTORY_LIMIT } from './serviceRequestModel.js';
 export { SlotModel } from './slotModel.js';
 export { ConsultationModel } from './consultationModel.js';
 export { ArticleModel } from './articleModel.js';
-export { DocumentModel } from './documentModel.js';
+export { DocumentModel, DOCUMENT_UPLOAD_KINDS, DOCUMENT_UPLOADER_ROLES } from './documentModel.js';
 export { RateLimitHitModel } from './rateLimitHitModel.js';
 export {
   NotificationJobModel,

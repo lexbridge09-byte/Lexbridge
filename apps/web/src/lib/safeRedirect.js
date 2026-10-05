@@ -9,10 +9,17 @@ export function deriveSafeNextPath(value) {
   return value;
 }
 
+// Staff land in their own workspace; clients land in their dashboard
+export function deriveHomePath(user) {
+  if (user?.Role === 'owner' || user?.Role === 'manager') return '/admin';
+  if (user?.Role === 'lawyer') return '/team';
+  return '/dashboard';
+}
+
 export function deriveLoginRedirect(nextPath, user, locale) {
   const safeNextPath = deriveSafeNextPath(nextPath);
   if (safeNextPath) return localizedHref(locale, safeNextPath);
-  return localizedHref(locale, user?.Role === 'admin' ? '/admin' : '/dashboard');
+  return localizedHref(locale, deriveHomePath(user));
 }
 
 export function deriveLoginHref(nextPath, locale) {

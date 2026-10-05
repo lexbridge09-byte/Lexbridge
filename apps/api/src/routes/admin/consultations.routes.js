@@ -74,7 +74,7 @@ adminConsultationsRouter.patch('/:referenceCode', async (req, res) => {
   await consultation.populate('Client', CLIENT_POPULATE_FIELDS);
 
   if (isBeingCancelled) {
-    await notifyConsultationCancelled(consultation, consultation.Client, 'admin');
+    await notifyConsultationCancelled(consultation, consultation.Client, 'team');
   } else if (hasNewMeetingLink && consultation.Status === 'scheduled') {
     await notifyMeetingLinkAdded(consultation, consultation.Client);
   }

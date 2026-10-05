@@ -70,6 +70,7 @@ export const ux = {
     orders: 'Orders',
     documents: 'Documents',
     documentReviews: 'Document reviews',
+    team: 'My assignments',
     admin: 'Admin',
     signOut: 'Sign out',
     signingOut: 'Signing out…',

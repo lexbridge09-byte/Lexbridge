@@ -28,7 +28,7 @@ export function DocumentList({ documents, emptyText, showReference = false }) {
                 copy.typeLabels[document.MimeType] ?? copy.fallbackType,
                 format.fileSize(document.SizeBytes),
                 copy.uploadedOn(format.date(document.createdAt)),
-                document.UploadedByRole === 'admin' ? copy.sharedByTeam : null,
+                document.UploadedByRole && document.UploadedByRole !== 'client' ? copy.sharedByTeam : null,
                 showReference && document.RequestReference ? copy.forReference(document.RequestReference) : null,
               ]
                 .filter(Boolean)

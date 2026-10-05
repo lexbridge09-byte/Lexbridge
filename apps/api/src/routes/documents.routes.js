@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { createRateLimiter, requireAuth, uploadSingleDocument } from '../middleware/index.js';
 import { ConsultationModel, DocumentModel, ServiceRequestModel, UserModel } from '../models/index.js';
+import { STAFF_ROLES } from '../models/index.js';
 import { deleteDocumentFile, openDocumentStream, saveDocumentFile } from '../services/index.js';
 import { createHttpError, deriveSafeFileName, objectIdSchema } from '../utils.js';
 
@@ -104,7 +105,7 @@ documentsRouter.get('/:id/download', requireAuth, async (req, res) => {
   let isAllowed = Boolean(document) && String(document.Owner) === req.user.id;
   if (document && !isAllowed) {
     const user = await UserModel.findById(req.user.id).select('Role').lean();
-    isAllowed = user?.Role === 'admin';
+    isAllowed = STAFF_ROLES.includes(user?.Role);
   }
   if (!isAllowed) throw createHttpError(404, 'Document not found');
 

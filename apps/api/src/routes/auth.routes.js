@@ -115,7 +115,7 @@ authRouter.post('/verify-otp', verifyOtpLimiter, async (req, res) => {
   }
 
   const update = { lastLoginAt: new Date() };
-  if (ADMIN_EMAILS.has(email)) update.Role = 'admin';
+  if (ADMIN_EMAILS.has(email)) update.Role = 'owner';
 
   const user = await UserModel.findOneAndUpdate(
     { Email: email },

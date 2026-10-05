@@ -307,7 +307,7 @@ async function postRazorpayEvent(event, { eventId, signature } = {}) {
 
 async function createUserSession({ email, role }) {
   const { insertedId } = await db.collection('users').insertOne({
-    FullName: role === 'admin' ? 'Admin Tester' : 'Client Tester',
+    FullName: role === 'owner' ? 'Owner Tester' : 'Client Tester',
     Email: email,
     Phone: '',
     Role: role,
@@ -539,7 +539,7 @@ async function runWhatsAppTests() {
 }
 
 async function runAdminTests({ phoneA }) {
-  const adminCookie = await createUserSession({ email: 'admin@test.local', role: 'admin' });
+  const adminCookie = await createUserSession({ email: 'admin@test.local', role: 'owner' });
   const clientCookie = await createUserSession({ email: 'client@test.local', role: 'client' });
 
   check('admin WhatsApp list without session is 401', (await api('/api/admin/whatsapp/contacts')).status === 401);

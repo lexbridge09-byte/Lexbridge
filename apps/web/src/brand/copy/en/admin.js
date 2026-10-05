@@ -212,11 +212,13 @@ export const admin = {
 
   users: {
     title: 'Users',
-    description: 'People who have signed in. Admins are set with ADMIN_EMAILS.',
+    description: 'People who have signed in. Owners promote team members and manage roles here.',
     role: 'Role',
     allRoles: 'All roles',
     clients: 'Clients',
-    admins: 'Admins',
+    admins: 'Owners',
+    changeRole: 'Change role',
+    youLabel: 'You',
     searchPlaceholder: 'Name, email or phone',
     searchHint: 'Start of email, last phone digits, or whole name words.',
     empty: 'No users match.',

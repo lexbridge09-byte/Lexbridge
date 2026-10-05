@@ -70,7 +70,7 @@ export function notifyConsultationBooked(consultation, client) {
 export function notifyConsultationCancelled(consultation, client, cancelledBy) {
   const clientName = client?.FullName || 'there';
   const startsAtText = formatIstDateTime(consultation.StartsAt);
-  const reasonText = cancelledBy === 'admin'
+  const reasonText = cancelledBy === 'team'
     ? 'Our team has cancelled this consultation. We will contact you to arrange another time if needed.'
     : 'Your consultation has been cancelled as requested.';
 

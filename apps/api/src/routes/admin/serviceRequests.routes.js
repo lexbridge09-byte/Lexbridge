@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { REQUEST_STATUSES, SERVICE_CATEGORY_KEYS } from '@lexbridge/shared';
-import { DocumentModel, STATUS_HISTORY_LIMIT, ServiceRequestModel, UserModel } from '../../models/index.js';
+import { STAFF_ROLES, STATUS_HISTORY_LIMIT, ServiceRequestModel, UserModel } from '../../models/index.js';
 import { notifyRequestStatusChanged } from '../../services/index.js';
 import { deriveContactSearchFilter, objectIdSchema, paginationSchema } from '../../utils.js';
 import { CLIENT_DOCUMENT_FIELDS } from '../documents.routes.js';
@@ -62,18 +62,30 @@ adminServiceRequestsRouter.patch('/:referenceCode', async (req, res) => {
   const request = await ServiceRequestModel.findOne({ ReferenceCode: req.params.referenceCode });
   if (!request) return res.status(404).json({ error: 'Request not found' });
 
+  let hasAssignmentChanged = false;
   if (input.AssignedTo !== undefined) {
     if (input.AssignedTo !== null) {
-      const assignee = await UserModel.exists({ _id: input.AssignedTo, Role: 'admin' });
-      if (!assignee) return res.status(400).json({ error: 'Requests can only be assigned to LexBridge team members.' });
+      const assignee = await UserModel.exists({ _id: input.AssignedTo, Role: { $in: STAFF_ROLES } });
+      if (!assignee) return res.status(400).json({ error: 'Work can only be assigned to a LexBridge team member.' });
+      if (String(request.AssignedTo ?? '') !== String(input.AssignedTo)) hasAssignmentChanged = true;
+    } else if (request.AssignedTo) {
+      hasAssignmentChanged = true;
     }
     request.AssignedTo = input.AssignedTo;
+    request.AssignedBy = input.AssignedTo === null ? null : req.user.id;
+    request.AssignedAt = input.AssignedTo === null ? null : new Date();
+    // A fresh assignment moves early-stage requests to 'assigned'; reassignment never regresses progress
+    if (hasAssignmentChanged && input.AssignedTo !== null && ['submitted', 'under-review'].includes(request.Status)) {
+      request.Status = 'assigned';
+    }
+    // Unassigning returns the request to the review queue
+    if (input.AssignedTo === null && request.Status === 'assigned') request.Status = 'under-review';
   }
 
   const hasStatusChanged = Boolean(input.Status) && input.Status !== request.Status;
   const note = input.Note ?? '';
   if (hasStatusChanged) request.Status = input.Status;
-  if (hasStatusChanged || note) {
+  if (hasStatusChanged || note || hasAssignmentChanged) {
     request.StatusHistory.push({ Status: request.Status, Note: note, changedAt: new Date() });
     const overflowCount = request.StatusHistory.length - STATUS_HISTORY_LIMIT;
     if (overflowCount > 0) request.StatusHistory.splice(0, overflowCount);

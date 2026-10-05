@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAdmin, requireFeature } from '../../middleware/index.js';
+import { requireFeature, requireManager, requireOwner, requireStaff } from '../../middleware/index.js';
 import { adminArticlesRouter } from './articles.routes.js';
 import { adminCallbacksRouter } from './callbacks.routes.js';
 import { adminConsultationsRouter } from './consultations.routes.js';
@@ -16,17 +16,22 @@ import { adminWhatsAppRouter } from './whatsapp.routes.js';
 
 export const adminRouter = Router();
 
-adminRouter.use(requireAdmin);
-adminRouter.use('/overview', adminOverviewRouter);
-adminRouter.use('/service-requests', adminServiceRequestsRouter);
-adminRouter.use('/consultations', requireFeature('consultationBooking'), adminConsultationsRouter);
-adminRouter.use('/slots', requireFeature('consultationBooking'), adminSlotsRouter);
-adminRouter.use('/articles', requireFeature('legalInsights'), adminArticlesRouter);
-adminRouter.use('/documents', requireFeature('documentUploads'), adminDocumentsRouter);
-adminRouter.use('/users', adminUsersRouter);
-adminRouter.use('/whatsapp', requireFeature('whatsAppAiAssistant'), adminWhatsAppRouter);
-adminRouter.use('/products', requireFeature('serviceCatalog'), adminProductsRouter);
-adminRouter.use('/orders', requireFeature('onlinePayments'), adminOrdersRouter);
-adminRouter.use('/coupons', requireFeature('coupons'), adminCouponsRouter);
-adminRouter.use('/document-reviews', requireFeature('aiDocumentReview'), adminDocumentReviewsRouter);
-adminRouter.use('/callbacks', requireFeature('callbackRequests'), adminCallbacksRouter);
+// Anything under /admin needs a staff role; each area is then gated narrower.
+adminRouter.use(requireStaff);
+
+// Owner only: commerce, content, user management and every other back-office area
+adminRouter.use('/overview', requireOwner, adminOverviewRouter);
+adminRouter.use('/consultations', requireOwner, requireFeature('consultationBooking'), adminConsultationsRouter);
+adminRouter.use('/slots', requireOwner, requireFeature('consultationBooking'), adminSlotsRouter);
+adminRouter.use('/articles', requireOwner, requireFeature('legalInsights'), adminArticlesRouter);
+adminRouter.use('/users', requireOwner, adminUsersRouter);
+adminRouter.use('/whatsapp', requireOwner, requireFeature('whatsAppAiAssistant'), adminWhatsAppRouter);
+adminRouter.use('/products', requireOwner, requireFeature('serviceCatalog'), adminProductsRouter);
+adminRouter.use('/orders', requireOwner, requireFeature('onlinePayments'), adminOrdersRouter);
+adminRouter.use('/coupons', requireOwner, requireFeature('coupons'), adminCouponsRouter);
+adminRouter.use('/document-reviews', requireOwner, requireFeature('aiDocumentReview'), adminDocumentReviewsRouter);
+adminRouter.use('/callbacks', requireOwner, requireFeature('callbackRequests'), adminCallbacksRouter);
+
+// Manager + owner: the assignment desk — requests and their documents. Nothing else.
+adminRouter.use('/service-requests', requireManager, adminServiceRequestsRouter);
+adminRouter.use('/documents', requireManager, requireFeature('documentUploads'), adminDocumentsRouter);

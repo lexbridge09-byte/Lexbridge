@@ -58,7 +58,9 @@ export const catalog = {
   },
 
   roles: {
-    admin: 'एडमिन',
+    owner: 'ओनर',
+    manager: 'मैनेजर',
+    lawyer: 'वकील',
     client: 'क्लाइंट',
   },
 
