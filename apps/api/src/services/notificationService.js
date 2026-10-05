@@ -5,9 +5,10 @@ import {
   REQUEST_STATUS_LABELS,
   SERVICE_CATALOG,
 } from '@lexbridge/shared';
-import { WHATSAPP_TEMPLATES } from '../config/index.js';
+import { PUBLIC_SITE_URL, WHATSAPP_TEMPLATES } from '../config/index.js';
 import { formatIstDateTime } from '../utils.js';
 import { enqueueNotifications } from './notificationQueue.js';
+import { sendMail } from './mailService.js';
 import { MAIL_FOOTER, createEmailJob, createWhatsAppJob, findLabel } from './notificationJobs.js';
 
 // Each notify* function queues its messages in the outbox and resolves once they're stored. None of them throw.
@@ -40,6 +41,46 @@ export function notifyRequestStatusChanged(request, note = '') {
       to: request.Phone,
       templateName: WHATSAPP_TEMPLATES.requestStatusChanged,
       bodyParams: [request.FullName, request.ReferenceCode, statusLabel],
+    }),
+  ]);
+}
+
+// Team onboarding: the owner invites 2nd owners, 2nd owners invite lawyers.
+// Sending inline (not via the outbox) so the inviter sees failures immediately.
+export async function sendInviteEmail(invite, inviter) {
+  const roleLabel = invite.Role === 'manager' ? 'a 2nd owner (team lead)' : 'a lawyer / consultant';
+  const inviterName = inviter?.FullName?.trim() || inviter?.Email || 'the LexBridge team';
+  await sendMail({
+    to: invite.Email,
+    subject: `You're invited to LexBridge as ${invite.Role === 'manager' ? 'a 2nd owner' : 'a lawyer'}`,
+    text: `Hello,
+
+${inviterName} has invited you to join LexBridge as ${roleLabel}.
+
+Sign in with this email address at ${PUBLIC_SITE_URL}/login — enter your email, and we'll send you a sign-in code. Your team access activates automatically on your first sign-in.
+
+This invitation expires on ${new Date(invite.expiresAt).toDateString()}.${MAIL_FOOTER}`,
+  });
+}
+
+// Sent when the team uploads the finished work (draft, filing, advice) to a client's request
+export function notifyDeliverableReady(request, documentName) {
+  return enqueueNotifications('deliverable-ready', [
+    createEmailJob({
+      to: request.Email,
+      subject: `Your document is ready (${request.ReferenceCode})`,
+      text: `Hello ${request.FullName},
+
+The finished work for your LexBridge request ${request.ReferenceCode} is ready.
+
+File: ${documentName}
+
+Sign in to My LexBridge to view and download it from your request page.${MAIL_FOOTER}`,
+    }),
+    createWhatsAppJob(request.WhatsAppOptIn, {
+      to: request.Phone,
+      templateName: WHATSAPP_TEMPLATES.requestStatusChanged,
+      bodyParams: [request.FullName, request.ReferenceCode, 'Completed'],
     }),
   ]);
 }

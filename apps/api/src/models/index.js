@@ -1,4 +1,6 @@
 export { UserModel, USER_ROLES, STAFF_ROLES } from './userModel.js';
+export { FeatureFlagModel } from './featureFlagModel.js';
+export { InviteModel, INVITE_ROLES, INVITE_STATUSES } from './inviteModel.js';
 export { OtpModel } from './otpModel.js';
 export { ServiceRequestModel, STATUS_HISTORY_LIMIT } from './serviceRequestModel.js';
 export { SlotModel } from './slotModel.js';

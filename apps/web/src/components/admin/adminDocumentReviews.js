@@ -75,9 +75,9 @@ export function AdminDocumentReviews() {
                 <th scope="col" className={ADMIN_TH_CLASS}>{copy.columns.created}</th>
               </tr>
             </thead>
-            <tbody className="bg-white">
+            <tbody className="bg-card">
               {items.map((review) => (
-                <tr key={review.ReferenceCode} className="hover:bg-surface-alt">
+                <tr key={review.ReferenceCode} className="hover:bg-card-hover">
                   <td className={ADMIN_TD_CLASS}>
                     <LocaleLink href={`/admin/document-reviews/${review.ReferenceCode}`} className={ADMIN_LINK_CLASS}>
                       {review.ReferenceCode}

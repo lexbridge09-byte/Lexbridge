@@ -2,7 +2,6 @@
 
 import { ArrowLeft } from 'lucide-react';
 import { createElement, useRef, useState } from 'react';
-import { isFeatureEnabled } from '@lexbridge/shared';
 import { useDictionary } from '@/brand/localeContext';
 import { CheckboxField, FieldError, SelectField, TextAreaField, TextField } from '@/components/formFields';
 import { LocaleLink } from '@/components/localeLink';
@@ -12,6 +11,7 @@ import { requestApi } from '@/lib/apiClient';
 import { localizeApiError, localizeFieldErrors } from '@/lib/apiErrors';
 import { getIcon } from '@/lib/icons';
 import { useCatalogLabels } from '@/lib/localeTools';
+import { useIsFeatureEnabled } from '@/components/featuresProvider';
 
 const MATTER_STEP = 1;
 const DETAILS_STEP = 2;
@@ -20,7 +20,7 @@ const MATTER_FIELDS = ['ServiceCategory', 'Subtype', 'Description'];
 const DESCRIPTION_MIN_LENGTH = 20;
 
 const TILE_CLASS =
-  'flex h-full cursor-pointer items-center gap-3 rounded-xl border border-line bg-white px-3 py-2.5 transition-colors duration-(--dur-150) hover:border-line-strong has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary';
+  'flex h-full cursor-pointer items-center gap-3 rounded-xl border border-line bg-card px-3 py-2.5 transition-colors duration-(--dur-150) hover:border-line-strong has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary';
 
 // Document types with icons render as tiles (one tap); plain lists stay a select
 function SubtypePicker({ label, options, placeholder, error }) {
@@ -65,6 +65,8 @@ export function ServiceRequestForm({
   submitLabel,
 }) {
   const dictionary = useDictionary();
+  const isAccountsEnabled = useIsFeatureEnabled('clientAccounts');
+  const isWhatsAppOptInEnabled = useIsFeatureEnabled('whatsAppNotifications');
   const copy = dictionary.forms.serviceRequest;
   const labels = useCatalogLabels();
   const formRef = useRef(null);
@@ -75,6 +77,7 @@ export function ServiceRequestForm({
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [referenceCode, setReferenceCode] = useState('');
+  const [hasCopiedCode, setHasCopiedCode] = useState(false);
   const stepNames = [copy.stepMatter, copy.stepDetails];
 
   function goToStep(nextStep, fieldToFocus) {
@@ -152,8 +155,30 @@ export function ServiceRequestForm({
           <strong className="font-semibold tracking-wide">{referenceCode}</strong>
           {copy.successReferenceAfter}
         </p>
+
+        {/* The reference is the only way a guest can track the request later, so it gets its own block */}
+        <div className="mt-3 rounded-xl bg-card-dim p-4">
+          <p className="text-sm font-semibold text-ink">{copy.successCodeLabel}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <code className="rounded-lg bg-card px-3 py-1.5 font-mono text-base font-bold tracking-widest text-ink ring-1 ring-line">
+              {referenceCode}
+            </code>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard?.writeText(referenceCode);
+                setHasCopiedCode(true);
+              }}
+            >
+              {hasCopiedCode ? copy.copied : copy.copyCode}
+            </Button>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-ink-muted">{copy.successTrackNote}</p>
+        </div>
+
         <p className="mt-2 text-ink-muted">
-          {isFeatureEnabled('clientAccounts') ? (
+          {isAccountsEnabled ? (
             <>
               {copy.successNextBefore}
               <LocaleLink href="/login" className="font-semibold text-primary underline underline-offset-4">
@@ -230,7 +255,7 @@ export function ServiceRequestForm({
           {copy.consentAfter}
         </CheckboxField>
 
-        {isFeatureEnabled('whatsAppNotifications') && <WhatsAppOptInField />}
+        {isWhatsAppOptInEnabled && <WhatsAppOptInField />}
 
         {formError && Object.keys(fieldErrors).length === 0 && <InlineAlert tone="error">{formError}</InlineAlert>}
 

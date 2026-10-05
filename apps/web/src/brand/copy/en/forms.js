@@ -32,6 +32,10 @@ export const forms = {
     successNextLink: 'My LexBridge',
     successNextAfter: ' with the same email.',
     successNextNoAccounts: 'Our team will contact you soon.',
+    successCodeLabel: 'Save this reference to track your request',
+    successTrackNote: 'After signing in with this email, open My LexBridge → Requests → Track a request and paste it to follow every update.',
+    copyCode: 'Copy',
+    copied: 'Copied',
   },
 
   upload: {

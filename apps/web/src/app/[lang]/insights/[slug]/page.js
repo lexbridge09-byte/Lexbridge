@@ -1,6 +1,6 @@
 import { ChevronRight } from 'lucide-react';
 import { notFound } from 'next/navigation';
-import { getDictionary, getPrimaryCta, getSecondaryCta, isFeatureEnabled, requireFeaturePage } from '@/brand';
+import { getDictionary, getPrimaryCta, getSecondaryCta, getServerFeatures, requireFeaturePage } from '@/brand';
 import { LocaleLink } from '@/components/localeLink';
 import { MarkdownContent } from '@/components/markdownContent';
 import { ButtonLink, Card, PageHeader, Section } from '@/components/ui';
@@ -23,9 +23,9 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function InsightArticlePage({ params }) {
-  requireFeaturePage('legalInsights');
+  await requireFeaturePage('legalInsights');
   const { lang, slug } = await params;
-  const dictionary = getDictionary(lang);
+  const [dictionary, features] = await Promise.all([getDictionary(lang), getServerFeatures()]);
   const copy = dictionary.insights.article;
   const { status, data } = await loadArticle(slug);
 
@@ -36,8 +36,8 @@ export default async function InsightArticlePage({ params }) {
     return (
       <Section>
         <div className="mx-auto max-w-xl text-center">
-          <h1 className="text-h2 text-ink">{copy.loadErrorTitle}</h1>
-          <p className="mt-3 text-ink-muted">{copy.loadErrorBody}</p>
+          <h1 className="text-h2 text-on-canvas">{copy.loadErrorTitle}</h1>
+          <p className="mt-3 text-on-canvas-muted">{copy.loadErrorBody}</p>
           <ButtonLink href="/insights" variant="secondary" className="mt-6">
             {copy.backToInsights}
           </ButtonLink>
@@ -49,9 +49,9 @@ export default async function InsightArticlePage({ params }) {
   const labels = createCatalogLabels(dictionary);
   const publishedLabel = formatDate(article.publishedAt, lang);
   const updatedLabel = formatDate(article.updatedAt, lang);
-  const hasFinder = isFeatureEnabled('solutionFinder');
-  const primaryAction = hasFinder ? getSecondaryCta(dictionary) : getPrimaryCta(dictionary);
-  const secondaryAction = hasFinder ? getPrimaryCta(dictionary) : null;
+  const hasFinder = features.solutionFinder;
+  const primaryAction = hasFinder ? getSecondaryCta(dictionary, features) : getPrimaryCta(dictionary, features);
+  const secondaryAction = hasFinder ? getPrimaryCta(dictionary, features) : null;
 
   return (
     <>

@@ -10,7 +10,7 @@ const uploadFieldsSchema = z.object({
 });
 
 // A request submitted before sign-up has only an email; create the account so the client sees the file on first sign-in
-async function findOrCreateRequestOwner(referenceCode) {
+export async function findOrCreateRequestOwner(referenceCode) {
   const consultation = await ConsultationModel.findOne({ ReferenceCode: referenceCode }).select('Client').lean();
   if (consultation) return consultation.Client;
 

@@ -10,7 +10,7 @@ export function GuidesList({ copy, guides }) {
         title={copy.title}
         description={copy.description}
         action={
-          <ButtonLink href="/insights" variant="link">
+          <ButtonLink href="/insights" variant="linkOnDark">
             {copy.viewAll}
           </ButtonLink>
         }
@@ -18,7 +18,7 @@ export function GuidesList({ copy, guides }) {
       <ul className="grid gap-4 md:grid-cols-3">
         {guides.map((guide) => (
           <li key={guide._id}>
-            <article className="lift relative h-full rounded-card border border-line bg-white p-5">
+            <article className="lift relative h-full rounded-card border border-line bg-card p-5 hover:border-primary-100">
               <h3 className="text-h4 text-ink">
                 <LocaleLink href={`/insights/${guide.Slug}`} className="after:absolute after:inset-0 after:rounded-card after:content-['']">
                   {guide.Title}

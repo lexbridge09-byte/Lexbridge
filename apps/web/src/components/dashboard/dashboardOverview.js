@@ -2,8 +2,8 @@
 
 import { CalendarDays, FileText, LifeBuoy } from 'lucide-react';
 import { useState } from 'react';
-import { isFeatureEnabled } from '@lexbridge/shared';
 import { useDictionary } from '@/brand/localeContext';
+import { useIsFeatureEnabled } from '@/components/featuresProvider';
 import { ErrorNote, LoadingNote } from '@/components/loadState';
 import { LocaleLink } from '@/components/localeLink';
 import { ConsultationStatusBadge, RequestStatusBadge } from '@/components/statusBadge';
@@ -33,8 +33,9 @@ export function DashboardOverview() {
   const copy = useDictionary().dashboard.overview;
   const labels = useCatalogLabels();
   const format = useFormatters();
-  const isBookingEnabled = isFeatureEnabled('consultationBooking');
-  const isDocumentsEnabled = isFeatureEnabled('documentUploads');
+  const isBookingEnabled = useIsFeatureEnabled('consultationBooking');
+  const isDocumentsEnabled = useIsFeatureEnabled('documentUploads');
+  const isFinderEnabled = useIsFeatureEnabled('solutionFinder');
   const [nowMs] = useState(() => Date.now());
   const me = useApiData('/auth/me');
   const requests = useApiData('/service-requests/mine');
@@ -72,7 +73,7 @@ export function DashboardOverview() {
           ) : activeRequests.length === 0 ? (
             <p className="text-sm text-ink-muted">
               {copy.noActiveBefore}{' '}
-              {isFeatureEnabled('solutionFinder') && (
+              {isFinderEnabled && (
                 <>
                   <LocaleLink href="/find-my-solution" className={LINK_CLASS}>
                     {copy.noActiveFinder}
@@ -124,7 +125,7 @@ export function DashboardOverview() {
                 </LocaleLink>
               </p>
             ) : (
-              <div className="rounded-xl bg-surface-alt p-4">
+              <div className="rounded-xl bg-card-dim p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="font-semibold text-ink">{labels.consultationType(upcomingConsultation.ConsultationType)}</p>
                   <ConsultationStatusBadge status={upcomingConsultation.Status} />

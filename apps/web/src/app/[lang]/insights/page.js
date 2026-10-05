@@ -18,7 +18,7 @@ function TopicChip({ href, label, isActive }) {
     <LocaleLink
       href={href}
       aria-current={isActive ? 'page' : undefined}
-      className={`block whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold ${isActive ? 'bg-primary text-white' : 'bg-surface-alt text-ink-muted hover:bg-primary-50 hover:text-primary-dark'}`}
+      className={`block whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold ${isActive ? 'bg-cta text-canvas' : 'bg-card-dim text-ink-muted hover:bg-primary-50 hover:text-primary-dark'}`}
     >
       {label}
     </LocaleLink>
@@ -42,7 +42,7 @@ export default async function InsightsPage({ params, searchParams }) {
     <>
       <PageHeader title={copy.header.title} lead={copy.header.lead} />
 
-      <nav aria-label={copy.topicsLabel} className="border-b border-line bg-white">
+      <nav aria-label={copy.topicsLabel} className="border-b border-line bg-card">
         <Container>
           <ul className="flex gap-2 overflow-x-auto py-3">
             <li className="shrink-0">
@@ -58,7 +58,7 @@ export default async function InsightsPage({ params, searchParams }) {
       </nav>
 
       <Section tone="alt" labelledBy="guides-title" size="sm">
-        <h2 id="guides-title" className="text-h2 text-ink">
+        <h2 id="guides-title" className="text-h2 text-on-canvas">
           {listTitle}
         </h2>
 
@@ -66,7 +66,7 @@ export default async function InsightsPage({ params, searchParams }) {
           <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {articles.map((article) => (
               <li key={article._id}>
-                <article className="relative flex h-full flex-col rounded-2xl border border-line bg-white p-5 shadow-sm hover:shadow-card">
+                <article className="relative flex h-full flex-col rounded-2xl border border-line bg-card p-5 shadow-sm hover:shadow-card">
                   <Badge tone="active" className="self-start">
                     {labels.articleTopic(article.Topic)}
                   </Badge>
@@ -82,18 +82,18 @@ export default async function InsightsPage({ params, searchParams }) {
             ))}
           </ul>
         ) : activeTopic && articles ? (
-          <p className="mt-4 text-ink-muted">
+          <p className="mt-4 text-on-canvas-muted">
             {copy.emptyTopic}{' '}
-            <LocaleLink href="/insights" className="font-semibold text-primary underline underline-offset-4">
+            <LocaleLink href="/insights" className="font-semibold text-primary-bright underline underline-offset-4">
               {copy.browseAll}
             </LocaleLink>
           </p>
         ) : (
           <>
-            <p className="mt-2 text-ink-muted">{copy.preparingNote}</p>
+            <p className="mt-2 text-on-canvas-muted">{copy.preparingNote}</p>
             <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {copy.popularGuides.map((guide) => (
-                <li key={guide} className="rounded-2xl border border-line bg-white p-4 font-display font-semibold leading-6 text-ink">
+                <li key={guide} className="rounded-2xl border border-line bg-card p-4 font-display font-semibold leading-6 text-ink">
                   {guide}
                 </li>
               ))}

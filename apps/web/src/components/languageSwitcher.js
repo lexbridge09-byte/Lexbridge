@@ -18,7 +18,7 @@ export function LanguageSwitcher({ label, className = '' }) {
   const pathWithoutLocale = stripLocale(usePathname() ?? '/');
 
   return (
-    <div role="group" aria-label={label} className={`inline-flex items-center rounded-full bg-surface-alt p-0.5 ${className}`}>
+    <div role="group" aria-label={label} className={`inline-flex items-center rounded-full bg-canvas-raised p-0.5 ${className}`}>
       {SUPPORTED_LOCALES.map((targetLocale) => {
         const isCurrent = targetLocale === locale;
         return (
@@ -31,7 +31,7 @@ export function LanguageSwitcher({ label, className = '' }) {
             onClick={() => rememberLocale(targetLocale)}
             // Stay at the same place on the page when switching language
             scroll={false}
-            className={`min-w-16 rounded-full px-3 py-1.5 text-center text-xs font-semibold transition-colors duration-(--dur-150) ${isCurrent ? 'bg-white text-ink shadow-sm' : 'text-ink-muted hover:text-ink'}`}
+            className={`min-w-16 rounded-full px-3 py-1.5 text-center text-xs font-semibold transition-colors duration-(--dur-150) ${isCurrent ? 'bg-card text-ink shadow-sm' : 'text-on-canvas-muted hover:text-on-canvas'}`}
           >
             {LOCALE_LABELS[targetLocale]}
           </Link>

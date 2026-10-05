@@ -1,7 +1,8 @@
 import { Inter, Noto_Sans_Devanagari, Plus_Jakarta_Sans } from 'next/font/google';
 import { notFound } from 'next/navigation';
-import { getDictionary, getMobileTabs, getPrimaryCta, isFeatureEnabled, isSupportedLocale, LOCALE_TAGS, SUPPORTED_LOCALES } from '@/brand';
+import { getDictionary, getMobileTabs, getPrimaryCta, getServerFeatures, isSupportedLocale, LOCALE_TAGS, SUPPORTED_LOCALES } from '@/brand';
 import { LocaleProvider } from '@/brand/localeProviders';
+import { FeaturesProvider } from '@/components/featuresProvider';
 import { MobileTabBar } from '@/components/mobileTabBar';
 import { PromoStrip } from '@/components/promoStrip';
 import { ScrollChrome } from '@/components/scrollChrome';
@@ -40,6 +41,12 @@ export function generateStaticParams() {
 
 export const dynamicParams = false;
 
+/*
+  Feature switches are read from the API database on every request (the owner's kill-switch at
+  /admin/features), so nothing under this layout can be statically prerendered.
+*/
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }) {
   const { lang } = await params;
   const brand = getDictionary(lang).common.brand;
@@ -51,7 +58,7 @@ export async function generateMetadata({ params }) {
 }
 
 export const viewport = {
-  themeColor: '#2e0716',
+  themeColor: '#14171f',
   viewportFit: 'cover',
 };
 
@@ -59,41 +66,44 @@ export default async function RootLayout({ children, params }) {
   const { lang } = await params;
   if (!isSupportedLocale(lang)) notFound();
   const dictionary = getDictionary(lang);
-  const primaryCta = getPrimaryCta(dictionary);
+  const features = await getServerFeatures();
+  const primaryCta = getPrimaryCta(dictionary, features);
 
   return (
     <html lang={LOCALE_TAGS[lang]} className={`${jakarta.variable} ${inter.variable} ${devanagari.variable} antialiased`}>
       <body className="flex min-h-screen flex-col">
         {/* Each language provider ships only its own dictionary to the browser */}
         <LocaleProvider locale={lang}>
-          <a
-            href="#main"
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-white"
-          >
-            {dictionary.common.skipToContent}
-          </a>
-          <PromoStrip promo={dictionary.common.promo} />
-          <ScrollChrome label={dictionary.common.scrollTop} />
-          <SiteHeader dictionary={dictionary} locale={lang} />
-          <main id="main" tabIndex={-1} className="flex-1 outline-none">
-            {children}
-          </main>
-          <SiteFooter dictionary={dictionary} />
-          <StickyActionBar
-            cta={primaryCta}
-            label={dictionary.common.stickyBar.label}
-            title={dictionary.common.stickyBar.title}
-            note={primaryCta.note}
-            hasCallback={isFeatureEnabled('callbackRequests')}
-          />
-          <MobileTabBar tabs={getMobileTabs(dictionary)} label={dictionary.common.tabs.label} />
-          {isFeatureEnabled('whatsAppChatButton') && (
-            <WhatsAppButton
-              href={deriveWhatsAppHref(dictionary.whatsapp.greeting)}
-              label={dictionary.whatsapp.button.label}
-              text={dictionary.whatsapp.button.text}
+          <FeaturesProvider features={features}>
+            <a
+              href="#main"
+              className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-white"
+            >
+              {dictionary.common.skipToContent}
+            </a>
+            <PromoStrip promo={dictionary.common.promo} />
+            <ScrollChrome label={dictionary.common.scrollTop} />
+            <SiteHeader dictionary={dictionary} locale={lang} />
+            <main id="main" tabIndex={-1} className="flex-1 outline-none">
+              {children}
+            </main>
+            <SiteFooter dictionary={dictionary} />
+            <StickyActionBar
+              cta={primaryCta}
+              label={dictionary.common.stickyBar.label}
+              title={dictionary.common.stickyBar.title}
+              note={primaryCta.note}
+              hasCallback={Boolean(features.callbackRequests)}
             />
-          )}
+            <MobileTabBar tabs={getMobileTabs(dictionary, features)} label={dictionary.common.tabs.label} />
+            {features.whatsAppChatButton && (
+              <WhatsAppButton
+                href={deriveWhatsAppHref(dictionary.whatsapp.greeting)}
+                label={dictionary.whatsapp.button.label}
+                text={dictionary.whatsapp.button.text}
+              />
+            )}
+          </FeaturesProvider>
         </LocaleProvider>
       </body>
     </html>

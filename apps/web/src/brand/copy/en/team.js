@@ -1,0 +1,42 @@
+// Copy for the team workspace (lawyers and managers working assigned requests)
+export const team = {
+  navLabel: 'Team workspace',
+  metadataTitle: 'Team Workspace',
+
+  nav: {
+    assignments: 'My assignments',
+  },
+
+  requests: {
+    title: 'My assignments',
+    intro: 'Requests the team has assigned to you. Open one to see the documents and deliver the finished work.',
+    empty: 'Nothing assigned to you yet. The manager or owner assigns work from the admin requests desk.',
+    requestMeta: (referenceCode, date) => `${referenceCode} · received ${date}`,
+  },
+
+  detail: {
+    breadcrumb: 'Back to assignments',
+    notFound: 'This request is not assigned to you (or no longer exists).',
+    back: 'Back to assignments',
+    clientTitle: 'Client',
+    name: 'Name',
+    email: 'Email',
+    phone: 'Phone',
+    requirement: 'What the client needs',
+    documents: 'Source documents',
+    noDocuments: 'The client has not uploaded any documents for this request yet.',
+    deliverables: 'Deliverables',
+    noDeliverables: 'Nothing delivered yet. Upload the finished work below and the client is notified by email.',
+    updates: 'Progress',
+    statusTitle: 'Update status',
+    statusHint: 'Set where the work stands; the client sees the status in their dashboard.',
+    note: 'Message to the client (optional)',
+    noteHint: 'Sent to the client along with the status update.',
+    save: 'Save update',
+    nothingChanged: 'Choose a new status or write a message first.',
+    saved: 'Update saved.',
+    deliverableTitle: 'Upload the finished work',
+    deliverableSubmit: 'Deliver to client',
+    delivered: 'Delivered. The client has been notified by email.',
+  },
+};

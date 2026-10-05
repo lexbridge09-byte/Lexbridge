@@ -50,7 +50,7 @@ export function ScrollChrome({ label }) {
         aria-label={label}
         tabIndex={isFarDown ? 0 : -1}
         aria-hidden={!isFarDown}
-        className={`fixed bottom-24 right-6 z-30 hidden size-11 items-center justify-center rounded-full border border-line bg-white text-ink shadow-raised transition-[opacity,transform,color] duration-(--dur-200) ease-(--ease-out-soft) hover:text-primary lg:flex print:hidden ${isFarDown ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0'}`}
+        className={`fixed bottom-24 right-6 z-30 hidden size-11 items-center justify-center rounded-full border border-line bg-card text-ink shadow-raised transition-[opacity,transform,color] duration-(--dur-200) ease-(--ease-out-soft) hover:text-primary lg:flex print:hidden ${isFarDown ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0'}`}
       >
         <ArrowUp aria-hidden="true" className="size-5" strokeWidth={2} />
       </button>

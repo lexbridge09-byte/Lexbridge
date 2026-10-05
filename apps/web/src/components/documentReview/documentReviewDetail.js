@@ -2,7 +2,6 @@
 
 import { Check, ChevronLeft, LoaderCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { isFeatureEnabled } from '@lexbridge/shared';
 import { useDictionary } from '@/brand/localeContext';
 import { DocumentReviewReport } from '@/components/documentReview/documentReviewReport';
 import { CheckboxField, TextAreaField, TextField } from '@/components/formFields';
@@ -16,6 +15,7 @@ import { requestApi } from '@/lib/apiClient';
 import { localizeApiError, localizeFieldErrors } from '@/lib/apiErrors';
 import { useFormatters } from '@/lib/localeTools';
 import { redirectToLogin, useApiData } from '@/lib/useApiData';
+import { useIsFeatureEnabled } from '@/components/featuresProvider';
 
 const POLL_INTERVAL_MS = 3000;
 const PENDING_STATUSES = ['queued', 'processing'];
@@ -41,7 +41,7 @@ function ReviewProgress({ review, now, copy }) {
           return (
             <li key={stage} className={`flex items-center gap-3 text-sm ${isDone || isActive ? 'text-ink' : 'text-ink-subtle'}`}>
               <span
-                className={`flex size-6 shrink-0 items-center justify-center rounded-full transition-colors duration-(--dur-300) ${isDone ? 'bg-success text-white' : isActive ? 'bg-primary-50 text-primary' : 'bg-surface-alt'}`}
+                className={`flex size-6 shrink-0 items-center justify-center rounded-full transition-colors duration-(--dur-300) ${isDone ? 'bg-success text-white' : isActive ? 'bg-primary-50 text-primary-dark' : 'bg-card-dim'}`}
               >
                 {isDone ? (
                   <Check aria-hidden="true" className="size-3.5 motion-safe:animate-fade-in" strokeWidth={3} />
@@ -60,6 +60,7 @@ function ReviewProgress({ review, now, copy }) {
 
 function LawyerReviewPanel({ review, onRequested }) {
   const dictionary = useDictionary();
+  const isWhatsAppOptInEnabled = useIsFeatureEnabled('whatsAppNotifications');
   const copy = dictionary.documentReview.lawyer;
   const [isOpen, setIsOpen] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
@@ -146,7 +147,7 @@ function LawyerReviewPanel({ review, onRequested }) {
             </LocaleLink>
             {copy.consentAfter}
           </CheckboxField>
-          {isFeatureEnabled('whatsAppNotifications') && <WhatsAppOptInField />}
+          {isWhatsAppOptInEnabled && <WhatsAppOptInField />}
           {formError && Object.keys(fieldErrors).length === 0 && <InlineAlert tone="error">{formError}</InlineAlert>}
           <Button type="submit" disabled={isBusy}>
             {isBusy ? copy.busy : copy.submit}

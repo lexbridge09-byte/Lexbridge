@@ -1,5 +1,5 @@
 const TONE_CLASSES = {
-  neutral: 'bg-surface-alt text-ink-muted ring-line',
+  neutral: 'bg-card-dim text-ink-muted ring-line',
   active: 'bg-primary-50 text-primary-dark ring-primary-100',
   attention: 'bg-warning-50 text-warning ring-warning/25',
   done: 'bg-success-50 text-success ring-success/25',

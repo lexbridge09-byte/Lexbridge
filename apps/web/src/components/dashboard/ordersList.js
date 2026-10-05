@@ -46,7 +46,7 @@ export function OrdersList() {
           <ul className="divide-y divide-line">
             {orders.map((order) => (
               <li key={order.ReferenceCode}>
-                <LocaleLink href={`/dashboard/orders/${order.ReferenceCode}`} className="flex items-center gap-4 px-4 py-3 hover:bg-surface-alt sm:px-5">
+                <LocaleLink href={`/dashboard/orders/${order.ReferenceCode}`} className="flex items-center gap-4 px-4 py-3 hover:bg-card-hover sm:px-5">
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold text-ink">{deriveOrderTitle(order, copy)}</p>
                     <p className="text-xs text-ink-muted">{copy.meta(order.ReferenceCode, format.date(order.createdAt))}</p>

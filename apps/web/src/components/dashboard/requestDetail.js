@@ -1,8 +1,8 @@
 'use client';
 
 import { ChevronLeft } from 'lucide-react';
-import { isFeatureEnabled } from '@lexbridge/shared';
 import { useDictionary } from '@/brand/localeContext';
+import { useIsFeatureEnabled } from '@/components/featuresProvider';
 import { DocumentList } from '@/components/documentList';
 import { DocumentUpload } from '@/components/documentUpload';
 import { ErrorNote, LoadingNote } from '@/components/loadState';
@@ -17,7 +17,7 @@ export function RequestDetail({ referenceCode }) {
   const copy = useDictionary().dashboard.requestDetail;
   const labels = useCatalogLabels();
   const format = useFormatters();
-  const isDocumentsEnabled = isFeatureEnabled('documentUploads');
+  const isDocumentsEnabled = useIsFeatureEnabled('documentUploads');
   const requestData = useApiData(`/service-requests/mine/${encodeURIComponent(referenceCode)}`);
   const documentsData = useApiData(isDocumentsEnabled ? '/documents/mine' : null);
 
@@ -41,6 +41,7 @@ export function RequestDetail({ referenceCode }) {
   if (!request) return null;
 
   const requestDocuments = (documentsData.data?.documents ?? []).filter((document) => document.RequestReference === request.ReferenceCode);
+  const deliverables = requestDocuments.filter((document) => document.Kind === 'deliverable');
 
   return (
     <div className="space-y-5">
@@ -71,6 +72,15 @@ export function RequestDetail({ referenceCode }) {
 
         {isDocumentsEnabled && (
           <section aria-labelledby="request-documents" className="space-y-4">
+            {deliverables.length > 0 && (
+              <Card padding="md" className="border-primary-100">
+                <h2 id="request-deliverables" className="mb-1 text-h4 text-ink">
+                  {copy.deliverables}
+                </h2>
+                <p className="mb-3 text-sm text-ink-muted">{copy.deliverablesNote}</p>
+                <DocumentList documents={deliverables} />
+              </Card>
+            )}
             <Card padding="md">
               <h2 id="request-documents" className="mb-3 text-h4 text-ink">
                 {copy.documents}

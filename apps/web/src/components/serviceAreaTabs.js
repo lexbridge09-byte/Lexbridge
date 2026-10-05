@@ -43,7 +43,7 @@ export function ServiceAreaTabs({ serviceKeys, serviceHrefs }) {
         aria-label={copy.tabsLabel}
         aria-orientation="vertical"
         onKeyDown={handleKeyDown}
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:sticky lg:top-24 lg:mx-0 lg:flex-col lg:gap-1 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:p-2 lg:shadow-sm"
+        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:sticky lg:top-24 lg:mx-0 lg:flex-col lg:gap-1 lg:rounded-2xl lg:border lg:border-line lg:bg-card lg:p-2 lg:shadow-sm"
       >
         {serviceKeys.map((serviceKey) => {
           const isActive = serviceKey === activeKey;
@@ -57,7 +57,7 @@ export function ServiceAreaTabs({ serviceKeys, serviceHrefs }) {
               aria-controls="service-panel"
               tabIndex={isActive ? 0 : -1}
               onClick={() => selectTab(serviceKey)}
-              className={`flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold lg:rounded-xl lg:px-3 lg:py-2.5 lg:text-left ${isActive ? 'bg-primary text-white lg:bg-primary-50 lg:text-primary-dark' : 'bg-surface-alt text-ink-muted hover:text-ink lg:bg-transparent lg:hover:bg-surface-alt'}`}
+              className={`flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold lg:rounded-xl lg:px-3 lg:py-2.5 lg:text-left ${isActive ? 'bg-cta text-canvas lg:bg-primary-50 lg:text-primary-dark' : 'bg-canvas-raised text-on-canvas-muted hover:text-on-canvas lg:bg-transparent lg:text-ink-muted lg:hover:bg-card-hover lg:hover:text-ink'}`}
             >
               {createElement(getServiceIcon(serviceKey), { 'aria-hidden': true, className: 'hidden size-5 lg:block', strokeWidth: 1.75 })}
               {copy.items[serviceKey].title}
@@ -70,7 +70,7 @@ export function ServiceAreaTabs({ serviceKeys, serviceHrefs }) {
         id="service-panel"
         role="tabpanel"
         aria-labelledby={`service-tab-${activeKey}`}
-        className="rounded-panel border border-line bg-white p-5 shadow-sm sm:p-8"
+        className="rounded-panel border border-line bg-card p-5 shadow-sm sm:p-8"
       >
         <div className="flex items-start gap-4">
           <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary">

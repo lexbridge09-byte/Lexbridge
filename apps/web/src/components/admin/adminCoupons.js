@@ -50,9 +50,9 @@ export function AdminCoupons() {
               <th scope="col" className={ADMIN_TH_CLASS}>{copy.columns.status}</th>
             </tr>
           </thead>
-          <tbody className="bg-white">
+          <tbody className="bg-card">
             {coupons.map((coupon) => (
-              <tr key={coupon._id} className="hover:bg-surface-alt">
+              <tr key={coupon._id} className="hover:bg-card-hover">
                 <td className={ADMIN_TD_CLASS}>
                   <LocaleLink href={`/admin/coupons/${coupon._id}`} className={`font-mono ${ADMIN_LINK_CLASS}`}>
                     {coupon.Code}

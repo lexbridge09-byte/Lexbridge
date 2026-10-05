@@ -22,6 +22,7 @@ export const common = {
     helpMenuLabel: 'मदद मेन्यू',
     findSolution: 'समाधान खोजें',
     insights: 'कानूनी गाइड',
+    bareActs: 'बेयर एक्ट',
     about: 'हमारे बारे में',
     contact: 'संपर्क',
     faq: 'सवाल-जवाब',

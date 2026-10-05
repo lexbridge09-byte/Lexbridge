@@ -1,4 +1,12 @@
 export { sendMail } from './mailService.js';
+export { sendInviteEmail } from './notificationService.js';
+export {
+  getEffectiveFlags,
+  getFlagDetails,
+  isRuntimeFeatureEnabled,
+  setFlagEnabled,
+  invalidateFlagCache,
+} from './featureFlagService.js';
 export { classifyLegalConcern } from './legalClassifier.js';
 export {
   sendWhatsAppTemplate,
@@ -9,6 +17,7 @@ export {
 export {
   notifyRequestReceived,
   notifyRequestStatusChanged,
+  notifyDeliverableReady,
   notifyConsultationBooked,
   notifyConsultationCancelled,
   notifyMeetingLinkAdded,

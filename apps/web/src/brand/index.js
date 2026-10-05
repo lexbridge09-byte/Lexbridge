@@ -11,14 +11,18 @@
   - localeProviderEn/Hi  Per-language providers so the browser only downloads the active language
   - navigation.js        Menus, mega menu situations, tabs, footer links and primary actions (feature-flag aware)
   - faq.js               FAQ selection with feature filtering
-  - feature flags        Re-exported from @lexbridge/shared, the single switchboard shared with the API
+  - runtimeFlags.js      Per-request runtime feature switches fetched from the API (server components)
+  - feature flags        Static build defaults re-exported from @lexbridge/shared; the runtime switches
+                         live in the API's database and are toggled by the owner at /admin/features
 
-  Client components must import from '@/brand/locales', '@/brand/navigation', '@/brand/brandConfig' or
-  '@lexbridge/shared' directly, never from this barrel (it exports the server dictionary lookup).
-  To switch a feature off, flip it in packages/shared/src/brand/featureFlags.js.
+  Client components must import from '@/brand/locales', '@/brand/navigation', '@/brand/brandConfig',
+  '@/components/featuresProvider' or '@lexbridge/shared' directly, never from this barrel (it exports
+  the server dictionary lookup).
+  To change a build default, flip it in packages/shared/src/brand/featureFlags.js.
 */
 export { BRAND } from './brandConfig.js';
-export { FEATURE_FLAGS, FEATURE_FLAG_KEYS, isFeatureEnabled, getEnabledFeatures } from '@lexbridge/shared';
+export { FEATURE_FLAGS, FEATURE_FLAG_KEYS, FEATURE_DEPENDENCIES, isFeatureEnabled, getEnabledFeatures } from '@lexbridge/shared';
+export { getServerFeatures } from './runtimeFlags.js';
 export { requireFeaturePage } from './requireFeaturePage.js';
 export { getFaqItems } from './faq.js';
 export { getDictionary } from './i18n.js';

@@ -1,4 +1,5 @@
 import { about } from './about.js';
+import { bareActs } from './bareActs.js';
 import { admin } from './admin.js';
 import { adminCommerce } from './adminCommerce.js';
 import { auth } from './auth.js';
@@ -18,11 +19,13 @@ import { insights } from './insights.js';
 import { legal } from './legal.js';
 import { services } from './services.js';
 import { solutionFinder } from './solutionFinder.js';
+import { team } from './team.js';
 import { ux } from './ux.js';
 import { whatsapp } from './whatsapp.js';
 
 export const HI_DICTIONARY = {
   about,
+  bareActs,
   admin,
   adminCommerce,
   auth,
@@ -42,6 +45,7 @@ export const HI_DICTIONARY = {
   legal,
   services,
   solutionFinder,
+  team,
   ux,
   whatsapp,
 };

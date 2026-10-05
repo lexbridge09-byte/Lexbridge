@@ -46,7 +46,7 @@ export function AdminOrders({ initialStatus = '' }) {
     <div>
       <AdminPageHeading title={copy.title} description={copy.description} />
 
-      <form onSubmit={handleFilterSubmit} className="mb-4 grid gap-3 rounded-2xl border border-line bg-white p-4 sm:grid-cols-[12rem_1fr_auto] sm:items-end">
+      <form onSubmit={handleFilterSubmit} className="mb-4 grid gap-3 rounded-2xl border border-line bg-card p-4 sm:grid-cols-[12rem_1fr_auto] sm:items-end">
         <AdminField id="order-status-filter" label={common.status}>
           <select id="order-status-filter" name="status" defaultValue={filters.status} className={ADMIN_CONTROL_CLASS}>
             <option value="">{common.allStatuses}</option>
@@ -87,9 +87,9 @@ export function AdminOrders({ initialStatus = '' }) {
                 <th scope="col" className={ADMIN_TH_CLASS}>{copy.columns.created}</th>
               </tr>
             </thead>
-            <tbody className="bg-white">
+            <tbody className="bg-card">
               {items.map((order) => (
-                <tr key={order.ReferenceCode} className="hover:bg-surface-alt">
+                <tr key={order.ReferenceCode} className="hover:bg-card-hover">
                   <td className={ADMIN_TD_CLASS}>
                     <LocaleLink href={`/admin/orders/${order.ReferenceCode}`} className={ADMIN_LINK_CLASS}>
                       {order.ReferenceCode}

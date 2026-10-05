@@ -43,8 +43,9 @@ export const FEATURE_FLAGS = Object.freeze({
   referrals: false,
 });
 
-// A feature is only on when everything it relies on is also on
-const FEATURE_DEPENDENCIES = Object.freeze({
+// A feature is only on when everything it relies on is also on.
+// Exported so the API's runtime flag service can apply the same cascade to DB-backed toggles.
+export const FEATURE_DEPENDENCIES = Object.freeze({
   consultationBooking: ['clientAccounts'],
   documentUploads: ['clientAccounts'],
   onlinePayments: ['serviceCatalog'],

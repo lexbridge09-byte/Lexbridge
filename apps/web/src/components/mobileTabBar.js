@@ -31,7 +31,7 @@ export function MobileTabBar({ tabs, label }) {
       <div aria-hidden="true" className="h-[calc(4rem+env(safe-area-inset-bottom))] lg:hidden" />
       <nav
         aria-label={label}
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 pb-safe backdrop-blur-md lg:hidden print:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-line-canvas bg-canvas-alt/95 pb-safe backdrop-blur-md lg:hidden print:hidden"
       >
         <ul className="mx-auto grid h-16 max-w-lg" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
           {tabs.map((tab) => {
@@ -42,7 +42,7 @@ export function MobileTabBar({ tabs, label }) {
                 <LocaleLink
                   href={tab.href}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`flex h-full flex-col items-center justify-center gap-1 text-[11px] font-semibold ${isActive ? 'text-primary' : 'text-ink-muted hover:text-ink'}`}
+                  className={`flex h-full flex-col items-center justify-center gap-1 text-[11px] font-semibold ${isActive ? 'text-primary' : 'text-on-canvas-muted hover:text-on-canvas'}`}
                 >
                   <Icon aria-hidden="true" className="size-5" strokeWidth={isActive ? 2.25 : 1.75} />
                   {tab.label}

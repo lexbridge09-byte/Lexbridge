@@ -81,8 +81,12 @@ export function LoginForm({ nextPath = '' }) {
     try {
       const { user } = await requestApi('/auth/verify-otp', { method: 'POST', body: { Email: email, Code: code } });
       refreshSession();
+      // No router.refresh() here: refreshing the still-mounted /login route races the replace()
+      // and can swallow the navigation, stranding the form on "Signing in…". The destination
+      // page re-renders server components with the fresh cookie on its own.
       router.replace(deriveLoginRedirect(nextPath, user, locale));
-      router.refresh();
+      // Safety net: if the navigation is ever blocked, recover the form instead of spinning forever
+      setTimeout(() => setIsBusy(false), 4000);
     } catch (error) {
       // A wrong or expired code comes back as a 400 without field details; keep the API's specific wording
       setFieldErrors(localizeFieldErrors(error, dictionary));

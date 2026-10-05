@@ -3,8 +3,8 @@
 import { ArrowRight, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useId, useMemo, useState } from 'react';
-import { isFeatureEnabled } from '@lexbridge/shared';
 import { useDictionary, useLocalizedHref } from '@/brand/localeContext';
+import { useIsFeatureEnabled } from '@/components/featuresProvider';
 
 const RESULT_LIMIT = 6;
 
@@ -35,6 +35,7 @@ export function ServiceSearch({ items, className = '' }) {
   const router = useRouter();
   const toLocalized = useLocalizedHref();
   const copy = useDictionary().ux.search;
+  const isFinderEnabled = useIsFeatureEnabled('solutionFinder');
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -50,7 +51,7 @@ export function ServiceSearch({ items, className = '' }) {
           id: 'describe',
           kind: 'describe',
           title: copy.describe(trimmedQuery),
-          href: isFeatureEnabled('solutionFinder') ? `/find-my-solution?concern=${encodeURIComponent(trimmedQuery)}` : '/contact',
+          href: isFinderEnabled ? `/find-my-solution?concern=${encodeURIComponent(trimmedQuery)}` : '/contact',
         },
       ]
     : matches;
@@ -84,7 +85,7 @@ export function ServiceSearch({ items, className = '' }) {
         {copy.label}
       </label>
       <div className="relative">
-        <Search aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-ink-muted" strokeWidth={2} />
+        <Search aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-on-canvas-muted" strokeWidth={2} />
         <input
           id={`${baseId}-input`}
           type="text"
@@ -104,7 +105,7 @@ export function ServiceSearch({ items, className = '' }) {
           onFocus={() => setIsOpen(true)}
           onBlur={() => setIsOpen(false)}
           onKeyDown={handleKeyDown}
-          className="block h-12 w-full rounded-2xl border border-line-strong bg-white pl-12 pr-4 text-[15px] text-ink shadow-sm placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-100"
+          className="control-glass block h-12 w-full rounded-2xl pl-12 pr-4 text-[15px] shadow-hairline placeholder:text-on-canvas-subtle transition-colors duration-(--dur-150) focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/25"
         />
       </div>
 
@@ -113,7 +114,7 @@ export function ServiceSearch({ items, className = '' }) {
           id={listboxId}
           role="listbox"
           aria-label={trimmedQuery ? copy.results(matches.length) : copy.suggestions}
-          className="absolute inset-x-0 top-full z-40 mt-2 max-h-96 overflow-y-auto rounded-2xl border border-line bg-white p-1.5 text-ink shadow-float"
+          className="absolute inset-x-0 top-full z-40 mt-2 max-h-96 overflow-y-auto rounded-2xl border border-line bg-card p-1.5 text-ink shadow-float"
         >
           {!trimmedQuery && <li role="presentation" className="px-3 pb-1 pt-2 text-xs font-semibold text-ink-muted">{copy.suggestions}</li>}
           {options.map((option, optionIndex) => {

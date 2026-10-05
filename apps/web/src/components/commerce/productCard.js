@@ -1,7 +1,7 @@
 'use client';
 
 import { CalendarDays } from 'lucide-react';
-import { isFeatureEnabled } from '@lexbridge/shared';
+import { useIsFeatureEnabled } from '@/components/featuresProvider';
 import { useDictionary } from '@/brand/localeContext';
 import { LocaleLink } from '@/components/localeLink';
 import { ButtonLink } from '@/components/ui';
@@ -27,18 +27,15 @@ export function ProductPrice({ pricePaise, compareAtPricePaise, size = 'md' }) {
   );
 }
 
-export function deriveProductActionHref(product) {
-  return isFeatureEnabled('onlinePayments') ? `/checkout/${product.Slug}` : `/services/${product.Slug}`;
-}
-
 // Compact card: category and turnaround, title, one line of summary, price and action
 export function ProductCard({ product }) {
   const copy = useDictionary().commerce.catalogue;
   const labels = useCatalogLabels();
-  const canBuy = isFeatureEnabled('onlinePayments');
+  const canBuy = useIsFeatureEnabled('onlinePayments');
+  const actionHref = canBuy ? `/checkout/${product.Slug}` : `/services/${product.Slug}`;
 
   return (
-    <article className="relative flex h-full flex-col rounded-2xl border border-line bg-white p-4 shadow-sm transition hover:border-primary-100 hover:shadow-card">
+    <article className="relative flex h-full flex-col rounded-2xl border border-line bg-card p-4 shadow-sm transition hover:border-primary-100 hover:shadow-card">
       <p className="flex items-center justify-between gap-2 text-xs">
         <span className="font-semibold text-primary">{labels.productCategory(product.Category)}</span>
         {product.TurnaroundText && (
@@ -56,7 +53,7 @@ export function ProductCard({ product }) {
       {product.Summary && <p className="line-clamp-1 text-sm leading-5 text-ink-muted">{product.Summary}</p>}
       <div className="mt-auto flex items-center justify-between gap-3 pt-3">
         <ProductPrice pricePaise={product.PricePaise} compareAtPricePaise={product.CompareAtPricePaise} />
-        <ButtonLink href={deriveProductActionHref(product)} size="sm" className="relative z-10 shrink-0">
+        <ButtonLink href={actionHref} size="sm" className="relative z-10 shrink-0">
           {canBuy ? copy.buyNow : copy.getStarted}
         </ButtonLink>
       </div>

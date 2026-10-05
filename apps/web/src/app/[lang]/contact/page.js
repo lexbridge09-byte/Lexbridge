@@ -1,6 +1,6 @@
 import { Mail, MessageCircle, Phone } from 'lucide-react';
 import { SERVICE_CATEGORY_KEYS, WHATSAPP_AI_PLAN } from '@lexbridge/shared';
-import { getDictionary, isFeatureEnabled } from '@/brand';
+import { getDictionary, getServerFeatures } from '@/brand';
 import { CallbackRequestButton } from '@/components/callbackRequestButton';
 import { LocaleLink } from '@/components/localeLink';
 import { ServiceRequestForm } from '@/components/serviceRequestForm';
@@ -20,10 +20,11 @@ export default async function ContactPage({ params, searchParams }) {
   const { lang } = await params;
   const { service } = await searchParams;
   const dictionary = getDictionary(lang);
+  const features = await getServerFeatures();
   const copy = dictionary.contact;
   const assistantCopy = dictionary.whatsapp.assistant;
   const defaultCategory = SERVICE_CATEGORY_KEYS.includes(service) ? service : '';
-  const whatsAppHref = isFeatureEnabled('whatsAppAiAssistant') ? deriveWhatsAppHref(dictionary.whatsapp.greeting) : '';
+  const whatsAppHref = features.whatsAppAiAssistant ? deriveWhatsAppHref(dictionary.whatsapp.greeting) : '';
 
   return (
     <>
@@ -42,14 +43,14 @@ export default async function ContactPage({ params, searchParams }) {
                 {copy.direct.title}
               </h2>
               <ul className="mt-4 space-y-2">
-                {isFeatureEnabled('consultationBooking') && (
+                {features.consultationBooking && (
                   <li>
                     <ButtonLink href="/consultation" variant="secondary" isFullWidth>
                       {copy.direct.consult}
                     </ButtonLink>
                   </li>
                 )}
-                {isFeatureEnabled('callbackRequests') && (
+                {features.callbackRequests && (
                   <li>
                     <CallbackRequestButton variant="block" />
                   </li>

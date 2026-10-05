@@ -76,9 +76,9 @@ export function AdminArticles() {
               <th scope="col" className={ADMIN_TH_CLASS}>{copy.columns.updated}</th>
             </tr>
           </thead>
-          <tbody className="bg-white">
+          <tbody className="bg-card">
             {articles.map((article) => (
-              <tr key={article._id} className="hover:bg-surface-alt">
+              <tr key={article._id} className="hover:bg-card-hover">
                 <td className={ADMIN_TD_CLASS}>
                   <LocaleLink href={`/admin/articles/${article._id}`} className={ADMIN_LINK_CLASS}>
                     {article.Title}

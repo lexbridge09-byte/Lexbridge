@@ -10,12 +10,12 @@ export function StepIndicator({ label, steps, current, className = '' }) {
         return (
           <li key={step} aria-current={state === 'current' ? 'step' : undefined} className="flex items-center gap-2">
             <span
-              className={`flex size-6 items-center justify-center rounded-full text-xs ${state === 'done' ? 'bg-success text-white' : state === 'current' ? 'bg-cta text-white' : 'bg-white text-ink-muted ring-1 ring-line'}`}
+              className={`flex size-6 items-center justify-center rounded-full text-xs ${state === 'done' ? 'bg-success text-white' : state === 'current' ? 'bg-cta text-canvas' : 'bg-canvas-alt text-on-canvas-muted ring-1 ring-line-canvas'}`}
             >
               {state === 'done' ? <Check aria-hidden="true" className="size-3.5" strokeWidth={3} /> : stepNumber}
             </span>
-            <span className={state === 'todo' ? 'text-ink-muted' : 'text-ink'}>{step}</span>
-            {stepNumber < steps.length && <span aria-hidden="true" className="h-px w-5 bg-line-strong/50 sm:w-8" />}
+            <span className={state === 'todo' ? 'text-on-canvas-muted' : 'text-on-canvas'}>{step}</span>
+            {stepNumber < steps.length && <span aria-hidden="true" className="h-px w-5 bg-line-canvas sm:w-8" />}
           </li>
         );
       })}

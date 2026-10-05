@@ -1,4 +1,4 @@
-import { getDictionary, isFeatureEnabled } from '@/brand';
+import { getDictionary, getServerFeatures } from '@/brand';
 import { SectionNav } from '@/components/sectionNav';
 import { SignOutButton } from '@/components/signOutButton';
 import { Container } from '@/components/ui';
@@ -12,22 +12,24 @@ export async function generateMetadata({ params }) {
 export default async function AdminLayout({ children, params }) {
   const { lang } = await params;
   const dictionary = getDictionary(lang);
+  const features = await getServerFeatures();
   const copy = dictionary.admin;
   const commerceNav = dictionary.adminCommerce.nav;
   const links = [
-    { href: '/admin', label: copy.nav.overview, exact: true },
-    { href: '/admin/requests', label: copy.nav.requests },
-    { href: '/admin/orders', label: commerceNav.orders, feature: 'onlinePayments' },
-    { href: '/admin/callbacks', label: commerceNav.callbacks, feature: 'callbackRequests' },
-    { href: '/admin/consultations', label: copy.nav.consultations, feature: 'consultationBooking' },
-    { href: '/admin/slots', label: copy.nav.slots, feature: 'consultationBooking' },
-    { href: '/admin/products', label: commerceNav.products, feature: 'serviceCatalog' },
-    { href: '/admin/coupons', label: commerceNav.coupons, feature: 'coupons' },
-    { href: '/admin/document-reviews', label: commerceNav.documentReviews, feature: 'aiDocumentReview' },
-    { href: '/admin/articles', label: copy.nav.articles, feature: 'legalInsights' },
-    { href: '/admin/whatsapp', label: copy.nav.whatsapp, feature: 'whatsAppAiAssistant' },
-    { href: '/admin/users', label: copy.nav.users },
-  ].filter((link) => !link.feature || isFeatureEnabled(link.feature));
+    { href: '/admin', label: copy.nav.overview, exact: true, roles: ['owner'] },
+    { href: '/admin/requests', label: copy.nav.requests, roles: ['owner', 'manager'] },
+    { href: '/admin/orders', label: commerceNav.orders, feature: 'onlinePayments', roles: ['owner'] },
+    { href: '/admin/callbacks', label: commerceNav.callbacks, feature: 'callbackRequests', roles: ['owner'] },
+    { href: '/admin/consultations', label: copy.nav.consultations, feature: 'consultationBooking', roles: ['owner'] },
+    { href: '/admin/slots', label: copy.nav.slots, feature: 'consultationBooking', roles: ['owner'] },
+    { href: '/admin/products', label: commerceNav.products, feature: 'serviceCatalog', roles: ['owner'] },
+    { href: '/admin/coupons', label: commerceNav.coupons, feature: 'coupons', roles: ['owner'] },
+    { href: '/admin/document-reviews', label: commerceNav.documentReviews, feature: 'aiDocumentReview', roles: ['owner'] },
+    { href: '/admin/articles', label: copy.nav.articles, feature: 'legalInsights', roles: ['owner'] },
+    { href: '/admin/whatsapp', label: copy.nav.whatsapp, feature: 'whatsAppAiAssistant', roles: ['owner'] },
+    { href: '/admin/users', label: copy.nav.users, roles: ['owner'] },
+    { href: '/admin/features', label: copy.nav.features, roles: ['owner'] },
+  ].filter((link) => (!link.feature || features[link.feature]) && (!link.roles || link.roles.length > 0));
 
   return (
     <div className="min-h-[60vh] bg-surface-alt">

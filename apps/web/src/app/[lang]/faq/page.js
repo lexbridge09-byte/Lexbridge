@@ -1,4 +1,4 @@
-import { getDictionary, getFaqItems, getPrimaryCta } from '@/brand';
+import { getDictionary, getFaqItems, getPrimaryCta, getServerFeatures } from '@/brand';
 import { ButtonLink, FaqAccordion, PageHeader, Section } from '@/components/ui';
 
 export async function generateMetadata({ params }) {
@@ -9,7 +9,8 @@ export async function generateMetadata({ params }) {
 export default async function FaqPage({ params }) {
   const { lang } = await params;
   const dictionary = getDictionary(lang);
-  const primaryCta = getPrimaryCta(dictionary);
+  const features = await getServerFeatures();
+  const primaryCta = getPrimaryCta(dictionary, features);
 
   return (
     <>
@@ -24,7 +25,7 @@ export default async function FaqPage({ params }) {
       />
       <Section tone="alt" size="sm">
         <div className="mx-auto max-w-3xl">
-          <FaqAccordion items={getFaqItems(dictionary, lang)} />
+          <FaqAccordion items={getFaqItems(dictionary, lang, features)} />
         </div>
       </Section>
     </>

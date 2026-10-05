@@ -48,7 +48,7 @@ export default async function DraftingPage({ params }) {
             <ol className="mt-4 space-y-4">
               {steps.items.map((step, stepIndex) => (
                 <li key={step.title} className="flex gap-3">
-                  <span className="tabular flex size-7 shrink-0 items-center justify-center rounded-full bg-primary-50 text-xs font-bold text-primary">
+                  <span className="tabular flex size-7 shrink-0 items-center justify-center rounded-full bg-primary-50 text-xs font-bold text-primary-dark">
                     {stepIndex + 1}
                   </span>
                   <span>

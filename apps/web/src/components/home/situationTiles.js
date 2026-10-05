@@ -13,7 +13,7 @@ export function SituationTiles({ title, description, groups, allServicesLabel, p
         {groups.map((group) => {
           const Icon = getIcon(group.icon);
           return (
-            <li key={group.key} className="lift flex flex-col rounded-card border border-line bg-white p-5">
+            <li key={group.key} className="lift flex flex-col rounded-card border border-line bg-card p-5 hover:border-primary-100">
               <div className="flex items-start gap-3.5">
                 <span className="flex size-11 shrink-0 items-center justify-center rounded-control bg-primary-50 text-primary">
                   <Icon aria-hidden="true" className="size-5" strokeWidth={1.75} />
@@ -34,7 +34,7 @@ export function SituationTiles({ title, description, groups, allServicesLabel, p
                     <li key={link.key}>
                       <LocaleLink
                         href={link.href}
-                        className="group/chip inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line bg-surface-alt px-3 py-1.5 text-[13px] font-medium text-ink transition-colors duration-(--dur-150) hover:border-primary-100 hover:bg-primary-50 hover:text-primary-dark"
+                        className="group/chip inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line bg-card-dim px-3 py-1.5 text-[13px] font-medium text-ink transition-colors duration-(--dur-150) hover:border-primary-100 hover:bg-primary-50 hover:text-primary-dark"
                       >
                         {link.label}
                         {Number.isFinite(link.pricePaise) && (
@@ -57,7 +57,7 @@ export function SituationTiles({ title, description, groups, allServicesLabel, p
         <li>
           <LocaleLink
             href="/services"
-            className="group flex h-full min-h-28 items-center justify-center gap-2 rounded-card border border-dashed border-line-hover bg-white/60 p-5 font-display font-semibold text-primary transition-colors duration-(--dur-150) hover:border-primary hover:bg-white"
+            className="group flex h-full min-h-28 items-center justify-center gap-2 rounded-card border border-dashed border-primary/40 bg-canvas-alt p-5 font-display font-semibold text-primary-bright transition-colors duration-(--dur-150) hover:border-primary hover:bg-card"
           >
             {allServicesLabel}
             <ArrowRight

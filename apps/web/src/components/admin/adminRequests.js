@@ -58,7 +58,7 @@ export function AdminRequests({ initialStatus = '' }) {
     <div>
       <AdminPageHeading title={copy.title} description={copy.description} />
 
-      <form onSubmit={handleFilterSubmit} className="mb-4 grid gap-3 rounded-2xl border border-line bg-white p-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_2fr_auto] lg:items-end">
+      <form onSubmit={handleFilterSubmit} className="mb-4 grid gap-3 rounded-2xl border border-line bg-card p-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_2fr_auto] lg:items-end">
         <div>
           <label htmlFor="filter-status" className={ADMIN_LABEL_CLASS}>
             {common.status}
@@ -127,9 +127,9 @@ export function AdminRequests({ initialStatus = '' }) {
                 <th scope="col" className={ADMIN_TH_CLASS}>{columns.received}</th>
               </tr>
             </thead>
-            <tbody className="bg-white">
+            <tbody className="bg-card">
               {items.map((request) => (
-                <tr key={request.ReferenceCode} className="hover:bg-surface-alt">
+                <tr key={request.ReferenceCode} className="hover:bg-card-hover">
                   <td className={ADMIN_TD_CLASS}>
                     <LocaleLink href={`/admin/requests/${request.ReferenceCode}`} className={ADMIN_LINK_CLASS}>
                       {request.ReferenceCode}

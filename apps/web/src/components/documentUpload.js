@@ -91,7 +91,7 @@ export function DocumentUpload({
               id={`${inputId}-reference`}
               name="RequestReference"
               defaultValue={requestReference}
-              className="mt-1.5 block w-full rounded-xl border border-line-strong bg-white px-3.5 py-2.5 text-[15px] text-ink focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-100"
+              className="mt-1.5 block w-full rounded-xl border border-line-strong bg-card px-3.5 py-2.5 text-[15px] text-ink focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-100"
             >
               {!isReferenceRequired && <option value="">{copy.notLinked}</option>}
               {referenceOptions.map((option) => (
@@ -116,7 +116,7 @@ export function DocumentUpload({
             type="file"
             accept={DOCUMENT_ACCEPT_ATTRIBUTE}
             aria-describedby={`${inputId}-hint`}
-            className="mt-2 block w-full rounded-xl border border-dashed border-line-strong bg-surface-alt p-3 text-sm text-ink-muted file:mr-4 file:rounded-lg file:border-0 file:bg-primary-50 file:px-3 file:py-2 file:font-semibold file:text-primary-dark"
+            className="mt-2 block w-full rounded-xl border border-dashed border-line-strong bg-card-dim p-3 text-sm text-ink-muted file:mr-4 file:rounded-lg file:border-0 file:bg-primary-50 file:px-3 file:py-2 file:font-semibold file:text-primary-dark"
           />
         </div>
 

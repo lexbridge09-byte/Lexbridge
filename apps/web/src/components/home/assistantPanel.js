@@ -7,7 +7,7 @@ export function AssistantPanel({ copy, action }) {
     <Section labelledBy="assistant-title" size="sm">
       <div className="grid items-center gap-6 rounded-panel border border-line bg-assistant p-5 sm:p-8 lg:grid-cols-2 lg:gap-12 lg:p-10">
         <div>
-          <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-primary-dark ring-1 ring-primary-100">
+          <span className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-xs font-semibold text-primary-dark ring-1 ring-primary-100">
             <span aria-hidden="true" className="size-2 rounded-full bg-primary motion-safe:animate-pulse" />
             {copy.pill}
           </span>
@@ -17,7 +17,7 @@ export function AssistantPanel({ copy, action }) {
           <p className="mt-2 leading-7 text-ink-muted">{copy.description}</p>
         </div>
 
-        <form action={action} method="get" className="rounded-panel bg-white p-4 shadow-soft ring-1 ring-line sm:p-5">
+        <form action={action} method="get" className="rounded-panel bg-card p-4 shadow-soft ring-1 ring-line sm:p-5">
           <div className="rounded-xl border-2 border-dashed border-primary-100 p-3.5 focus-within:border-primary">
             <label htmlFor="home-concern" className="flex items-center gap-2 text-h4 text-ink">
               <Sparkles aria-hidden="true" className="size-5 text-primary" strokeWidth={1.75} />

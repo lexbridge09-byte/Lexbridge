@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { getEnabledFeatures } from '../brand/index.js';
 import { isDbReachable } from '../db/index.js';
 import { requireFeature } from '../middleware/index.js';
+import { getEffectiveFlags } from '../services/index.js';
 import { adminRouter } from './admin/index.js';
 import { articlesRouter } from './articles.routes.js';
 import { authRouter } from './auth.routes.js';
@@ -15,6 +15,7 @@ import { productsRouter } from './products.routes.js';
 import { serviceRequestsRouter } from './serviceRequests.routes.js';
 import { solutionFinderRouter } from './solutionFinder.routes.js';
 import { statsRouter } from './stats.routes.js';
+import { teamRouter } from './team/index.js';
 import { webhooksRouter } from './webhooks.routes.js';
 
 export const apiRouter = Router();
@@ -31,14 +32,17 @@ apiRouter.get('/ready', async (req, res) => {
   res.status(isDbReady ? 200 : 503).json({ ok: isDbReady, db: isDbReady ? 'up' : 'down' });
 });
 
-// Effective feature switches, so clients can hide what is turned off
-apiRouter.get('/features', (req, res) => res.json({ features: getEnabledFeatures() }));
+// Effective feature switches (DB-backed, owner controlled), so clients can hide what is turned off
+apiRouter.get('/features', async (req, res) => {
+  res.json({ features: await getEffectiveFlags() });
+});
 
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/service-requests', serviceRequestsRouter);
 apiRouter.use('/solution-finder', requireFeature('solutionFinder'), solutionFinderRouter);
 apiRouter.use('/consultations', requireFeature('consultationBooking'), consultationsRouter);
 apiRouter.use('/documents', requireFeature('documentUploads'), documentsRouter);
+apiRouter.use('/team', teamRouter);
 apiRouter.use('/articles', requireFeature('legalInsights'), articlesRouter);
 apiRouter.use('/stats', statsRouter);
 apiRouter.use('/products', requireFeature('serviceCatalog'), productsRouter);

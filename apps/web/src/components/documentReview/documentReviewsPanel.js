@@ -53,7 +53,7 @@ export function DocumentReviewsPanel() {
             <ul className="divide-y divide-line">
               {reviews.map((review) => (
                 <li key={review.ReferenceCode}>
-                  <LocaleLink href={`/dashboard/document-reviews/${review.ReferenceCode}`} className="flex items-center gap-3 px-4 py-3 hover:bg-surface-alt sm:px-5">
+                  <LocaleLink href={`/dashboard/document-reviews/${review.ReferenceCode}`} className="flex items-center gap-3 px-4 py-3 hover:bg-card-hover sm:px-5">
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-semibold text-ink">{review.OriginalName}</p>
                       <p className="text-xs text-ink-muted">{copy.meta(review.ReferenceCode, format.date(review.createdAt))}</p>

@@ -22,7 +22,7 @@ function deriveClientWhatsAppHref(phone) {
   return `https://wa.me/${withCountryCode}`;
 }
 
-function RequestUpdateForm({ request, admins, onSaved }) {
+function RequestUpdateForm({ request, team, onSaved }) {
   const dictionary = useDictionary();
   const copy = dictionary.admin.requestDetail.update;
   const common = dictionary.admin.common;
@@ -105,9 +105,10 @@ function RequestUpdateForm({ request, admins, onSaved }) {
             className={`mt-1 ${ADMIN_CONTROL_CLASS}`}
           >
             <option value="">{dictionary.admin.requests.unassigned}</option>
-            {admins.map((admin) => (
-              <option key={admin._id} value={admin._id}>
-                {admin.FullName || admin.Email}
+            {team.map((member) => (
+              <option key={member._id} value={member._id}>
+                {member.FullName || member.Email}
+                {member.Role === 'lawyer' ? '' : ` (${labels.role(member.Role)})`}
               </option>
             ))}
           </select>
@@ -136,7 +137,7 @@ export function AdminRequestDetail({ referenceCode }) {
   const labels = useCatalogLabels();
   const format = useFormatters();
   const requestData = useApiData(`/admin/service-requests/${encodeURIComponent(referenceCode)}`);
-  const adminsData = useApiData('/admin/users?role=admin&limit=100');
+  const teamData = useApiData('/admin/users?role=staff&limit=100');
   const [savedMessage, setSavedMessage] = useState('');
 
   if (requestData.isLoading && !requestData.data) return <LoadingNote />;
@@ -155,7 +156,7 @@ export function AdminRequestDetail({ referenceCode }) {
   const request = requestData.data?.request;
   if (!request) return null;
   const documents = requestData.data?.documents ?? [];
-  const admins = adminsData.data?.items ?? [];
+  const team = teamData.data?.items ?? [];
   const clientWhatsAppHref = request.WhatsAppOptIn ? deriveClientWhatsAppHref(request.Phone) : '';
   const serviceLabel = `${labels.service(request.ServiceCategory)}${request.Subtype ? `, ${request.Subtype}` : ''}`;
 
@@ -224,7 +225,7 @@ export function AdminRequestDetail({ referenceCode }) {
         </div>
 
         <div className="space-y-5 lg:sticky lg:top-24">
-          <RequestUpdateForm key={request.updatedAt} request={request} admins={admins} onSaved={handleSaved} />
+          <RequestUpdateForm key={request.updatedAt} request={request} team={team} onSaved={handleSaved} />
 
           <AdminPanel as="section" title={copy.documents}>
             <DocumentList documents={documents} emptyText={copy.noDocuments} />
@@ -234,6 +235,13 @@ export function AdminRequestDetail({ referenceCode }) {
             requestReference={request.ReferenceCode}
             title={copy.shareTitle}
             submitLabel={copy.shareSubmit}
+            onUploaded={requestData.reload}
+          />
+          <DocumentUpload
+            endpoint={`/team/requests/${encodeURIComponent(request.ReferenceCode)}/deliverable`}
+            requestReference={request.ReferenceCode}
+            title={copy.deliverableTitle}
+            submitLabel={copy.deliverableSubmit}
             onUploaded={requestData.reload}
           />
         </div>

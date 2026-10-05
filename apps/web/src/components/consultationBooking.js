@@ -3,7 +3,6 @@
 import { ArrowLeft, Check, CircleCheck } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CONSULTATION_MODES, CONSULTATION_TYPES } from '@lexbridge/shared';
-import { isFeatureEnabled } from '@lexbridge/shared';
 import { useDictionary, useLocale } from '@/brand/localeContext';
 import { CheckboxField, FieldError, TextAreaField, TextField } from '@/components/formFields';
 import { LocaleLink } from '@/components/localeLink';
@@ -14,6 +13,7 @@ import { localizeApiError, localizeFieldErrors } from '@/lib/apiErrors';
 import { formatDateKey } from '@/lib/formatValues';
 import { useCatalogLabels, useFormatters } from '@/lib/localeTools';
 import { deriveLoginHref } from '@/lib/safeRedirect';
+import { useIsFeatureEnabled } from '@/components/featuresProvider';
 
 const FORM_ID = 'consultation-form';
 const DRAFT_STORAGE_KEY = 'lexbridge.consultationDraft';
@@ -57,7 +57,7 @@ function groupSlotsByDate(slots) {
 }
 
 const CHOICE_CARD_CLASS =
-  'flex h-full cursor-pointer items-start gap-3 rounded-2xl border border-line bg-white p-3.5 transition-colors duration-(--dur-150) hover:border-line-strong has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:checked]:ring-2 has-[:checked]:ring-primary-100 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary';
+  'flex h-full cursor-pointer items-start gap-3 rounded-2xl border border-line bg-card p-3.5 transition-colors duration-(--dur-150) hover:border-line-strong has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:checked]:ring-2 has-[:checked]:ring-primary-100 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary';
 
 const CHIP_CLASS =
   'shrink-0 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors duration-(--dur-150) has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary';
@@ -77,6 +77,8 @@ function SummaryRow({ label, value, isMissing }) {
 */
 export function ConsultationBooking() {
   const dictionary = useDictionary();
+  const isUploadsEnabled = useIsFeatureEnabled('documentUploads');
+  const isWhatsAppOptInEnabled = useIsFeatureEnabled('whatsAppNotifications');
   const copy = dictionary.consultation;
   const stepCopy = dictionary.forms.serviceRequest;
   const summaryCopy = dictionary.ux.bookingSummary;
@@ -265,7 +267,7 @@ export function ConsultationBooking() {
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
             <ButtonLink href="/dashboard/consultations">{copy.success.viewCta}</ButtonLink>
-            {isFeatureEnabled('documentUploads') && (
+            {isUploadsEnabled && (
               <ButtonLink href="/dashboard/documents" variant="link">
                 {copy.success.uploadCta}
               </ButtonLink>
@@ -367,7 +369,7 @@ export function ConsultationBooking() {
                           type="button"
                           aria-pressed={isActive}
                           onClick={() => setSelectedDateKey(group.dateKey)}
-                          className={`${CHIP_CLASS} ${isActive ? 'border-primary bg-primary text-white' : 'border-line bg-white text-ink hover:border-line-strong'}`}
+                          className={`${CHIP_CLASS} ${isActive ? 'border-primary bg-primary text-white' : 'border-line bg-card text-ink hover:border-line-strong'}`}
                         >
                           {format.shortDay(group.daySlots[0].StartsAt)}
                         </button>
@@ -381,7 +383,7 @@ export function ConsultationBooking() {
                         {activeGroup.daySlots.map((slot) => (
                           <label
                             key={slot._id}
-                            className={`${CHIP_CLASS} tabular cursor-pointer border-line bg-white text-ink hover:border-line-strong has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:checked]:text-primary-dark`}
+                            className={`${CHIP_CLASS} tabular cursor-pointer border-line bg-card text-ink hover:border-line-strong has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:checked]:text-primary-dark`}
                           >
                             <input
                               type="radio"
@@ -406,7 +408,7 @@ export function ConsultationBooking() {
             <fieldset hidden={activeStep !== DETAILS_STEP} className="space-y-4 motion-safe:animate-fade-in">
               <legend className="text-h4 text-ink">{copy.sections.details}</legend>
               {hasSelections && (
-                <p className="rounded-xl bg-surface-alt px-3.5 py-2.5 text-sm text-ink lg:hidden">
+                <p className="rounded-xl bg-card-dim px-3.5 py-2.5 text-sm text-ink lg:hidden">
                   {copy.summary(labels.consultationType(draft.ConsultationType), labels.consultationMode(draft.Mode), format.shortDay(selectedSlot.StartsAt), format.time(selectedSlot.StartsAt))}
                 </p>
               )}
@@ -448,7 +450,7 @@ export function ConsultationBooking() {
                 </CheckboxField>
               )}
 
-              {isFeatureEnabled('whatsAppNotifications') && (
+              {isWhatsAppOptInEnabled && (
                 <WhatsAppOptInField checked={draft.WhatsAppOptIn} onChange={(isChecked) => updateDraft('WhatsAppOptIn', isChecked)} />
               )}
             </fieldset>

@@ -37,7 +37,7 @@ export function ProductCatalog({ products, initialCategory = '' }) {
               type="button"
               aria-pressed={isActive}
               onClick={() => selectCategory(tab.key)}
-              className={`${TAB_CLASS} ${isActive ? 'bg-primary text-white' : 'bg-white text-ink-muted ring-1 ring-line hover:text-ink'}`}
+              className={`${TAB_CLASS} ${isActive ? 'bg-primary text-white' : 'bg-card text-ink-muted ring-1 ring-line hover:text-ink'}`}
             >
               {tab.label}
             </button>

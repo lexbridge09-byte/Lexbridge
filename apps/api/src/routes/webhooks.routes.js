@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { isFeatureEnabled } from '../brand/index.js';
+
 import {
   IS_RAZORPAY_CONFIGURED,
   IS_WHATSAPP_AGENT_CONFIGURED,
@@ -17,6 +17,7 @@ import {
   ingestInboundMessages,
   isSameSecret,
   isValidHmacSignature,
+  isRuntimeFeatureEnabled,
 } from '../services/index.js';
 
 const RAZORPAY_EVENT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
@@ -36,17 +37,22 @@ function readQueryValue(query, name) {
 }
 
 // Razorpay sends WhatsApp question-pack links and catalogue checkout payments to the same URL
-function requireRazorpayWebhookFeature(req, res, next) {
-  if (isFeatureEnabled('whatsAppAiAssistant') || isFeatureEnabled('onlinePayments')) return next();
+async function requireRazorpayWebhookFeature(req, res, next) {
+  try {
+    if (await isRuntimeFeatureEnabled('whatsAppAiAssistant')) return next();
+    if (await isRuntimeFeatureEnabled('onlinePayments')) return next();
+  } catch (err) {
+    return next(err);
+  }
   res.status(404).json({ error: 'This feature is not available.' });
 }
 
-function dispatchRazorpayEvent(event) {
+async function dispatchRazorpayEvent(event) {
   // Payment link events also carry a payment entity, so they're recognised first
   if (event?.payload?.payment_link) {
-    return isFeatureEnabled('whatsAppAiAssistant') ? applyRazorpayWebhookEvent(event) : 'ignored';
+    return (await isRuntimeFeatureEnabled('whatsAppAiAssistant')) ? applyRazorpayWebhookEvent(event) : 'ignored';
   }
-  return isFeatureEnabled('onlinePayments') ? applyOrderWebhookEvent(event) : 'ignored';
+  return (await isRuntimeFeatureEnabled('onlinePayments')) ? applyOrderWebhookEvent(event) : 'ignored';
 }
 
 export const webhooksRouter = Router();

@@ -8,7 +8,7 @@ export function TrustBlock({ copy, contactLabel }) {
     <Section tone="alt" labelledBy="trust-title">
       <div className="reveal grid gap-8 lg:grid-cols-[1.6fr_1fr] lg:gap-12">
         <div>
-          <h2 id="trust-title" className="text-section text-ink">
+          <h2 id="trust-title" className="text-section text-on-canvas">
             {copy.title}
           </h2>
           <dl className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2">
@@ -16,12 +16,12 @@ export function TrustBlock({ copy, contactLabel }) {
               const Icon = getIcon(item.icon);
               return (
                 <div key={item.title} className="flex gap-3.5">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-control bg-white text-primary ring-1 ring-line">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-control bg-primary/15 text-primary-bright ring-1 ring-primary/30">
                     <Icon aria-hidden="true" className="size-5" strokeWidth={1.75} />
                   </span>
                   <div>
-                    <dt className="font-display text-[15px] font-semibold text-ink">{item.title}</dt>
-                    <dd className="mt-1 text-sm leading-6 text-ink-muted">{item.description}</dd>
+                    <dt className="font-display text-[15px] font-semibold text-on-canvas">{item.title}</dt>
+                    <dd className="mt-1 text-sm leading-6 text-on-canvas-muted">{item.description}</dd>
                   </div>
                 </div>
               );
@@ -29,13 +29,13 @@ export function TrustBlock({ copy, contactLabel }) {
           </dl>
           <LocaleLink
             href="/legal/refund-cancellation"
-            className="mt-6 inline-flex text-sm font-semibold text-primary underline decoration-primary/30 underline-offset-4 transition-colors duration-(--dur-150) hover:decoration-primary"
+            className="mt-6 inline-flex text-sm font-semibold text-primary-bright underline decoration-primary/40 underline-offset-4 transition-colors duration-(--dur-150) hover:decoration-primary"
           >
             {copy.refundLink}
           </LocaleLink>
         </div>
 
-        <aside className="self-start rounded-panel border border-line bg-white p-6 shadow-card">
+        <aside className="lift self-start rounded-panel border border-line bg-card p-6 shadow-card">
           <h3 className="text-h4 text-ink">{copy.contactTitle}</h3>
           <p className="mt-1 text-sm leading-6 text-ink-muted">{copy.contactBody}</p>
           <ButtonLink href="/contact" variant="secondary" isFullWidth className="mt-4">

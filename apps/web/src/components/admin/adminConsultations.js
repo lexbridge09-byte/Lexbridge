@@ -162,7 +162,7 @@ export function AdminConsultations() {
           <ul className="space-y-2">
             {items.map((consultation) => (
               <li key={consultation.ReferenceCode}>
-                <details className="group rounded-xl border border-line bg-white open:shadow-sm">
+                <details className="group rounded-xl border border-line bg-card open:shadow-sm">
                   <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
                     <span>
                       <span className="block text-sm font-semibold text-ink">

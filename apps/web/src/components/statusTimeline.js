@@ -26,7 +26,7 @@ export function StatusTimeline({ entries, getLabel }) {
             <p className={`font-semibold ${isLatest ? 'text-ink' : 'text-ink-muted'}`}>{labelFor(entry.Status)}</p>
             <p className="text-xs text-ink-muted">{format.dateTime(entry.changedAt)}</p>
             {entry.Note && (
-              <p className="mt-2 max-w-[65ch] whitespace-pre-line rounded-xl bg-surface-alt px-4 py-3 text-sm leading-6 text-ink">{entry.Note}</p>
+              <p className="mt-2 max-w-[65ch] whitespace-pre-line rounded-xl bg-card-dim px-4 py-3 text-sm leading-6 text-ink">{entry.Note}</p>
             )}
           </li>
         );

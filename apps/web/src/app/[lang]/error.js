@@ -10,8 +10,8 @@ export default function Error({ retry, reset }) {
   return (
     <Section>
       <div role="alert" className="mx-auto max-w-xl py-8 text-center">
-        <h1 className="text-h2 text-ink">{copy.title}</h1>
-        <p className="mt-3 leading-7 text-ink-muted">{copy.body}</p>
+        <h1 className="text-h2 text-on-canvas">{copy.title}</h1>
+        <p className="mt-3 leading-7 text-on-canvas-muted">{copy.body}</p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           {handleRetry && <Button onClick={() => handleRetry()}>{copy.retry}</Button>}
           <ButtonLink href="/" variant="secondary">

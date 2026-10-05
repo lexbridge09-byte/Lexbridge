@@ -9,7 +9,7 @@ export function RequestPreview({ mockup }) {
     <div aria-hidden="true" className="relative mx-auto hidden w-full max-w-md sm:block lg:mx-0 lg:justify-self-end">
       {/* Soft glow as a static radial gradient: no blur filter, which is costly on low-end phones */}
       <div className="absolute -inset-10 -z-10 rounded-[3rem] bg-[radial-gradient(closest-side,rgb(216_52_79/0.28),transparent)]" />
-      <div className="rounded-panel bg-white p-5 text-ink shadow-float sm:p-6">
+      <div className="rounded-panel bg-card p-5 text-ink shadow-float ring-1 ring-primary/20 sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs font-semibold text-ink-muted">{mockup.title}</p>
           <Badge tone="active">{mockup.status}</Badge>
@@ -33,14 +33,14 @@ export function RequestPreview({ mockup }) {
         </ol>
 
         <div className="mt-5 grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-surface-alt p-3">
+          <div className="rounded-xl bg-card-dim p-3">
             <p className="text-xs text-ink-muted">{mockup.nextLabel}</p>
             <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold">
               <Video className="size-4 text-primary" strokeWidth={2} />
               {mockup.nextValue}
             </p>
           </div>
-          <div className="rounded-xl bg-surface-alt p-3">
+          <div className="rounded-xl bg-card-dim p-3">
             <p className="text-xs text-ink-muted">{mockup.documentsLabel}</p>
             <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold">
               <Lock className="size-4 text-primary" strokeWidth={2} />
@@ -51,7 +51,7 @@ export function RequestPreview({ mockup }) {
       </div>
 
       {/* Decorative extra: a single 300ms fade after load, never looping */}
-      <div className="absolute -bottom-5 -left-3 hidden items-center gap-2 rounded-control bg-white px-4 py-3 text-sm font-semibold text-ink shadow-raised [animation-delay:400ms] motion-safe:animate-fade-in sm:flex">
+      <div className="absolute -bottom-5 -left-3 hidden items-center gap-2 rounded-control bg-card px-4 py-3 text-sm font-semibold text-ink shadow-raised [animation-delay:400ms] motion-safe:animate-fade-in sm:flex">
         <BadgeCheck className="size-5 text-success" strokeWidth={2} />
         {mockup.assignedLabel}
       </div>

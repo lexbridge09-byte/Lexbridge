@@ -48,6 +48,11 @@ export const dashboard = {
     intro: 'इस ईमेल से भेजे गए सभी अनुरोध।',
     emptyBefore: 'अभी कोई अनुरोध नहीं।',
     emptyCta: 'अनुरोध भेजें',
+    trackTitle: 'बिना साइन-इन भेजा अनुरोध ट्रैक करें',
+    trackIntro: 'गेस्ट के रूप में अनुरोध भेजा था? उसका रेफ़रेंस कोड (LB-…) यहाँ डालें — वह नीचे सूची में जुड़ जाएगा।',
+    trackPlaceholder: 'जैसे LB-XXXXXX',
+    trackAction: 'ट्रैक करें',
+    trackLinked: 'जुड़ गया। आपका अनुरोध नीचे सूची में दिख रहा है।',
   },
 
   requestDetail: {
@@ -61,6 +66,9 @@ export const dashboard = {
     description: 'आपने क्या बताया',
     documents: 'दस्तावेज़',
     noDocuments: 'इस अनुरोध के लिए कोई दस्तावेज़ नहीं।',
+    deliverables: 'आपके तैयार दस्तावेज़',
+    deliverablesNote: 'हमारी टीम द्वारा इस अनुरोध के लिए पूरा काम। यहीँ से डाउनलोड करें।',
+    noDeliverables: 'इस अनुरोध के लिए अभी कुछ भेजा नहीं गया है।',
     shareTitle: 'दस्तावेज़ भेजें',
   },
 

@@ -87,7 +87,7 @@ export function AdminUsers() {
     <div>
       <AdminPageHeading title={copy.title} description={copy.description} />
 
-      <form onSubmit={handleFilterSubmit} className="mb-4 grid gap-3 rounded-2xl border border-line bg-white p-4 sm:grid-cols-[12rem_1fr_auto] sm:items-end">
+      <form onSubmit={handleFilterSubmit} className="mb-4 grid gap-3 rounded-2xl border border-line bg-card p-4 sm:grid-cols-[12rem_1fr_auto] sm:items-end">
         <div>
           <label htmlFor="user-role" className={ADMIN_LABEL_CLASS}>
             {copy.role}
@@ -139,7 +139,7 @@ export function AdminUsers() {
                 <th scope="col" className={ADMIN_TH_CLASS}>{copy.columns.lastSignIn}</th>
               </tr>
             </thead>
-            <tbody className="bg-white">
+            <tbody className="bg-card">
               {items.map((user) => (
                 <tr key={user._id}>
                   <td className={ADMIN_TD_CLASS}>{user.FullName || common.notProvided}</td>

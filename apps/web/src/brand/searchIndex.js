@@ -1,4 +1,3 @@
-import { isFeatureEnabled } from '@lexbridge/shared';
 import { formatRupees } from '@/lib/formatValues';
 import { getDictionary } from './i18n.js';
 import { deriveServiceHref, getProblemShortcuts, SERVICE_DISPLAY_ORDER } from './navigation.js';
@@ -9,11 +8,11 @@ export { deriveProblemHref, getProblemShortcuts } from './navigation.js';
   Entries for the service search: problems, service areas and published products (server components only).
   English wording is added to the keywords so an English query also works on the Hindi site.
 */
-export function buildSearchItems(dictionary, locale, products) {
+export function buildSearchItems(dictionary, locale, products, features = {}) {
   const english = getDictionary('en');
   const kinds = dictionary.ux.search.kinds;
 
-  const problemItems = getProblemShortcuts(dictionary, products).map((problem) => ({
+  const problemItems = getProblemShortcuts(dictionary, products, features).map((problem) => ({
     id: `problem-${problem.id}`,
     kind: 'problem',
     title: problem.label,
@@ -30,12 +29,12 @@ export function buildSearchItems(dictionary, locale, products) {
       kind: 'service',
       title: service.title,
       subtitle: kinds.service,
-      href: deriveServiceHref(serviceKey),
+      href: deriveServiceHref(serviceKey, features),
       keywords: [service.intro, ...service.items, englishService.title, ...englishService.items].join(' '),
     };
   });
 
-  const productItems = isFeatureEnabled('serviceCatalog')
+  const productItems = features.serviceCatalog
     ? products.map((product) => ({
         id: `product-${product.Slug}`,
         kind: 'product',

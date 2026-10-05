@@ -23,10 +23,10 @@ export default async function CheckoutPage({ params }) {
 
   return (
     <Section tone="alt" size="sm">
-      <LocaleLink href={`/services/${product.Slug}`} className="text-sm font-semibold text-primary hover:underline">
+      <LocaleLink href={`/services/${product.Slug}`} className="text-sm font-semibold text-primary-bright hover:underline">
         ← {copy.backToService}
       </LocaleLink>
-      <h1 className="mb-5 mt-2 text-h2 text-ink">{copy.title}</h1>
+      <h1 className="mb-5 mt-2 text-h2 text-on-canvas">{copy.title}</h1>
       <CheckoutForm product={product} />
     </Section>
   );

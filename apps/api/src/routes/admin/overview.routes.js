@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { REQUEST_STATUSES } from '@lexbridge/shared';
-import { isFeatureEnabled } from '../../brand/index.js';
+import { isRuntimeFeatureEnabled } from '../../services/index.js';
 import {
   ArticleModel,
   CallbackRequestModel,
@@ -35,9 +35,9 @@ adminOverviewRouter.get('/', async (req, res) => {
     ConsultationModel.countDocuments({ Status: 'scheduled', StartsAt: { $gt: now } }),
     SlotModel.countDocuments({ Status: 'open', StartsAt: { $gt: now } }),
     ArticleModel.countDocuments({ Status: 'published' }),
-    isFeatureEnabled('onlinePayments') ? summarisePaidOrders(todayStart) : null,
-    isFeatureEnabled('callbackRequests') ? CallbackRequestModel.countDocuments({ Status: 'new' }) : null,
-    isFeatureEnabled('aiDocumentReview') ? DocumentReviewModel.countDocuments({ createdAt: { $gte: todayStart } }) : null,
+    await isRuntimeFeatureEnabled('onlinePayments') ? summarisePaidOrders(todayStart) : null,
+    await isRuntimeFeatureEnabled('callbackRequests') ? CallbackRequestModel.countDocuments({ Status: 'new' }) : null,
+    await isRuntimeFeatureEnabled('aiDocumentReview') ? DocumentReviewModel.countDocuments({ createdAt: { $gte: todayStart } }) : null,
   ]);
 
   const requestsByStatus = Object.fromEntries(REQUEST_STATUSES.map((status, index) => [status, statusCounts[index]]));

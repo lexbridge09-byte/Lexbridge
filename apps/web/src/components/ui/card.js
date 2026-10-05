@@ -8,7 +8,7 @@ const PADDING_CLASSES = {
 export function Card({ as: Element = 'div', padding = 'md', className = '', children, ...elementProps }) {
   return (
     <Element
-      className={`rounded-2xl border border-line bg-white shadow-sm ${PADDING_CLASSES[padding] ?? PADDING_CLASSES.md} ${className}`}
+      className={`rounded-2xl border border-line bg-card shadow-sm ${PADDING_CLASSES[padding] ?? PADDING_CLASSES.md} ${className}`}
       {...elementProps}
     >
       {children}

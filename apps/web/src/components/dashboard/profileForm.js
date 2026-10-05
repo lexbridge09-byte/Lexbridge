@@ -69,7 +69,7 @@ export function ProfileForm() {
             defaultValue={user.Phone}
             error={fieldErrors.Phone}
           />
-          <div className="rounded-xl bg-surface-alt px-4 py-3">
+          <div className="rounded-xl bg-card-dim px-4 py-3">
             <p className="text-xs font-semibold text-ink-muted">{copy.emailLabel}</p>
             <p className="mt-0.5 text-ink">{user.Email}</p>
             <p className="mt-1 text-xs text-ink-muted">{copy.emailNote}</p>

@@ -61,7 +61,7 @@ function ConsultationItem({ consultation, nowMs, onChanged }) {
       <p className="text-xs text-ink-muted">{copy.reference(consultation.ReferenceCode)}</p>
 
       {consultation.Description && (
-        <p className="mt-3 max-w-[65ch] whitespace-pre-line rounded-xl bg-surface-alt px-4 py-2.5 text-sm leading-6 text-ink">
+        <p className="mt-3 max-w-[65ch] whitespace-pre-line rounded-xl bg-card-dim px-4 py-2.5 text-sm leading-6 text-ink">
           {consultation.Description}
         </p>
       )}

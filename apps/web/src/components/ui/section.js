@@ -3,9 +3,9 @@ export function Container({ className = '', children }) {
 }
 
 const TONE_CLASSES = {
-  plain: 'bg-white',
-  alt: 'bg-surface-alt',
-  tint: 'bg-primary-50',
+  plain: 'bg-transparent',
+  alt: 'border-y border-line-canvas/70 bg-canvas-alt',
+  tint: 'border-y border-line-canvas/70 bg-canvas-alt',
 };
 
 // Tight vertical rhythm: about 40px on phones and 56px on desktop, less for `sm`
@@ -23,10 +23,10 @@ export function SectionHeader({ id, title, description, align = 'left', action, 
   return (
     <div className={`mb-5 flex gap-3 lg:mb-6 ${isCentered ? 'flex-col items-center text-center' : 'flex-wrap items-end justify-between'}`}>
       <div className="max-w-2xl">
-        <Heading id={id} className="text-section text-ink">
+        <Heading id={id} className="text-section text-on-canvas">
           {title}
         </Heading>
-        {description && <p className="mt-2 text-base leading-7 text-ink-muted">{description}</p>}
+        {description && <p className="mt-2 text-base leading-7 text-on-canvas-muted">{description}</p>}
       </div>
       {action}
     </div>

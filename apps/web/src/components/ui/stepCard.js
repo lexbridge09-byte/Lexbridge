@@ -10,7 +10,7 @@ export function StepList({ steps, columnsClassName = 'md:grid-cols-3' }) {
 
 export function StepCard({ number, title, description }) {
   return (
-    <li className="rounded-2xl border border-line bg-linear-to-b from-white to-surface-alt p-6">
+    <li className="rounded-2xl border border-line bg-linear-to-b from-card to-card-dim p-6">
       <span
         aria-hidden="true"
         className="flex size-10 items-center justify-center rounded-[11px] bg-cta text-[15px] font-bold text-white"

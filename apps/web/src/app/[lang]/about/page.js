@@ -1,5 +1,5 @@
 import { ShieldCheck } from 'lucide-react';
-import { getDictionary, getPrimaryCta } from '@/brand';
+import { getDictionary, getPrimaryCta, getServerFeatures } from '@/brand';
 import { ButtonLink, Card, FeatureTile, PageHeader, Section, SectionHeader } from '@/components/ui';
 import { getIcon } from '@/lib/icons';
 
@@ -11,15 +11,16 @@ export async function generateMetadata({ params }) {
 export default async function AboutPage({ params }) {
   const { lang } = await params;
   const dictionary = getDictionary(lang);
+  const features = await getServerFeatures();
   const copy = dictionary.about;
-  const primaryCta = getPrimaryCta(dictionary);
+  const primaryCta = getPrimaryCta(dictionary, features);
 
   return (
     <>
       <PageHeader title={copy.header.title} lead={copy.header.lead} />
 
       <Section size="sm">
-        <p className="max-w-3xl text-lg leading-8 text-ink">{copy.story}</p>
+        <p className="max-w-3xl text-lg leading-8 text-on-canvas">{copy.story}</p>
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           {[copy.mission, copy.vision].map((block) => (
             <Card key={block.title} padding="md">

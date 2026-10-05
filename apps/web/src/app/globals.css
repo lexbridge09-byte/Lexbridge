@@ -1,33 +1,57 @@
 @import "tailwindcss";
 
 /*
-  LexBridge design tokens. Deep garnet hero, white reading surfaces, one gradient reserved for the
-  primary action, saffron only for offers and highlights. Every text/background pair meets WCAG AA.
-  Motion follows MOTION_SPEC.md: tokens only, transform/opacity only, nothing loops except progress.
+  LexBridge design tokens. Deep charcoal canvas (#14171F) with light floating cards (#F4F5F7), one
+  bronze accent (#C5A059) reserved for primary actions and highlights. Two text worlds: dark text
+  on light cards (ink*) and white/gray text on the dark canvas (on-canvas*). Every text/background
+  pair meets WCAG AA. Motion follows MOTION_SPEC.md: tokens only, transform/opacity only.
 */
 @theme {
-  --color-primary: #a3163f;
-  --color-primary-dark: #6e0f2c;
-  --color-primary-deep: #2e0716;
-  --color-primary-bright: #d8344f;
-  --color-primary-50: #fbeff2;
-  --color-primary-100: #f5d6de;
-  --color-accent: #f4a62a;
-  --color-accent-50: #fff6e6;
-  --color-success: #15803d;
-  --color-success-50: #e9f6ee;
-  --color-warning: #b45309;
-  --color-warning-50: #fdf3e7;
-  --color-danger: #c62828;
-  --color-danger-50: #fdecec;
-  --color-surface: #ffffff;
-  --color-surface-alt: #fbf6f3;
-  --color-line: #eadfe3;
-  --color-line-hover: #cdbfc5;
-  --color-line-strong: #9c8f96;
-  --color-ink: #1f1720;
-  --color-ink-muted: #625a66;
-  --color-ink-subtle: #756d7a;
+  /* Dark canvas (page background, sections, chrome) */
+  --color-canvas: #14171f;
+  --color-canvas-alt: #1b1f2a;
+  --color-canvas-raised: #222735;
+  --color-line-canvas: #2a303d;
+
+  /* Light floating surfaces (cards, forms, modals, tables) */
+  --color-card: #f4f5f7;
+  --color-card-hover: #ffffff;
+  --color-card-dim: #e9ebee;
+
+  /* Bronze accent. Bright bronze reads on the dark canvas; primary-dark is the AA-safe
+     bronze for text, links and icons on light cards. */
+  --color-primary: #c5a059;
+  --color-primary-dark: #7d6130;
+  --color-primary-deep: #14171f;
+  --color-primary-bright: #d9bc7a;
+  --color-primary-50: #f7f1e3;
+  --color-primary-100: #eee2c6;
+  --color-accent: #d9bc7a;
+  --color-accent-50: #faf5e9;
+
+  --color-success: #1d7a46;
+  --color-success-50: #e7f4ec;
+  --color-warning: #a05a0a;
+  --color-warning-50: #fbf1e2;
+  --color-danger: #b33030;
+  --color-danger-50: #fbeaea;
+
+  /* Text on light cards */
+  --color-ink: #1a1d26;
+  --color-ink-muted: #5c6270;
+  --color-ink-subtle: #707686;
+
+  /* Text on the dark canvas */
+  --color-on-canvas: #ffffff;
+  --color-on-canvas-muted: #9ea3b0;
+  --color-on-canvas-subtle: #7e8594;
+
+  /* Hairlines and input borders on light surfaces */
+  --color-surface: #14171f;
+  --color-surface-alt: #1b1f2a;
+  --color-line: #e4e6ec;
+  --color-line-hover: #c9cdd6;
+  --color-line-strong: #a6acba;
 
   /* Latin glyphs come from the first font; Devanagari falls through to Noto Sans Devanagari */
   --font-display: var(--font-jakarta), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
@@ -39,12 +63,12 @@
   --radius-panel: 20px;
 
   /* Restrained elevation: hairline, card, raised, floating */
-  --shadow-hairline: 0 1px 2px rgb(31 23 32 / 0.05);
-  --shadow-card: 0 1px 2px rgb(31 23 32 / 0.04), 0 6px 16px -6px rgb(31 23 32 / 0.1);
-  --shadow-raised: 0 14px 32px -12px rgb(31 23 32 / 0.2);
-  --shadow-soft: 8px 10px 48px rgb(110 15 44 / 0.08);
-  --shadow-glow: 0 6px 18px -4px rgb(163 22 63 / 0.35);
-  --shadow-float: 0 18px 40px -14px rgb(46 7 22 / 0.35);
+  --shadow-hairline: 0 1px 2px rgb(0 0 0 / 0.25);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.1), 0 10px 24px -8px rgb(0 0 0 / 0.35);
+  --shadow-raised: 0 16px 36px -12px rgb(0 0 0 / 0.5);
+  --shadow-soft: 8px 10px 48px rgb(0 0 0 / 0.3);
+  --shadow-glow: 0 6px 18px -4px rgb(197 160 89 / 0.35);
+  --shadow-float: 0 18px 40px -14px rgb(0 0 0 / 0.55);
 
   /* Easing (MOTION_SPEC.md) */
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
@@ -155,32 +179,52 @@
 }
 
 @utility bg-cta {
-  background-image: linear-gradient(135deg, var(--color-primary), var(--color-primary-bright));
+  /* Dark charcoal text on bronze for AA contrast; the gradient and top sheen carry the premium feel */
+  background-image: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-bright) 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    0 6px 18px -4px rgb(197 160 89 / 0.45);
+  color: var(--color-canvas);
 }
 
 @utility bg-hero {
-  background-color: var(--color-primary-deep);
+  background-color: var(--color-canvas);
   background-image:
-    radial-gradient(48rem 28rem at 88% 8%, rgb(216 52 79 / 0.3), transparent 62%),
-    linear-gradient(135deg, #2e0716 0%, #5a0c24 55%, #8a1440 100%);
+    radial-gradient(48rem 28rem at 88% 8%, rgb(197 160 89 / 0.2), transparent 62%),
+    radial-gradient(36rem 24rem at 4% 92%, rgb(197 160 89 / 0.08), transparent 60%),
+    linear-gradient(160deg, #14171f 0%, #181c27 55%, #1f2434 100%);
 }
 
 @utility bg-grid-lines {
   background-image:
-    linear-gradient(to right, rgb(255 255 255 / 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+    linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
   background-size: 64px 64px;
 }
 
 @utility bg-assistant {
   background-image:
-    radial-gradient(40rem 22rem at 12% 0%, rgb(245 214 222 / 0.9), transparent 70%),
-    radial-gradient(36rem 20rem at 100% 100%, rgb(255 246 230 / 0.95), transparent 70%),
-    linear-gradient(#fff, #fff);
+    radial-gradient(40rem 22rem at 12% 0%, rgb(247 241 227 / 0.9), transparent 70%),
+    radial-gradient(36rem 20rem at 100% 100%, rgb(238 226 198 / 0.95), transparent 70%),
+    linear-gradient(var(--color-card), var(--color-card));
 }
 
 @utility pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* One-px bronze gradient divider between dark sections */
+@utility divider-bronze {
+  height: 1px;
+  background-image: linear-gradient(to right, transparent, rgb(197 160 89 / 0.45), transparent);
+}
+
+/* Frosted control for dark sections (search bar on the hero) */
+@utility control-glass {
+  border: 1px solid var(--color-line-canvas);
+  background-color: rgb(27 31 42 / 0.7);
+  backdrop-filter: blur(12px);
+  color: var(--color-on-canvas);
 }
 
 /* Horizontal chip/tab rows: scrollable, bar hidden, static edge fade on small screens */
@@ -238,9 +282,9 @@
     border-color var(--dur-200) var(--ease-out-soft);
   @media (hover: hover) {
     &:hover {
-      transform: translateY(-2px);
+      transform: translateY(-3px);
       border-color: var(--color-primary-100);
-      box-shadow: var(--shadow-card);
+      box-shadow: var(--shadow-raised);
     }
   }
 }
@@ -255,8 +299,8 @@
   }
 
   body {
-    background-color: var(--color-surface);
-    color: var(--color-ink);
+    background-color: var(--color-canvas);
+    color: var(--color-on-canvas);
     font-family: var(--font-sans);
     font-size: 1rem;
     line-height: 1.5rem;
@@ -273,14 +317,14 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: rgb(98 90 102 / 0.35);
+    background-color: rgb(158 163 176 / 0.35);
     border: 2px solid transparent;
     border-radius: 999px;
     background-clip: content-box;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background-color: rgb(163 22 63 / 0.55);
+    background-color: rgb(197 160 89 / 0.55);
   }
 
   h1,
@@ -301,8 +345,8 @@
   }
 
   ::selection {
-    background-color: var(--color-primary-100);
-    color: var(--color-ink);
+    background-color: rgb(197 160 89 / 0.35);
+    color: var(--color-on-canvas);
   }
 
   /* Devanagari needs room above and below the headline for matras; negative tracking breaks conjuncts */
@@ -321,6 +365,21 @@
 }
 
 @layer components {
+  /* Back-office tables: soft row highlight on hover */
+  .admin-table tbody tr {
+    transition: background-color var(--dur-100) var(--ease-out-soft);
+  }
+
+  .admin-table tbody tr:hover {
+    background-color: var(--color-card-hover);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .admin-table tbody tr {
+      transition: none;
+    }
+  }
+
   /* Sticky header: hairline shadow fades in once the page scrolls (set by ScrollChrome) */
   .site-header::after {
     content: '';
@@ -392,15 +451,15 @@
     transform: rotate(180deg);
   }
 
-  /* Text inputs, selects and textareas share one control style */
+  /* Text inputs, selects and textareas: light controls that sit on light cards */
   .control {
     display: block;
     width: 100%;
     min-height: 2.875rem;
     border: 1px solid var(--color-line-strong);
     border-radius: var(--radius-control);
-    background-color: var(--color-surface);
-    box-shadow: inset 0 1px 2px rgb(31 23 32 / 0.05);
+    background-color: var(--color-card-hover);
+    box-shadow: inset 0 1px 2px rgb(26 29 38 / 0.05);
     padding: 0.625rem 0.875rem;
     color: var(--color-ink);
     font-size: 1rem;
@@ -417,22 +476,22 @@
   }
 
   .control:hover:not(:disabled):not(:focus) {
-    border-color: #6f6470;
+    border-color: #8b93a3;
   }
 
   .control:focus,
   .control:focus-visible {
     outline: none;
-    border-color: var(--color-primary);
+    border-color: var(--color-primary-dark);
     box-shadow:
-      inset 0 1px 2px rgb(31 23 32 / 0.04),
-      0 0 0 3px rgb(163 22 63 / 0.16);
+      inset 0 1px 2px rgb(26 29 38 / 0.04),
+      0 0 0 3px rgb(197 160 89 / 0.25);
   }
 
   .control:disabled {
     cursor: not-allowed;
     border-color: var(--color-line);
-    background-color: var(--color-surface-alt);
+    background-color: var(--color-card-dim);
     box-shadow: none;
     color: var(--color-ink-muted);
   }
@@ -463,7 +522,7 @@
   select.control {
     appearance: none;
     padding-right: 2.5rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23625a66' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235c6270' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-position: right 0.875rem center;
     background-repeat: no-repeat;
     background-size: 1rem;
@@ -480,7 +539,7 @@
     margin: 0;
     appearance: none;
     border: 1.5px solid var(--color-line-strong);
-    background-color: var(--color-surface);
+    background-color: var(--color-card-hover);
     cursor: pointer;
     transition:
       background-color var(--dur-100) var(--ease-out-soft),
@@ -553,7 +612,7 @@
   .radio:disabled {
     cursor: not-allowed;
     border-color: var(--color-line);
-    background-color: var(--color-surface-alt);
+    background-color: var(--color-card-dim);
   }
 
   /* Loading placeholder that matches the final layout; appears only after 300ms */
@@ -561,7 +620,7 @@
     position: relative;
     overflow: hidden;
     border-radius: 8px;
-    background-color: #f1eaed;
+    background-color: var(--color-card-dim);
     animation: fade-in var(--dur-150) var(--ease-out-soft) 300ms both;
   }
 
@@ -569,7 +628,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.6), transparent);
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.75), transparent);
     transform: translateX(-100%);
     animation: shimmer 1500ms linear infinite;
   }
@@ -593,8 +652,9 @@
     z-index: 60;
     padding: 0.375rem 0.625rem;
     border-radius: 8px;
-    background-color: var(--color-ink);
-    color: #fff;
+    background-color: var(--color-canvas-raised);
+    color: var(--color-on-canvas);
+    border: 1px solid var(--color-line-canvas);
     font-size: 0.75rem;
     font-weight: 600;
     line-height: 1rem;

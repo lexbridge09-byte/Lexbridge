@@ -10,9 +10,9 @@ import {
   WHATSAPP_INBOUND_WORKER_ENABLED,
 } from './config/index.js';
 import { connectDb, disconnectDb } from './db/index.js';
-import { isFeatureEnabled } from './brand/index.js';
 import { logger } from './logger.js';
 import {
+  getEffectiveFlags,
   startDocumentReviewWorker,
   startNotificationWorker,
   startWhatsAppInboundWorker,
@@ -36,9 +36,14 @@ server.listen({ port: PORT, backlog: 2048 }, () => {
   logger.info(`[server] LexBridge API listening on http://localhost:${PORT}`);
 });
 
-if (NOTIFICATION_WORKER_ENABLED) startNotificationWorker();
-if (WHATSAPP_INBOUND_WORKER_ENABLED && isFeatureEnabled('whatsAppAiAssistant')) startWhatsAppInboundWorker();
-if (DOCUMENT_REVIEW_WORKER_ENABLED && isFeatureEnabled('aiDocumentReview')) startDocumentReviewWorker();
+// Workers only start for features that are switched on right now; the runtime flag cache picks up
+// later toggles on its next read, so a killed feature stops getting new requests within seconds.
+if (NOTIFICATION_WORKER_ENABLED || WHATSAPP_INBOUND_WORKER_ENABLED || DOCUMENT_REVIEW_WORKER_ENABLED) {
+  const flags = await getEffectiveFlags();
+  if (NOTIFICATION_WORKER_ENABLED) startNotificationWorker();
+  if (WHATSAPP_INBOUND_WORKER_ENABLED && flags.whatsAppAiAssistant) startWhatsAppInboundWorker();
+  if (DOCUMENT_REVIEW_WORKER_ENABLED && flags.aiDocumentReview) startDocumentReviewWorker();
+}
 
 let isShuttingDown = false;
 

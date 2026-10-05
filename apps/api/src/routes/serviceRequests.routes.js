@@ -79,3 +79,33 @@ serviceRequestsRouter.get('/mine/:referenceCode', requireFeature('clientAccounts
   if (!request) return res.status(404).json({ error: 'Request not found' });
   res.json({ request });
 });
+
+// Guest submissions arrive without an account. After signing in (with the same email),
+// the reference code from the confirmation screen links the request to the dashboard.
+const linkSchema = z.object({
+  ReferenceCode: z.string().trim().min(3, 'Enter the reference code').max(40),
+});
+
+serviceRequestsRouter.post('/link', requireFeature('clientAccounts'), requireAuth, async (req, res) => {
+  const { ReferenceCode } = linkSchema.parse(req.body ?? {});
+  const referenceCode = ReferenceCode.toUpperCase();
+
+  // Atomic claim: only an unclaimed request carrying the user's email (or no email at all) can be linked
+  const linked = await ServiceRequestModel.findOneAndUpdate(
+    { ReferenceCode: referenceCode, Client: null, $or: [{ Email: req.user.email }, { Email: '' }] },
+    { $set: { Client: req.user.id } },
+    { returnDocument: 'after', projection: CLIENT_REQUEST_FIELDS },
+  );
+  if (linked) return res.json({ request: linked, linked: true });
+
+  const request = await ServiceRequestModel.findOne({ ReferenceCode: referenceCode }).select('Client Email').lean();
+  if (!request) return res.status(404).json({ error: 'No request carries that reference. Check the code from your confirmation screen.' });
+  if (String(request.Client ?? '') === req.user.id) {
+    return res.json({ linked: true, alreadyLinked: true });
+  }
+  return res.status(403).json({
+    error: request.Email && request.Email !== req.user.email
+      ? 'This reference was submitted with a different email. Sign in with that email instead.'
+      : 'This reference is already linked to another account.',
+  });
+});

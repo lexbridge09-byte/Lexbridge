@@ -119,7 +119,7 @@ function ConversationThread({ messages, page, onPageChange }) {
           return (
             <li
               key={message._id}
-              className={`max-w-[46rem] rounded-xl border px-3.5 py-2.5 ${isInbound ? 'mr-auto border-line bg-surface-alt' : 'ml-auto border-primary-100 bg-primary-50'}`}
+              className={`max-w-[46rem] rounded-xl border px-3.5 py-2.5 ${isInbound ? 'mr-auto border-line bg-card-dim' : 'ml-auto border-primary-100 bg-primary-50'}`}
             >
               <p className="text-xs text-ink-muted">
                 {[isInbound ? copy.fromContact : copy.toContact, labels.whatsAppMessageKind(message.Kind), chargeLabel, format.dateTime(message.createdAt)]

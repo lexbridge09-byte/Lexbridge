@@ -3,14 +3,14 @@
 import { ChevronDown, CircleUserRound, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useId, useRef, useState } from 'react';
-import { isFeatureEnabled } from '@lexbridge/shared';
 import { useDictionary, useLocalizedHref } from '@/brand/localeContext';
+import { useIsFeatureEnabled } from '@/components/featuresProvider';
 import { LocaleLink } from '@/components/localeLink';
 import { requestApi } from '@/lib/apiClient';
 import { clearSession, useSession } from '@/lib/session';
 
 const TRIGGER_CLASS =
-  'flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full px-1 text-ink hover:bg-surface-alt sm:rounded-xl sm:px-2.5 sm:text-[15px] sm:font-medium';
+  'flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full px-1 text-on-canvas hover:bg-canvas-raised sm:rounded-xl sm:px-2.5 sm:text-[15px] sm:font-medium';
 const ITEM_CLASS = 'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-ink hover:bg-primary-50 focus:bg-primary-50 focus:outline-none';
 
 function deriveInitials(user) {
@@ -30,6 +30,9 @@ export function AccountMenu({ signInHref, signInLabel }) {
   const dictionary = useDictionary();
   const copy = dictionary.ux.account;
   const { status, user } = useSession();
+  const isPaymentsEnabled = useIsFeatureEnabled('onlinePayments');
+  const isUploadsEnabled = useIsFeatureEnabled('documentUploads');
+  const isReviewsEnabled = useIsFeatureEnabled('aiDocumentReview');
   const [isOpen, setIsOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const buttonRef = useRef(null);
@@ -51,7 +54,7 @@ export function AccountMenu({ signInHref, signInLabel }) {
 
   if (status !== 'signedIn') {
     return (
-      <LocaleLink href={signInHref} aria-label={signInLabel} className={`${TRIGGER_CLASS} w-11 sm:w-auto sm:min-w-28 sm:text-ink/85`}>
+      <LocaleLink href={signInHref} aria-label={signInLabel} className={`${TRIGGER_CLASS} w-11 sm:w-auto sm:min-w-28 sm:text-on-canvas/85`}>
         <CircleUserRound aria-hidden="true" className="size-5" strokeWidth={1.75} />
         <span className="hidden sm:inline">{signInLabel}</span>
       </LocaleLink>
@@ -60,9 +63,9 @@ export function AccountMenu({ signInHref, signInLabel }) {
 
   const items = [
     { key: 'dashboard', href: '/dashboard', label: copy.dashboard },
-    isFeatureEnabled('onlinePayments') && { key: 'orders', href: '/dashboard/orders', label: copy.orders },
-    isFeatureEnabled('documentUploads') && { key: 'documents', href: '/dashboard/documents', label: copy.documents },
-    isFeatureEnabled('aiDocumentReview') && { key: 'reviews', href: '/dashboard/document-reviews', label: copy.documentReviews },
+    isPaymentsEnabled && { key: 'orders', href: '/dashboard/orders', label: copy.orders },
+    isUploadsEnabled && { key: 'documents', href: '/dashboard/documents', label: copy.documents },
+    isReviewsEnabled && { key: 'reviews', href: '/dashboard/document-reviews', label: copy.documentReviews },
     user.Role === 'lawyer' && { key: 'team', href: '/team', label: copy.team },
     (user.Role === 'owner' || user.Role === 'manager') && { key: 'admin', href: '/admin', label: copy.admin },
   ].filter(Boolean);
@@ -116,7 +119,6 @@ export function AccountMenu({ signInHref, signInLabel }) {
     setIsOpen(false);
     setIsSigningOut(false);
     router.replace(toLocalized('/'));
-    router.refresh();
   }
 
   return (
@@ -136,7 +138,7 @@ export function AccountMenu({ signInHref, signInLabel }) {
           {deriveInitials(user)}
         </span>
         <span className="hidden max-w-[6rem] truncate sm:inline">{deriveFirstName(user)}</span>
-        <ChevronDown aria-hidden="true" className="hidden size-4 text-ink-muted sm:block" strokeWidth={2} />
+        <ChevronDown aria-hidden="true" className="hidden size-4 text-on-canvas-muted sm:block" strokeWidth={2} />
       </button>
 
       {isOpen && (
@@ -146,7 +148,7 @@ export function AccountMenu({ signInHref, signInLabel }) {
           role="menu"
           aria-label={copy.menuLabel}
           onKeyDown={handleMenuKeyDown}
-          className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl border border-line bg-white p-1.5 shadow-card"
+          className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl border border-line bg-card p-1.5 shadow-card"
         >
           <p className="truncate px-3 py-2 text-xs text-ink-muted">{user.Email}</p>
           {items.map((item) => (

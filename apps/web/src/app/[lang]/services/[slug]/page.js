@@ -1,6 +1,6 @@
 import { CalendarDays, Check, ChevronRight, FileText, Lock } from 'lucide-react';
 import { notFound } from 'next/navigation';
-import { getDictionary, isFeatureEnabled, requireFeaturePage } from '@/brand';
+import { getDictionary, getServerFeatures, requireFeaturePage } from '@/brand';
 import { ProductCard, ProductPrice } from '@/components/commerce/productCard';
 import { LocaleLink } from '@/components/localeLink';
 import { Badge, ButtonLink, Card, FaqAccordion, PageHeader, Section, SectionHeader } from '@/components/ui';
@@ -22,7 +22,7 @@ async function loadProduct(slug) {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  if (!isFeatureEnabled('serviceCatalog')) return {};
+  if (!(await getServerFeatures()).serviceCatalog) return {};
   const { data } = await loadPublicApi(`/products/${encodeURIComponent(slug)}`);
   return data?.product ? { title: data.product.Title, description: data.product.Summary } : {};
 }
@@ -51,7 +51,7 @@ function StepsCard({ title, steps }) {
       <ol className="mt-4 grid gap-4 sm:grid-cols-2">
         {steps.map((step, stepIndex) => (
           <li key={step.title} className="flex gap-3">
-            <span className="tabular flex size-7 shrink-0 items-center justify-center rounded-full bg-primary-50 text-xs font-bold text-primary">
+            <span className="tabular flex size-7 shrink-0 items-center justify-center rounded-full bg-primary-50 text-xs font-bold text-primary-dark">
               {stepIndex + 1}
             </span>
             <div>
@@ -73,13 +73,13 @@ function deriveSaving(product) {
 }
 
 export default async function ProductPage({ params }) {
-  requireFeaturePage('serviceCatalog');
+  await requireFeaturePage('serviceCatalog');
   const { lang, slug } = await params;
-  const dictionary = getDictionary(lang);
+  const [dictionary, features] = await Promise.all([getDictionary(lang), getServerFeatures()]);
   const copy = dictionary.commerce.product;
   const labels = createCatalogLabels(dictionary);
   const [product, publishedProducts] = await Promise.all([loadProduct(slug), loadPublishedProducts()]);
-  const canBuy = isFeatureEnabled('onlinePayments');
+  const canBuy = features.onlinePayments;
   const action = canBuy
     ? { href: `/checkout/${product.Slug}`, label: copy.buyNow, note: copy.buyNote }
     : { href: `/contact?service=${product.ServiceCategory}`, label: copy.request, note: copy.requestNote };
@@ -193,7 +193,7 @@ export default async function ProductPage({ params }) {
       <div aria-hidden="true" className="h-[4.5rem] lg:hidden" />
       <aside
         aria-label={copy.stickyLabel}
-        className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 border-t border-line bg-white px-4 py-2.5 shadow-[0_-6px_18px_rgb(31_23_32/0.06)] lg:hidden print:hidden"
+        className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 border-t border-line bg-card px-4 py-2.5 shadow-[0_-6px_18px_rgb(31_23_32/0.06)] lg:hidden print:hidden"
       >
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
           <div className="min-w-0">

@@ -22,7 +22,6 @@ export function SignOutButton({ className = '' }) {
     }
     clearSession();
     router.replace(toLocalized('/'));
-    router.refresh();
   }
 
   return (

@@ -11,7 +11,7 @@ export function TestimonialCarousel({ title, items }) {
         {items.map((testimonial) => (
           <li
             key={`${testimonial.name}-${testimonial.city}`}
-            className="flex w-[85%] shrink-0 snap-start flex-col rounded-2xl bg-white p-6 shadow-card sm:w-[26rem]"
+            className="flex w-[85%] shrink-0 snap-start flex-col rounded-2xl bg-card p-6 shadow-card ring-1 ring-line sm:w-[26rem]"
           >
             <Quote aria-hidden="true" className="size-8 text-primary-100" strokeWidth={1.5} />
             <blockquote className="mt-3 flex-1 text-sm leading-6 text-ink">{testimonial.quote}</blockquote>

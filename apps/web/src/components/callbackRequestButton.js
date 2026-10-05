@@ -13,14 +13,14 @@ import { useCatalogLabels } from '@/lib/localeTools';
 
 const TRIGGER_CLASSES = {
   // Always icon-only in the header so it can never wrap; the label is announced and shown as a tooltip
-  header: 'flex size-11 shrink-0 items-center justify-center rounded-full text-ink hover:bg-surface-alt',
+  header: 'flex size-11 shrink-0 items-center justify-center rounded-full text-on-canvas hover:bg-canvas-raised',
   icon: 'flex size-9 shrink-0 items-center justify-center rounded-xl border border-line text-primary hover:bg-primary-50',
   block:
     'flex w-full items-center gap-3 rounded-xl border border-line px-4 py-3 font-semibold text-ink hover:border-primary-100 hover:bg-primary-50',
 };
 
 const CHIP_CLASS =
-  'cursor-pointer rounded-xl border border-line bg-white px-3 py-2 text-sm font-medium text-ink hover:border-line-strong has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:checked]:text-primary-dark has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-primary';
+  'cursor-pointer rounded-xl border border-line bg-card px-3 py-2 text-sm font-medium text-ink hover:border-line-strong has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:checked]:text-primary-dark has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-primary';
 
 function CallbackForm({ idPrefix, onDone }) {
   const dictionary = useDictionary();
@@ -166,7 +166,7 @@ export function CallbackRequestButton({ variant = 'block', label, className = ''
         onClick={(event) => {
           if (event.target === dialogRef.current) closeSheet();
         }}
-        className="mx-auto mb-0 mt-auto max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-0 text-ink shadow-float backdrop:bg-ink/55 sm:mb-auto sm:rounded-3xl"
+        className="mx-auto mb-0 mt-auto max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-card p-0 text-ink shadow-float backdrop:bg-ink/55 sm:mb-auto sm:rounded-3xl"
       >
         {isOpen && (
           <div className="p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:p-6">
@@ -177,7 +177,7 @@ export function CallbackRequestButton({ variant = 'block', label, className = ''
                 </h2>
                 <p className="mt-0.5 text-sm text-ink-muted">{copy.body}</p>
               </div>
-              <button type="button" onClick={closeSheet} className="-mr-2 -mt-1 flex size-10 items-center justify-center rounded-full hover:bg-surface-alt">
+              <button type="button" onClick={closeSheet} className="-mr-2 -mt-1 flex size-10 items-center justify-center rounded-full hover:bg-card-hover">
                 <X aria-hidden="true" className="size-5" strokeWidth={2} />
                 <span className="sr-only">{copy.close}</span>
               </button>

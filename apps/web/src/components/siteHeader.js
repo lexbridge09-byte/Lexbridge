@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { getAccountLink, getPrimaryCta, getPrimaryNav, isFeatureEnabled } from '@/brand';
+import { getAccountLink, getPrimaryCta, getPrimaryNav, getServerFeatures } from '@/brand';
 import { AccountMenu } from '@/components/accountMenu';
 import { BrandLogo } from '@/components/brandLogo';
 import { CallbackRequestButton } from '@/components/callbackRequestButton';
@@ -12,7 +12,7 @@ import { getIcon } from '@/lib/icons';
 
 // Fixed minimum widths keep the header from shifting when the language (and label length) changes
 const NAV_LINK_CLASS =
-  'flex min-w-34 items-center justify-center gap-1 whitespace-nowrap rounded-control px-3 py-2 text-[15px] font-medium text-ink/85 transition-colors duration-(--dur-150) hover:bg-surface-alt hover:text-ink';
+  'flex min-w-34 items-center justify-center gap-1 whitespace-nowrap rounded-control px-3 py-2 text-[15px] font-medium text-on-canvas/85 transition-colors duration-(--dur-150) hover:bg-canvas-raised hover:text-on-canvas';
 
 // Services: a full-width panel grouped by life situation (opens on hover or keyboard focus)
 function MegaMenu({ item, common, locale }) {
@@ -24,7 +24,7 @@ function MegaMenu({ item, common, locale }) {
       </LocaleLink>
       <div className="menu-panel absolute inset-x-0 top-full z-50 pt-2">
         <div className="mx-auto max-w-site px-6">
-          <div className="rounded-panel border border-line bg-white p-6 shadow-raised">
+          <div className="rounded-panel border border-line bg-card p-6 shadow-raised">
             <p className="text-xs font-semibold text-ink-muted">{common.nav.megaTitle}</p>
             <ul aria-label={common.nav.servicesMenuLabel} className="mt-4 grid grid-cols-5 gap-6">
               {item.mega.map((group) => {
@@ -33,7 +33,7 @@ function MegaMenu({ item, common, locale }) {
                   <li key={group.key} className="min-w-0">
                     <LocaleLink
                       href={group.href}
-                      className="flex items-center gap-2 font-display text-[15px] font-semibold text-ink transition-colors duration-(--dur-150) hover:text-primary"
+                      className="flex items-center gap-2 font-display text-[15px] font-semibold text-ink transition-colors duration-(--dur-150) hover:text-primary-dark"
                     >
                       <Icon aria-hidden="true" className="size-[18px] shrink-0 text-primary" strokeWidth={1.75} />
                       {group.label}
@@ -61,7 +61,7 @@ function MegaMenu({ item, common, locale }) {
             <div className="mt-5 border-t border-line pt-4">
               <LocaleLink
                 href="/services"
-                className="group inline-flex items-center gap-1 text-sm font-semibold text-primary"
+                className="group inline-flex items-center gap-1 text-sm font-semibold text-primary-dark"
               >
                 {common.nav.allServices}
                 <ChevronRight
@@ -87,7 +87,7 @@ function Dropdown({ item, common }) {
         <ChevronDown aria-hidden="true" className="menu-chevron size-4" strokeWidth={2} />
       </LocaleLink>
       <div className="menu-panel absolute left-0 top-full z-50 w-60 pt-2">
-        <ul aria-label={common.nav.helpMenuLabel} className="rounded-card border border-line bg-white p-1.5 shadow-raised">
+        <ul aria-label={common.nav.helpMenuLabel} className="rounded-card border border-line bg-card p-1.5 shadow-raised">
           {item.children.map((child) => (
             <li key={child.key}>
               <LocaleLink
@@ -104,14 +104,15 @@ function Dropdown({ item, common }) {
   );
 }
 
-export function SiteHeader({ dictionary, locale }) {
+export async function SiteHeader({ dictionary, locale }) {
   const common = dictionary.common;
-  const navItems = getPrimaryNav(dictionary);
-  const primaryCta = getPrimaryCta(dictionary);
-  const accountLink = getAccountLink(dictionary);
+  const features = await getServerFeatures();
+  const navItems = getPrimaryNav(dictionary, [], features);
+  const primaryCta = getPrimaryCta(dictionary, features);
+  const accountLink = getAccountLink(dictionary, features);
 
   return (
-    <header className="site-header sticky top-0 z-40 border-b border-line bg-white print:static">
+    <header className="site-header sticky top-0 z-40 border-b border-line-canvas bg-canvas-alt/95 backdrop-blur-md print:static">
       <div className="mx-auto flex h-16 w-full max-w-site items-center gap-2 px-4 sm:px-6">
         <MobileMenu
           navItems={navItems}
@@ -142,7 +143,7 @@ export function SiteHeader({ dictionary, locale }) {
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5">
           <LanguageSwitcher label={common.language.label} className="hidden sm:inline-flex" />
-          {isFeatureEnabled('callbackRequests') && <CallbackRequestButton variant="header" />}
+          {features.callbackRequests && <CallbackRequestButton variant="header" />}
           {accountLink && <AccountMenu signInHref={accountLink.href} signInLabel={accountLink.label} />}
           <ButtonLink href={primaryCta.href} size="sm" className="hidden min-w-46 whitespace-nowrap md:inline-flex">
             {primaryCta.label}

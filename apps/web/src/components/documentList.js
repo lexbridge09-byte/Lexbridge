@@ -37,7 +37,7 @@ export function DocumentList({ documents, emptyText, showReference = false }) {
           </div>
           <a
             href={`/api/documents/${document._id}/download`}
-            className="flex size-10 shrink-0 items-center justify-center rounded-xl text-ink-muted hover:bg-surface-alt hover:text-primary"
+            className="flex size-10 shrink-0 items-center justify-center rounded-xl text-ink-muted hover:bg-card-hover hover:text-primary"
           >
             <Download aria-hidden="true" className="size-5" strokeWidth={1.75} />
             <span className="sr-only">

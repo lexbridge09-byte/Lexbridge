@@ -48,6 +48,11 @@ export const dashboard = {
     intro: 'All requests sent with this email.',
     emptyBefore: 'No requests yet.',
     emptyCta: 'Send one',
+    trackTitle: 'Track a request sent without signing in',
+    trackIntro: "Sent a request as a guest? Paste its reference code (LB-…) here and it appears in your list below.",
+    trackPlaceholder: 'e.g. LB-XXXXXX',
+    trackAction: 'Track it',
+    trackLinked: 'Linked. Your request is now in the list below.',
   },
 
   requestDetail: {
@@ -61,6 +66,9 @@ export const dashboard = {
     description: 'What you told us',
     documents: 'Documents',
     noDocuments: 'No documents for this request.',
+    deliverables: 'Your finished documents',
+    deliverablesNote: 'Work completed by our team for this request. Download it here.',
+    noDeliverables: 'Nothing has been delivered for this request yet.',
     shareTitle: 'Share a document',
   },
 

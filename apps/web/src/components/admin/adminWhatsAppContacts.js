@@ -106,7 +106,7 @@ export function AdminWhatsAppContacts() {
 
       <WhatsAppSetupNotice status={status} />
 
-      <form onSubmit={handleSearchSubmit} className="mb-4 grid gap-3 rounded-2xl border border-line bg-white p-4 sm:grid-cols-[1fr_auto] sm:items-end">
+      <form onSubmit={handleSearchSubmit} className="mb-4 grid gap-3 rounded-2xl border border-line bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-end">
         <div>
           <label htmlFor="whatsapp-q" className={ADMIN_LABEL_CLASS}>
             {dictionary.admin.common.search}
@@ -145,9 +145,9 @@ export function AdminWhatsAppContacts() {
                 <th scope="col" className={ADMIN_TH_CLASS}>{copy.columns.lastMessage}</th>
               </tr>
             </thead>
-            <tbody className="bg-white">
+            <tbody className="bg-card">
               {items.map((contact) => (
-                <tr key={contact._id} className="hover:bg-surface-alt">
+                <tr key={contact._id} className="hover:bg-card-hover">
                   <td className={`${ADMIN_TD_CLASS} whitespace-nowrap`}>
                     <LocaleLink href={`/admin/whatsapp/${contact._id}`} className={ADMIN_LINK_CLASS}>
                       {formatWhatsAppNumber(contact.Phone)}

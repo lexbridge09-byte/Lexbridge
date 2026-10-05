@@ -19,12 +19,12 @@ export default async function LoginPage({ params, searchParams }) {
     <Section tone="alt" size="sm">
       <div className="grid items-center gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
         <div className="order-2 lg:order-1">
-          <h1 className="text-h2 text-ink">{copy.title}</h1>
-          <p className="mt-3 max-w-md leading-7 text-ink-muted">{copy.body}</p>
+          <h1 className="text-h2 text-on-canvas">{copy.title}</h1>
+          <p className="mt-3 max-w-md leading-7 text-on-canvas-muted">{copy.body}</p>
           <ul className="mt-5 space-y-3">
             {copy.benefits.map((benefit) => (
-              <li key={benefit} className="flex items-center gap-3 font-medium text-ink">
-                <span className="flex size-6 items-center justify-center rounded-full bg-success-50 text-success">
+              <li key={benefit} className="flex items-center gap-3 font-medium text-on-canvas">
+                <span className="flex size-6 items-center justify-center rounded-full bg-success/15 text-success">
                   <Check aria-hidden="true" className="size-4" strokeWidth={2.5} />
                 </span>
                 {benefit}

@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react';
-import { getDictionary, getFaqItems, requireFeaturePage } from '@/brand';
+import { getDictionary, getFaqItems, getServerFeatures, requireFeaturePage } from '@/brand';
 import { DocumentReviewDropzone } from '@/components/documentReview/documentReviewDropzone';
 import { ButtonLink, FaqAccordion, ProcessSteps, Section, SectionHeader } from '@/components/ui';
 import { getIcon } from '@/lib/icons';
@@ -11,19 +11,19 @@ export async function generateMetadata({ params }) {
 
 // Upload first: the drop zone sits above the fold; what you get, how it works and FAQ follow
 export default async function DocumentReviewLandingPage({ params }) {
-  requireFeaturePage('aiDocumentReview');
+  await requireFeaturePage('aiDocumentReview');
   const { lang } = await params;
-  const dictionary = getDictionary(lang);
+  const [dictionary, features] = await Promise.all([getDictionary(lang), getServerFeatures()]);
   const copy = dictionary.documentReview.landing;
-  const faqItems = getFaqItems(dictionary, lang, { ids: copy.faq.ids });
+  const faqItems = getFaqItems(dictionary, lang, features, { ids: copy.faq.ids });
 
   return (
     <>
       <Section tone="alt" size="sm">
         <div className="grid items-center gap-5 lg:grid-cols-[1fr_1.15fr] lg:gap-x-12">
           <div className="lg:col-start-1 lg:row-start-1 lg:self-end">
-            <h1 className="text-h2 text-ink">{copy.header.title}</h1>
-            <p className="mt-2 text-base leading-7 text-ink-muted lg:text-lg">{copy.header.lead}</p>
+            <h1 className="text-h2 text-on-canvas">{copy.header.title}</h1>
+            <p className="mt-2 text-base leading-7 text-on-canvas-muted lg:text-lg">{copy.header.lead}</p>
           </div>
           <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
             <DocumentReviewDropzone />
@@ -31,13 +31,13 @@ export default async function DocumentReviewLandingPage({ params }) {
           <div className="lg:col-start-1 lg:row-start-2 lg:self-start">
             <ul className="flex flex-wrap gap-x-5 gap-y-2">
               {copy.checks.map((check) => (
-                <li key={check} className="flex items-center gap-1.5 text-sm font-medium text-ink">
+                <li key={check} className="flex items-center gap-1.5 text-sm font-medium text-on-canvas">
                   <Check aria-hidden="true" className="size-4 text-success" strokeWidth={2.5} />
                   {check}
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-xs text-ink-muted">{copy.disclaimer}</p>
+            <p className="mt-3 text-xs text-on-canvas-muted">{copy.disclaimer}</p>
           </div>
         </div>
       </Section>
@@ -48,7 +48,7 @@ export default async function DocumentReviewLandingPage({ params }) {
           {copy.outputs.items.map((item) => {
             const Icon = getIcon(item.icon);
             return (
-              <li key={item.title} className="rounded-card border border-line bg-white p-5">
+              <li key={item.title} className="rounded-card border border-line bg-card p-5">
                 <span className="flex size-10 items-center justify-center rounded-control bg-primary-50 text-primary">
                   <Icon aria-hidden="true" className="size-5" strokeWidth={1.75} />
                 </span>
@@ -69,7 +69,7 @@ export default async function DocumentReviewLandingPage({ params }) {
         <SectionHeader id="review-documents-title" title={copy.documents.title} description={copy.documents.description} />
         <ul className="flex flex-wrap gap-2">
           {copy.documents.items.map((documentName) => (
-            <li key={documentName} className="rounded-full border border-line bg-white px-3.5 py-1.5 text-sm font-medium text-ink">
+            <li key={documentName} className="rounded-full border border-line bg-card px-3.5 py-1.5 text-sm font-medium text-ink">
               {documentName}
             </li>
           ))}
@@ -80,10 +80,10 @@ export default async function DocumentReviewLandingPage({ params }) {
         <Section tone="alt" labelledBy="review-faq-title" size="sm">
           <div className="grid gap-5 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
             <div>
-              <h2 id="review-faq-title" className="text-section text-ink">
+              <h2 id="review-faq-title" className="text-section text-on-canvas">
                 {copy.faq.title}
               </h2>
-              <ButtonLink href="/faq" variant="link" className="mt-2">
+              <ButtonLink href="/faq" variant="linkOnDark" className="mt-2">
                 {dictionary.home.faq.viewAll}
               </ButtonLink>
             </div>

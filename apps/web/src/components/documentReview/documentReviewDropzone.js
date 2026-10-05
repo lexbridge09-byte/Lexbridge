@@ -94,7 +94,7 @@ export function DocumentReviewDropzone({ allowance: knownAllowance }) {
   const isDisabled = isUploading || isLimitReached;
 
   return (
-    <div className="rounded-panel border border-line bg-white p-3 shadow-soft sm:p-4">
+    <div className="rounded-panel border border-line bg-card p-3 shadow-soft sm:p-4">
       <div
         onDragEnter={(event) => {
           event.preventDefault();
@@ -109,7 +109,7 @@ export function DocumentReviewDropzone({ allowance: knownAllowance }) {
           setIsDragging(false);
           if (!isDisabled) handleFile(event.dataTransfer.files?.[0]);
         }}
-        className={`flex min-h-64 flex-col items-center justify-center rounded-2xl border-2 border-dashed px-5 py-7 text-center transition ${isDragging ? 'border-primary bg-primary-50' : 'border-primary-100 bg-surface-alt/70'}`}
+        className={`flex min-h-64 flex-col items-center justify-center rounded-2xl border-2 border-dashed px-5 py-7 text-center transition ${isDragging ? 'border-primary bg-primary-50 shadow-glow' : 'border-primary-100 bg-card-dim/70 hover:border-primary/50'}`}
       >
         <div className="flex h-6 items-center">
           {isSignedOut && <Badge tone="offer">{copy.signedOutBadge}</Badge>}
@@ -119,7 +119,7 @@ export function DocumentReviewDropzone({ allowance: knownAllowance }) {
             </Badge>
           )}
         </div>
-        <span className="mt-4 flex size-14 items-center justify-center rounded-full bg-white text-primary shadow-sm ring-1 ring-line">
+        <span className="mt-4 flex size-14 items-center justify-center rounded-full bg-card text-primary shadow-sm ring-1 ring-line">
           <Upload aria-hidden="true" className="size-7" strokeWidth={1.75} />
         </span>
         <p className="mt-3 font-display text-lg font-semibold text-ink">{isDragging ? copy.dragActive : copy.title}</p>

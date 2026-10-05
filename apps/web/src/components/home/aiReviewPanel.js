@@ -8,9 +8,9 @@ export function AiReviewPanel({ copy, href }) {
 
   return (
     <Section labelledBy="ai-review-title" size="sm">
-      <div className="reveal grid items-center gap-8 overflow-hidden rounded-panel border border-line bg-assistant p-6 sm:p-8 lg:grid-cols-2 lg:gap-12 lg:p-10">
+      <div className="reveal grid items-center gap-8 overflow-hidden rounded-panel border border-primary-100/60 bg-assistant p-6 shadow-soft ring-1 ring-primary-100/40 sm:p-8 lg:grid-cols-2 lg:gap-12 lg:p-10">
         <div>
-          <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-primary-dark ring-1 ring-primary-100">
+          <span className="inline-flex items-center rounded-full bg-card px-3 py-1 text-xs font-semibold text-primary-dark ring-1 ring-primary-100">
             {copy.pill}
           </span>
           <h2 id="ai-review-title" className="mt-3 text-section text-ink">
@@ -33,7 +33,7 @@ export function AiReviewPanel({ copy, href }) {
           <p className="mt-2.5 text-xs text-ink-muted">{copy.note}</p>
         </div>
 
-        <div aria-hidden="true" className="rounded-panel bg-white p-5 shadow-raised ring-1 ring-line sm:p-6">
+        <div aria-hidden="true" className="rounded-panel bg-card p-5 shadow-raised ring-1 ring-line sm:p-6">
           <div className="flex items-center gap-3 border-b border-line pb-4">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-control bg-primary-50 text-primary">
               <FileText className="size-5" strokeWidth={1.75} />
@@ -47,7 +47,7 @@ export function AiReviewPanel({ copy, href }) {
               return (
                 <li
                   key={row}
-                  className={`flex items-center gap-3 rounded-control px-3 py-2.5 text-sm ${needsAttention ? 'bg-warning-50 text-ink' : 'bg-surface-alt text-ink-muted'}`}
+                  className={`flex items-center gap-3 rounded-control px-3 py-2.5 text-sm ${needsAttention ? 'bg-warning-50 text-ink' : 'bg-card-dim text-ink-muted'}`}
                 >
                   {needsAttention ? (
                     <TriangleAlert className="size-4 shrink-0 text-warning" strokeWidth={2} />

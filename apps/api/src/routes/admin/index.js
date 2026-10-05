@@ -6,6 +6,7 @@ import { adminConsultationsRouter } from './consultations.routes.js';
 import { adminCouponsRouter } from './coupons.routes.js';
 import { adminDocumentReviewsRouter } from './documentReviews.routes.js';
 import { adminDocumentsRouter } from './documents.routes.js';
+import { adminFeatureFlagsRouter } from './featureFlags.routes.js';
 import { adminOrdersRouter } from './orders.routes.js';
 import { adminOverviewRouter } from './overview.routes.js';
 import { adminProductsRouter } from './products.routes.js';
@@ -20,6 +21,7 @@ export const adminRouter = Router();
 adminRouter.use(requireStaff);
 
 // Owner only: commerce, content, user management and every other back-office area
+adminRouter.use('/feature-flags', adminFeatureFlagsRouter);
 adminRouter.use('/overview', requireOwner, adminOverviewRouter);
 adminRouter.use('/consultations', requireOwner, requireFeature('consultationBooking'), adminConsultationsRouter);
 adminRouter.use('/slots', requireOwner, requireFeature('consultationBooking'), adminSlotsRouter);

@@ -2,15 +2,18 @@ import { LoaderCircle } from 'lucide-react';
 import { LocaleLink } from '@/components/localeLink';
 
 const VARIANT_CLASSES = {
-  // The only gradient in the system: one per view, for the action people should take next
-  primary: 'bg-cta font-bold text-white shadow-glow hover:brightness-110 active:brightness-95',
-  secondary: 'border border-primary bg-white text-primary hover:bg-primary-50',
-  outline: 'border border-line-strong bg-white text-ink hover:border-ink hover:bg-surface-alt',
-  ghost: 'text-ink hover:bg-surface-alt',
+  // The only gradient in the system: one per view, for the action people should take next.
+  // Charcoal text on bronze: bronze + white fails AA at button sizes.
+  primary: 'bg-cta font-bold text-canvas shadow-glow hover:brightness-110 active:brightness-95',
+  secondary: 'border border-primary-dark bg-card text-primary-dark hover:bg-primary-50',
+  outline: 'border border-line-strong bg-card text-ink hover:border-ink hover:bg-card-hover',
+  ghost: 'text-ink hover:bg-card-hover',
   ghostOnDark: 'border border-white/70 text-white hover:border-white hover:bg-white/10',
-  onDark: 'bg-white text-primary-dark shadow-hairline hover:bg-primary-50',
+  onDark: 'bg-card text-ink shadow-hairline hover:bg-primary-50',
+  onDarkBronze: 'border border-primary/60 text-primary hover:border-primary hover:bg-primary/10',
   danger: 'bg-danger text-white hover:brightness-110',
-  link: 'text-primary underline-offset-4 hover:underline',
+  link: 'text-primary-dark underline-offset-4 hover:underline',
+  linkOnDark: 'text-primary-bright underline-offset-4 hover:underline',
 };
 
 // sm 36px, md 44px, lg 52px

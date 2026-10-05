@@ -22,6 +22,7 @@ export const common = {
     helpMenuLabel: 'Help menu',
     findSolution: 'Find my solution',
     insights: 'Legal guides',
+    bareActs: 'Bare Acts',
     about: 'About',
     contact: 'Contact',
     faq: 'FAQ',

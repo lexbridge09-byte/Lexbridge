@@ -1,7 +1,7 @@
 'use client';
 
-import { isFeatureEnabled } from '@lexbridge/shared';
 import { useDictionary } from '@/brand/localeContext';
+import { useIsFeatureEnabled } from '@/components/featuresProvider';
 import { DocumentList } from '@/components/documentList';
 import { DocumentUpload } from '@/components/documentUpload';
 import { ErrorNote, LoadingNote } from '@/components/loadState';
@@ -11,10 +11,11 @@ import { useApiData } from '@/lib/useApiData';
 
 export function DocumentsPanel() {
   const copy = useDictionary().dashboard.documents;
+  const isBookingEnabled = useIsFeatureEnabled('consultationBooking');
   const labels = useCatalogLabels();
   const documentsData = useApiData('/documents/mine');
   const requestsData = useApiData('/service-requests/mine');
-  const consultationsData = useApiData(isFeatureEnabled('consultationBooking') ? '/consultations/mine' : null);
+  const consultationsData = useApiData(isBookingEnabled ? '/consultations/mine' : null);
 
   const referenceOptions = [
     ...(requestsData.data?.requests ?? []).map((request) => ({

@@ -3,7 +3,6 @@
 import { Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { isFeatureEnabled } from '@lexbridge/shared';
 import { useDictionary, useLocalizedHref } from '@/brand/localeContext';
 import { CheckboxField, TextAreaField, TextField } from '@/components/formFields';
 import { LanguageSelectField } from '@/components/languageSelectField';
@@ -14,6 +13,7 @@ import { requestApi } from '@/lib/apiClient';
 import { localizeApiError, localizeFieldErrors } from '@/lib/apiErrors';
 import { useFormatters } from '@/lib/localeTools';
 import { openRazorpayCheckout } from '@/lib/razorpay';
+import { useIsFeatureEnabled } from '@/components/featuresProvider';
 
 const THEME_COLOR = '#a3163f';
 
@@ -95,7 +95,7 @@ function CouponField({ items, appliedCoupon, onApplied, onRemoved }) {
           autoComplete="off"
           aria-invalid={Boolean(error)}
           aria-describedby={error ? 'checkout-coupon-error' : undefined}
-          className="block w-full min-w-0 rounded-xl border border-line-strong bg-white px-3.5 py-2.5 text-[15px] uppercase text-ink focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-100 aria-[invalid=true]:border-danger"
+          className="block w-full min-w-0 rounded-xl border border-line-strong bg-card px-3.5 py-2.5 text-[15px] uppercase text-ink focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-100 aria-[invalid=true]:border-danger"
         />
         <Button variant="secondary" size="sm" onClick={applyCoupon} disabled={isChecking || !code.trim()} className="shrink-0">
           {isChecking ? copy.applying : copy.apply}
@@ -114,6 +114,8 @@ export function CheckoutForm({ product }) {
   const router = useRouter();
   const toLocalized = useLocalizedHref();
   const dictionary = useDictionary();
+  const isWhatsAppOptInEnabled = useIsFeatureEnabled('whatsAppNotifications');
+  const isCouponsEnabled = useIsFeatureEnabled('coupons');
   const copy = dictionary.commerce.checkout;
   const format = useFormatters();
   const items = [{ Slug: product.Slug }];
@@ -283,7 +285,7 @@ export function CheckoutForm({ product }) {
               </LocaleLink>
               {copy.consentAfter}
             </CheckboxField>
-            {isFeatureEnabled('whatsAppNotifications') && <WhatsAppOptInField />}
+            {isWhatsAppOptInEnabled && <WhatsAppOptInField />}
 
             {message && (
               <InlineAlert tone="error">
@@ -316,7 +318,7 @@ export function CheckoutForm({ product }) {
           <h2 id="order-summary-title" className="text-h4 text-ink">
             {copy.summaryTitle}
           </h2>
-          <div className="mt-3 rounded-xl bg-surface-alt p-3">
+          <div className="mt-3 rounded-xl bg-card-dim p-3">
             <p className="font-semibold text-ink">{product.Title}</p>
             {product.TurnaroundText && <p className="text-xs text-ink-muted">{product.TurnaroundText}</p>}
           </div>
@@ -325,7 +327,7 @@ export function CheckoutForm({ product }) {
             {discountPaise > 0 && <SummaryRow label={copy.discount} value={`− ${format.rupees(discountPaise)}`} />}
             <SummaryRow label={copy.total} value={format.rupees(totalPaise)} isStrong />
           </dl>
-          {isFeatureEnabled('coupons') && (
+          {isCouponsEnabled && (
             <div className="mt-4 border-t border-line pt-4">
               <CouponField
                 items={items}

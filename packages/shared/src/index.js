@@ -27,7 +27,7 @@ export { REQUEST_STATUS_LABELS } from './statusLabels.js';
 
 export { WHATSAPP_AI_PLAN } from './whatsAppPlan.js';
 
-export { FEATURE_FLAGS, FEATURE_FLAG_KEYS, isFeatureEnabled, getEnabledFeatures } from './brand/featureFlags.js';
+export { FEATURE_FLAGS, FEATURE_FLAG_KEYS, FEATURE_DEPENDENCIES, isFeatureEnabled, getEnabledFeatures } from './brand/featureFlags.js';
 
 export { SUPPORTED_LANGUAGES, SUPPORTED_LANGUAGE_KEYS, DEFAULT_LANGUAGE_KEY } from './languages.js';
 

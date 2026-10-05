@@ -15,6 +15,7 @@ export function PageHeader({ title, lead, eyebrow, actions, children }) {
         {children && <div className="mt-2 max-w-2xl leading-7 text-white/80">{children}</div>}
         {actions && <div className="mt-5 flex flex-wrap items-center gap-3">{actions}</div>}
       </Container>
+      <div aria-hidden="true" className="divider-bronze absolute inset-x-0 bottom-0" />
     </section>
   );
 }

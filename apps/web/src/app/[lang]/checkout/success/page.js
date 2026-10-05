@@ -1,5 +1,5 @@
 import { CircleCheck } from 'lucide-react';
-import { getDictionary, isFeatureEnabled, requireFeaturePage } from '@/brand';
+import { getDictionary, getServerFeatures, requireFeaturePage } from '@/brand';
 import { ButtonLink, Card, Section, StepIndicator } from '@/components/ui';
 
 export async function generateMetadata({ params }) {
@@ -15,14 +15,14 @@ function readReference(value, pattern) {
 }
 
 export default async function CheckoutSuccessPage({ params, searchParams }) {
-  requireFeaturePage('onlinePayments');
+  await requireFeaturePage('onlinePayments');
   const { lang } = await params;
   const query = await searchParams;
-  const dictionary = getDictionary(lang);
+  const [dictionary, features] = await Promise.all([getDictionary(lang), getServerFeatures()]);
   const copy = dictionary.commerce.success;
   const orderReference = readReference(query.reference, ORDER_REFERENCE_PATTERN);
   const requestReference = readReference(query.request, REQUEST_REFERENCE_PATTERN);
-  const hasAccounts = isFeatureEnabled('clientAccounts');
+  const hasAccounts = features.clientAccounts;
 
   return (
     <Section tone="alt" size="sm">
@@ -34,7 +34,7 @@ export default async function CheckoutSuccessPage({ params, searchParams }) {
         <h1 className="mt-4 text-h2 text-ink">{copy.title}</h1>
 
         {(orderReference || requestReference) && (
-          <dl className="mt-5 grid gap-4 rounded-xl bg-surface-alt p-4 sm:grid-cols-2">
+          <dl className="mt-5 grid gap-4 rounded-xl bg-card-dim p-4 sm:grid-cols-2">
             {orderReference && (
               <div>
                 <dt className="text-xs font-semibold text-ink-muted">{copy.referenceLabel}</dt>

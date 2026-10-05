@@ -32,6 +32,10 @@ export const forms = {
     successNextLink: 'My LexBridge',
     successNextAfter: ' में उसी ईमेल से देखें।',
     successNextNoAccounts: 'हमारी टीम जल्द संपर्क करेगी।',
+    successCodeLabel: 'अनुरोध ट्रैक करने के लिए यह रेफ़रेंस सेव करें',
+    successTrackNote: 'इसी ईमेल से साइन इन करने के बाद My LexBridge → अनुरोध → अनुरोध ट्रैक करें में यह कोड डालें और हर अपडेट देखें।',
+    copyCode: 'कॉपी',
+    copied: 'कॉपी हो गया',
   },
 
   upload: {

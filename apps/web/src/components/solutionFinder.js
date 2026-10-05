@@ -3,6 +3,7 @@
 import { ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { deriveServiceHref } from '@/brand/navigation';
+import { useFeatures } from '@/components/featuresProvider';
 import { useDictionary } from '@/brand/localeContext';
 import { LocaleLink } from '@/components/localeLink';
 import { ServiceRequestForm } from '@/components/serviceRequestForm';
@@ -29,6 +30,7 @@ async function loadClassification(concern, dictionary) {
 
 export function SolutionFinder({ initialConcern = '' }) {
   const dictionary = useDictionary();
+  const features = useFeatures();
   const copy = dictionary.solutionFinder;
   const labels = useCatalogLabels();
   const shouldAutoRun = initialConcern.trim().length >= MIN_CONCERN_LENGTH;
@@ -75,7 +77,7 @@ export function SolutionFinder({ initialConcern = '' }) {
             aria-invalid={Boolean(outcome.error)}
             aria-describedby={outcome.error ? 'concern-error concern-privacy' : 'concern-privacy'}
             placeholder={copy.form.placeholder}
-            className="mt-3 block w-full resize-y rounded-xl border border-line-strong bg-white p-4 text-base leading-7 text-ink placeholder:text-ink-muted/70 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-100 disabled:bg-surface-alt aria-[invalid=true]:border-danger"
+            className="mt-3 block w-full resize-y rounded-xl border border-line-strong bg-card p-4 text-base leading-7 text-ink placeholder:text-ink-muted/70 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-100 disabled:bg-card-dim aria-[invalid=true]:border-danger"
           />
           {outcome.error && (
             <p id="concern-error" className="mt-2 text-sm font-medium text-danger">
@@ -92,7 +94,7 @@ export function SolutionFinder({ initialConcern = '' }) {
                     type="button"
                     onClick={() => setConcern(example)}
                     disabled={isLoading}
-                    className="rounded-full bg-surface-alt px-3.5 py-2 text-left text-sm text-ink ring-1 ring-line hover:bg-primary-50 hover:ring-primary-100"
+                    className="rounded-full bg-card-dim px-3.5 py-2 text-left text-sm text-ink ring-1 ring-line hover:bg-primary-50 hover:ring-primary-100"
                   >
                     {example}
                   </button>
@@ -139,7 +141,7 @@ export function SolutionFinder({ initialConcern = '' }) {
                   {services.map((service) => (
                     <li key={service.key}>
                       <LocaleLink
-                        href={deriveServiceHref(service.key)}
+                        href={deriveServiceHref(service.key, features ?? {})}
                         className="group flex items-center gap-3 rounded-xl border border-line p-4 hover:border-primary-100 hover:bg-primary-50"
                       >
                         <span className="min-w-0 flex-1">

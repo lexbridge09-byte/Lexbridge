@@ -7,7 +7,7 @@ import { STAFF_ROLES } from '../models/index.js';
 import { deleteDocumentFile, openDocumentStream, saveDocumentFile } from '../services/index.js';
 import { createHttpError, deriveSafeFileName, objectIdSchema } from '../utils.js';
 
-export const CLIENT_DOCUMENT_FIELDS = 'OriginalName MimeType SizeBytes RequestReference UploadedByRole createdAt';
+export const CLIENT_DOCUMENT_FIELDS = 'OriginalName MimeType SizeBytes RequestReference UploadedByRole Kind createdAt';
 
 const MAX_CLIENT_DOCUMENTS = 500;
 
@@ -34,7 +34,7 @@ async function isReferenceOwnedBy(referenceCode, user) {
 }
 
 // Creates the Document record, removing the stored file if the record can't be saved
-export async function createDocumentRecord({ file, ownerId, requestReference, uploadedByRole, uploadedById }) {
+export async function createDocumentRecord({ file, ownerId, requestReference, uploadedByRole, uploadedById, kind = 'client-upload' }) {
   const { storedName, mimeType } = await saveDocumentFile({
     buffer: file.buffer,
     declaredMimeType: file.mimetype,
@@ -47,6 +47,7 @@ export async function createDocumentRecord({ file, ownerId, requestReference, up
       StoredName: storedName,
       MimeType: mimeType,
       SizeBytes: file.size,
+      Kind: kind,
       UploadedByRole: uploadedByRole,
       UploadedBy: uploadedById,
     });
@@ -99,13 +100,22 @@ documentsRouter.post('/', requireAuth, uploadLimiter, uploadSingleDocument, asyn
 
 documentsRouter.get('/:id/download', requireAuth, async (req, res) => {
   const id = objectIdSchema.parse(req.params.id);
-  const document = await DocumentModel.findById(id).select('Owner OriginalName StoredName MimeType SizeBytes').lean();
+  const document = await DocumentModel.findById(id).select('Owner OriginalName StoredName MimeType SizeBytes RequestReference').lean();
 
   // Respond 404 rather than 403 so document ids can't be probed
   let isAllowed = Boolean(document) && String(document.Owner) === req.user.id;
   if (document && !isAllowed) {
     const user = await UserModel.findById(req.user.id).select('Role').lean();
-    isAllowed = STAFF_ROLES.includes(user?.Role);
+    if (user?.Role === 'manager' || user?.Role === 'owner') {
+      isAllowed = true;
+    } else if (user?.Role === 'lawyer') {
+      // Lawyers may download only documents that belong to a request currently assigned to them;
+      // unassigning revokes access on the next request
+      isAllowed = Boolean(
+        document.RequestReference &&
+          (await ServiceRequestModel.exists({ ReferenceCode: document.RequestReference, AssignedTo: req.user.id })),
+      );
+    }
   }
   if (!isAllowed) throw createHttpError(404, 'Document not found');
 
