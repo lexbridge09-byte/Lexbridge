@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/index.js';
+import { requireClient } from '../middleware/index.js';
 import { OrderModel } from '../models/index.js';
 import { CLIENT_ORDER_FIELDS } from '../services/index.js';
 
@@ -12,7 +12,7 @@ function deriveOwnerFilter(user) {
 
 export const ordersRouter = Router();
 
-ordersRouter.get('/mine', requireAuth, async (req, res) => {
+ordersRouter.get('/mine', requireClient, async (req, res) => {
   const orders = await OrderModel.find(deriveOwnerFilter(req.user))
     .select(CLIENT_ORDER_FIELDS)
     .sort({ createdAt: -1 })
@@ -21,7 +21,7 @@ ordersRouter.get('/mine', requireAuth, async (req, res) => {
   res.json({ orders });
 });
 
-ordersRouter.get('/mine/:referenceCode', requireAuth, async (req, res) => {
+ordersRouter.get('/mine/:referenceCode', requireClient, async (req, res) => {
   const order = await OrderModel.findOne({ ReferenceCode: req.params.referenceCode, ...deriveOwnerFilter(req.user) })
     .select(CLIENT_ORDER_FIELDS)
     .lean();

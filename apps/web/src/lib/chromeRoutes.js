@@ -11,6 +11,7 @@ const TASK_PATH_PREFIXES = [
   '/login',
   '/dashboard',
   '/admin',
+  '/team',
   '/checkout',
   '/document-review',
 ];
@@ -23,12 +24,21 @@ export function isAdminPath(pathname) {
   return Boolean(pathname) && matchesPrefix(stripLocale(pathname), '/admin');
 }
 
+export function isTeamPath(pathname) {
+  return Boolean(pathname) && matchesPrefix(stripLocale(pathname), '/team');
+}
+
+// Back-office area: own chrome (sidebar + office header), marketing chrome hidden
+export function isOfficePath(pathname) {
+  return isAdminPath(pathname) || isTeamPath(pathname);
+}
+
 export function isLoginPath(pathname) {
   return Boolean(pathname) && matchesPrefix(stripLocale(pathname), '/login');
 }
 
 export function hasMobileTabBar(pathname) {
-  return !isAdminPath(pathname);
+  return !isOfficePath(pathname);
 }
 
 // Product pages carry their own sticky buy bar instead of the generic one

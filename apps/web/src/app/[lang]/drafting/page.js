@@ -13,8 +13,11 @@ export default async function DraftingPage({ params }) {
   const { header, documentTypes, steps, request } = getDictionary(lang).drafting;
   // Stored subtype stays in English so the team sees one consistent value whatever language the client used
   const englishTypes = getDictionary('en').drafting.documentTypes.items;
+  // Subtype values are intake catalog keys so conditional questions and desk panels work;
+  // old requests keep their free-text titles, which still display as-is.
+  const subtypeKeys = ['legal-notice', 'agreement', 'affidavit', 'application', 'complaint', 'other-document'];
   const subtypeOptions = documentTypes.items.map((documentType, typeIndex) => ({
-    value: englishTypes[typeIndex].title,
+    value: subtypeKeys[typeIndex] ?? englishTypes[typeIndex].title,
     label: documentType.title,
     description: documentType.description,
     icon: documentType.icon,

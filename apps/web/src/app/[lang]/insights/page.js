@@ -66,12 +66,12 @@ export default async function InsightsPage({ params, searchParams }) {
           <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {articles.map((article) => (
               <li key={article._id}>
-                <article className="relative flex h-full flex-col rounded-2xl border border-line bg-card p-5 shadow-sm hover:shadow-card">
+                <article className="relative flex h-full flex-col rounded-card border border-line bg-card p-5 shadow-sm transition-[border-color,box-shadow] duration-(--dur-200) ease-(--ease-out-soft) hover:border-primary-100 hover:shadow-card motion-reduce:transition-none">
                   <Badge tone="active" className="self-start">
                     {labels.articleTopic(article.Topic)}
                   </Badge>
                   <h3 className="mt-3 text-h4 text-ink">
-                    <LocaleLink href={`/insights/${article.Slug}`} className="after:absolute after:inset-0 after:rounded-2xl after:content-['']">
+                    <LocaleLink href={`/insights/${article.Slug}`} className="after:absolute after:inset-0 after:rounded-card after:content-['']">
                       {article.Title}
                     </LocaleLink>
                   </h3>
@@ -93,7 +93,7 @@ export default async function InsightsPage({ params, searchParams }) {
             <p className="mt-2 text-on-canvas-muted">{copy.preparingNote}</p>
             <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {copy.popularGuides.map((guide) => (
-                <li key={guide} className="rounded-2xl border border-line bg-card p-4 font-display font-semibold leading-6 text-ink">
+                <li key={guide} className="rounded-card border border-line bg-card p-4 font-display font-semibold leading-6 text-ink">
                   {guide}
                 </li>
               ))}

@@ -2,30 +2,33 @@
 
 import { useState } from 'react';
 import { LAWYER_ALLOWED_STATUSES } from '@lexbridge/shared';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, PenLine, Upload } from 'lucide-react';
 import { useDictionary } from '@/brand/localeContext';
 import { DocumentList } from '@/components/documentList';
 import { DocumentUpload } from '@/components/documentUpload';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
 import { LocaleLink } from '@/components/localeLink';
+import { ReferenceCodeTag } from '@/components/copyButton';
 import { RequestStatusBadge } from '@/components/statusBadge';
 import { StatusTimeline } from '@/components/statusTimeline';
 import { Button, ButtonLink, Card } from '@/components/ui';
+import { Modal } from '@/components/ui/modal';
 import { requestApi } from '@/lib/apiClient';
 import { localizeApiError } from '@/lib/apiErrors';
 import { useCatalogLabels, useFormatters } from '@/lib/localeTools';
 import { redirectToLogin, useApiData } from '@/lib/useApiData';
 
+// dt/dd fragments inside a two-column dl grid: labels align down one column, values down the next
 function DetailItem({ label, children }) {
   return (
-    <div>
-      <dt className="text-xs font-semibold text-ink-muted">{label}</dt>
-      <dd className="mt-0.5 text-sm text-ink">{children}</dd>
-    </div>
+    <>
+      <dt className="text-xs font-semibold text-ink-muted sm:pt-0.5">{label}</dt>
+      <dd className="min-w-0 break-words text-sm text-ink">{children}</dd>
+    </>
   );
 }
 
-function StatusUpdateForm({ request, onSaved }) {
+function StatusUpdateForm({ request, onSaved, isBare = false }) {
   const dictionary = useDictionary();
   const copy = dictionary.team.detail;
   const labels = useCatalogLabels();
@@ -63,11 +66,14 @@ function StatusUpdateForm({ request, onSaved }) {
     }
   }
 
-  return (
-    <Card as="form" padding="md" onSubmit={handleSubmit}>
-      <h2 className="text-h4 text-ink">{copy.statusTitle}</h2>
-      <p className="mt-0.5 text-sm text-ink-muted">{copy.statusHint}</p>
-      <div className="mt-4 space-y-3">
+  const content = (
+      <div className="space-y-3">
+        {!isBare && (
+          <>
+            <h2 className="text-h4 text-ink">{copy.statusTitle}</h2>
+            <p className="mt-0.5 text-sm text-ink-muted">{copy.statusHint}</p>
+          </>
+        )}
         <div>
           <label htmlFor="team-status" className="block text-sm font-semibold text-ink">
             {dictionary.admin.common.status}
@@ -84,14 +90,20 @@ function StatusUpdateForm({ request, onSaved }) {
           <label htmlFor="team-note" className="block text-sm font-semibold text-ink">
             {copy.note}
           </label>
-          <textarea id="team-note" name="Note" rows={3} maxLength={1000} className="mt-1 control" />
+          <textarea id="team-note" name="Note" rows={3} maxLength={1000} className="mt-1 resize-none control" />
           <p className="mt-1 text-xs text-ink-muted">{copy.noteHint}</p>
         </div>
         <FormMessage message={message} />
-        <Button type="submit" size="sm" disabled={isSaving}>
+        <Button type="submit" size="sm" disabled={isSaving} className="w-full">
           {isSaving ? dictionary.admin.common.saving : copy.save}
         </Button>
       </div>
+  );
+
+  if (isBare) return <form onSubmit={handleSubmit}>{content}</form>;
+  return (
+    <Card as="form" padding="md" onSubmit={handleSubmit}>
+      {content}
     </Card>
   );
 }
@@ -102,6 +114,7 @@ export function TeamRequestDetail({ referenceCode }) {
   const labels = useCatalogLabels();
   const format = useFormatters();
   const [savedMessage, setSavedMessage] = useState(false);
+  const [activeModal, setActiveModal] = useState(null);
   const detailData = useApiData(`/team/requests/${encodeURIComponent(referenceCode)}`);
 
   if (detailData.isLoading && !detailData.data) return <LoadingNote />;
@@ -109,7 +122,7 @@ export function TeamRequestDetail({ referenceCode }) {
   if (detailData.error?.status === 404) {
     return (
       <Card padding="md">
-        <h1 className="text-h3 text-ink">{copy.notFound}</h1>
+        <h1 className="text-h3 text-on-canvas">{copy.notFound}</h1>
         <ButtonLink href="/team" variant="secondary" size="sm" className="mt-4">
           {copy.back}
         </ButtonLink>
@@ -131,20 +144,23 @@ export function TeamRequestDetail({ referenceCode }) {
           <ChevronLeft aria-hidden="true" className="size-4" strokeWidth={2} />
           {copy.breadcrumb}
         </LocaleLink>
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="text-h3 text-ink">{request.ReferenceCode}</h1>
-          <RequestStatusBadge status={request.Status} />
+        <div className="mt-2">
+          <h1 className="sr-only">{request.ReferenceCode}</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <ReferenceCodeTag code={request.ReferenceCode} size="lg" />
+            <RequestStatusBadge status={request.Status} />
+          </div>
+          <p className="mt-1.5 text-sm text-on-canvas-muted">{dictionary.team.requests.requestMeta(request.ReferenceCode, format.dateTime(request.createdAt))}</p>
         </div>
-        <p className="mt-0.5 text-sm text-ink-muted">{dictionary.team.requests.requestMeta(request.ReferenceCode, format.dateTime(request.createdAt))}</p>
       </div>
 
       {savedMessage && <FormMessage message={{ tone: 'success', text: copy.delivered }} />}
 
-      <div className="grid items-start gap-5 lg:grid-cols-[1.2fr_1fr]">
-        <div className="space-y-5">
+      <div>
+        <div className="space-y-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0 lg:pr-[21.5rem]">
           <Card as="section" padding="md">
             <h2 className="text-h4 text-ink">{copy.clientTitle}</h2>
-            <dl className="mt-3 grid gap-x-6 gap-y-3 sm:grid-cols-2">
+            <dl className="mt-3 grid gap-x-6 gap-y-2.5 sm:grid-cols-[9.5rem_minmax(0,1fr)]">
               <DetailItem label={copy.name}>{request.FullName}</DetailItem>
               <DetailItem label={copy.email}>{request.Email}</DetailItem>
               <DetailItem label={copy.phone}>{request.Phone}</DetailItem>
@@ -165,25 +181,57 @@ export function TeamRequestDetail({ referenceCode }) {
             <h2 className="mb-3 text-h4 text-ink">{copy.deliverables}</h2>
             <DocumentList documents={deliverables} emptyText={copy.noDeliverables} />
           </Card>
+
         </div>
 
-        <div className="space-y-5 lg:sticky lg:top-24">
-          <StatusUpdateForm key={request.updatedAt} request={request} onSaved={() => detailData.reload()} />
-          <DocumentUpload
-            endpoint={`/team/requests/${encodeURIComponent(request.ReferenceCode)}/deliverable`}
-            requestReference={request.ReferenceCode}
-            title={copy.deliverableTitle}
-            submitLabel={copy.deliverableSubmit}
-            onUploaded={() => {
-              setSavedMessage(true);
-              detailData.reload();
-            }}
-          />
-          <Card as="section" padding="md">
+        {/* Pinned right edge: two action buttons open popups, history fills the remaining height */}
+        <div className="mt-4 flex flex-col gap-3 lg:fixed lg:bottom-0 lg:right-0 lg:top-16 lg:mt-0 lg:w-[20rem] lg:border-l lg:border-line-canvas lg:bg-surface-alt lg:p-4">
+          <div className="grid grid-cols-2 gap-2">
+            <Button size="sm" variant="secondary" className="w-full" onClick={() => setActiveModal('update')}>
+              <PenLine aria-hidden="true" className="size-4" strokeWidth={1.75} />
+              {dictionary.admin.requestDetail.updateCta}
+            </Button>
+            <Button size="sm" variant="secondary" className="w-full" onClick={() => setActiveModal('upload')}>
+              <Upload aria-hidden="true" className="size-4" strokeWidth={1.75} />
+              {dictionary.admin.requestDetail.uploadCta}
+            </Button>
+          </div>
+          <Card as="section" padding="md" className="flex min-h-0 flex-1 flex-col">
             <h2 className="mb-3 text-h4 text-ink">{copy.updates}</h2>
-            <StatusTimeline entries={request.StatusHistory} />
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <StatusTimeline entries={request.StatusHistory} />
+            </div>
           </Card>
         </div>
+
+        {activeModal === 'update' && (
+          <Modal title={copy.statusTitle} onClose={() => setActiveModal(null)}>
+            <StatusUpdateForm
+              key={request.updatedAt}
+              request={request}
+              isBare
+              onSaved={() => {
+                detailData.reload();
+                setActiveModal(null);
+              }}
+            />
+          </Modal>
+        )}
+        {activeModal === 'upload' && (
+          <Modal title={copy.deliverableTitle} onClose={() => setActiveModal(null)}>
+            <DocumentUpload
+              endpoint={`/team/requests/${encodeURIComponent(request.ReferenceCode)}/deliverable`}
+              requestReference={request.ReferenceCode}
+              isBare
+              submitLabel={copy.deliverableSubmit}
+              onUploaded={() => {
+                setSavedMessage(true);
+                detailData.reload();
+                setActiveModal(null);
+              }}
+            />
+          </Modal>
+        )}
       </div>
     </div>
   );

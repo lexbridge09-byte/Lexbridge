@@ -71,6 +71,8 @@ export const ux = {
     documents: 'दस्तावेज़',
     documentReviews: 'दस्तावेज़ जाँच',
     team: 'मेरे काम',
+    desk: 'टीम अनुरोध',
+    lawyers: 'वकील',
     admin: 'एडमिन',
     signOut: 'साइन आउट',
     signingOut: 'साइन आउट हो रहा है…',

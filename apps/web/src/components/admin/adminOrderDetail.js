@@ -2,7 +2,9 @@
 
 import { PAID_ORDER_STATUSES } from '@lexbridge/shared';
 import { useState } from 'react';
+import { Undo2 } from 'lucide-react';
 import { useDictionary } from '@/brand/localeContext';
+import { ReferenceCodeTag } from '@/components/copyButton';
 import { ADMIN_CONTROL_CLASS, ADMIN_LINK_CLASS, AdminBackLink, AdminField, AdminPanel } from '@/components/admin/adminStyles';
 import { OrderTotals } from '@/components/dashboard/orderDetail';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
@@ -10,6 +12,7 @@ import { LocaleLink } from '@/components/localeLink';
 import { OrderStatusBadge, RequestStatusBadge } from '@/components/statusBadge';
 import { StatusTimeline } from '@/components/statusTimeline';
 import { Button } from '@/components/ui';
+import { Modal } from '@/components/ui/modal';
 import { requestApi } from '@/lib/apiClient';
 import { localizeApiError } from '@/lib/apiErrors';
 import { useCatalogLabels, useFormatters } from '@/lib/localeTools';
@@ -34,9 +37,10 @@ function RefundForm({ order, onRefunded }) {
   const [pendingRefund, setPendingRefund] = useState(null);
   const [isBusy, setIsBusy] = useState(false);
   const [message, setMessage] = useState(null);
+  const [activeModal, setActiveModal] = useState(null);
 
   const isRefundable = PAID_ORDER_STATUSES.includes(order.Status) && order.Status !== 'refunded' && remainingPaise > 0;
-  if (!isRefundable) return <p className="text-sm text-ink-muted">{copy.notRefundable}</p>;
+  if (!isRefundable) return <p className="text-sm text-on-canvas-muted">{copy.notRefundable}</p>;
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -133,7 +137,7 @@ export function AdminOrderDetail({ referenceCode }) {
   if (error?.status === 404) {
     return (
       <div>
-        <p className="text-ink-muted">{copy.notFound(referenceCode)}</p>
+        <p className="text-on-canvas-muted">{copy.notFound(referenceCode)}</p>
         <div className="mt-3">
           <AdminBackLink href="/admin/orders">{copy.breadcrumb}</AdminBackLink>
         </div>
@@ -149,10 +153,11 @@ export function AdminOrderDetail({ referenceCode }) {
     <div>
       <AdminBackLink href="/admin/orders">{copy.breadcrumb}</AdminBackLink>
       <div className="mt-2 flex flex-wrap items-center gap-3">
-        <h1 className="text-h3 text-ink">{order.ReferenceCode}</h1>
+        <h1 className="sr-only">{order.ReferenceCode}</h1>
+        <ReferenceCodeTag code={order.ReferenceCode} size="lg" />
         <OrderStatusBadge status={order.Status} />
       </div>
-      <p className="mt-0.5 text-sm text-ink-muted">{copy.meta(format.dateTime(order.createdAt))}</p>
+      <p className="mt-0.5 text-sm text-on-canvas-muted">{copy.meta(format.dateTime(order.createdAt))}</p>
 
       <div className="mt-5 grid items-start gap-5 lg:grid-cols-[1.4fr_1fr]">
         <div className="space-y-5">
@@ -208,6 +213,12 @@ export function AdminOrderDetail({ referenceCode }) {
           </AdminPanel>
         </div>
 
+        {activeModal === 'refund' && (
+          <Modal title={copy.refund.title} onClose={() => setActiveModal(null)}>
+            <RefundForm key={order.updatedAt} order={order} onRefunded={() => { reload(); setActiveModal(null); }} />
+          </Modal>
+        )}
+
         <div className="space-y-5 lg:sticky lg:top-24">
           <AdminPanel as="section" title={copy.requestTitle}>
             {requestReference ? (
@@ -222,9 +233,10 @@ export function AdminOrderDetail({ referenceCode }) {
             )}
           </AdminPanel>
 
-          <AdminPanel as="section" title={copy.refund.title}>
-            <RefundForm key={order.updatedAt} order={order} onRefunded={reload} />
-          </AdminPanel>
+          <Button size="sm" variant="secondary" className="w-full" onClick={() => setActiveModal('refund')}>
+            <Undo2 aria-hidden="true" className="size-4" strokeWidth={1.75} />
+            {copy.refund.cta}
+          </Button>
 
           <AdminPanel as="section" title={copy.refundsTitle}>
             {(order.Refunds ?? []).length === 0 ? (

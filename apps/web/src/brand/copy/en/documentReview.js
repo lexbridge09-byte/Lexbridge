@@ -78,6 +78,8 @@ export const documentReview = {
     trust: (days) => `Encrypted upload. File deleted after ${days} days.`,
     wrongType: 'Only PDF files can be reviewed.',
     tooLarge: (maxSizeLabel) => `Files can be up to ${maxSizeLabel}.`,
+    aboutTitle: 'About your document',
+    missingDetails: 'Please answer the highlighted questions about your document first.',
   },
 
   report: {

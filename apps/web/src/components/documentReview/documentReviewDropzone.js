@@ -1,11 +1,12 @@
 'use client';
 
-import { DOCUMENT_MAX_BYTES } from '@lexbridge/shared';
+import { DOCUMENT_MAX_BYTES, getIntakeFields } from '@lexbridge/shared';
 import { Lock, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { BRAND } from '@/brand/brandConfig';
 import { useDictionary, useLocale, useLocalizedHref } from '@/brand/localeContext';
+import { SelectField, TextField } from '@/components/formFields';
 import { FormMessage } from '@/components/loadState';
 import { Badge, Button } from '@/components/ui';
 import { requestApi } from '@/lib/apiClient';
@@ -27,6 +28,9 @@ export function DocumentReviewDropzone({ allowance: knownAllowance }) {
   const dictionary = useDictionary();
   const copy = dictionary.documentReview.dropzone;
   const listCopy = dictionary.documentReview.list;
+  const intakeCopy = dictionary.intake;
+  // Fixed subtype for every uploaded review; its fields are the "About your document" block
+  const reviewFields = getIntakeFields('document-review');
   const format = useFormatters();
   const { status } = useSession();
   const fileInputRef = useRef(null);
@@ -34,6 +38,8 @@ export function DocumentReviewDropzone({ allowance: knownAllowance }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [intakeDetails, setIntakeDetails] = useState({});
+  const [intakeErrors, setIntakeErrors] = useState({});
   const isSignedIn = status === 'signedIn';
   const isSignedOut = status === 'signedOut';
   const allowance = knownAllowance ?? fetchedAllowance;
@@ -72,8 +78,24 @@ export function DocumentReviewDropzone({ allowance: knownAllowance }) {
       return;
     }
 
+    // Same required-field rule the API applies; caught here so the file isn't rejected after upload
+    const missing = {};
+    for (const field of reviewFields) {
+      if (field.required && !String(intakeDetails[field.key] ?? '').trim()) {
+        missing[field.key] = intakeCopy.fieldRequired;
+      }
+    }
+    if (Object.keys(missing).length > 0) {
+      setIntakeErrors(missing);
+      setMessage({ tone: 'error', text: listCopy.missingDetails ?? intakeCopy.fieldRequired });
+      return;
+    }
+    setIntakeErrors({});
+
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('IntakeSubtype', 'document-review');
+    formData.append('IntakeDetails', JSON.stringify(intakeDetails));
     setIsUploading(true);
     setMessage(null);
     try {
@@ -95,6 +117,49 @@ export function DocumentReviewDropzone({ allowance: knownAllowance }) {
 
   return (
     <div className="rounded-panel border border-line bg-card p-3 shadow-soft sm:p-4">
+      {/* Context for the reviewer: which document it is and how urgent — feeds the assignment desk */}
+      <fieldset className="mb-4 motion-safe:animate-rise rounded-xl border border-line bg-card-dim/60 p-4">
+        <legend className="px-1 text-xs font-semibold text-ink-muted">{copy.aboutTitle}</legend>
+        <div className="stagger grid gap-3 sm:grid-cols-2">
+          {reviewFields.map((field) => {
+            const label = intakeCopy.fields[field.key]?.label ?? field.key;
+            if (field.type === 'select') {
+              const options = (field.options ?? []).map((optionKey) => ({ value: optionKey, label: intakeCopy.options[optionKey] ?? optionKey }));
+              return (
+                <SelectField
+                  key={field.key}
+                  label={label}
+                  name={`DocDetail.${field.key}`}
+                  options={options}
+                  placeholder={intakeCopy.choose}
+                  required={field.required}
+                  error={intakeErrors[field.key]}
+                  value={intakeDetails[field.key] ?? ''}
+                  onChange={(event) => {
+                    setIntakeDetails((current) => ({ ...current, [field.key]: event.target.value }));
+                    setIntakeErrors((current) => (current[field.key] ? { ...current, [field.key]: '' } : current));
+                  }}
+                />
+              );
+            }
+            return (
+              <TextField
+                key={field.key}
+                label={label}
+                name={`DocDetail.${field.key}`}
+                type={field.type === 'date' ? 'date' : 'text'}
+                required={field.required}
+                error={intakeErrors[field.key]}
+                value={intakeDetails[field.key] ?? ''}
+                onChange={(event) => {
+                  setIntakeDetails((current) => ({ ...current, [field.key]: event.target.value }));
+                  setIntakeErrors((current) => (current[field.key] ? { ...current, [field.key]: '' } : current));
+                }}
+              />
+            );
+          })}
+        </div>
+      </fieldset>
       <div
         onDragEnter={(event) => {
           event.preventDefault();
@@ -109,7 +174,7 @@ export function DocumentReviewDropzone({ allowance: knownAllowance }) {
           setIsDragging(false);
           if (!isDisabled) handleFile(event.dataTransfer.files?.[0]);
         }}
-        className={`flex min-h-64 flex-col items-center justify-center rounded-2xl border-2 border-dashed px-5 py-7 text-center transition ${isDragging ? 'border-primary bg-primary-50 shadow-glow' : 'border-primary-100 bg-card-dim/70 hover:border-primary/50'}`}
+        className={`flex min-h-64 flex-col items-center justify-center rounded-card border-2 border-dashed px-5 py-7 text-center transition-[border-color,background-color,box-shadow] duration-(--dur-200) ease-(--ease-out-soft) motion-reduce:transition-none ${isDragging ? 'border-primary bg-primary-50 shadow-glow' : 'border-primary-100 bg-card-dim/70 hover:border-primary/50'}`}
       >
         <div className="flex h-6 items-center">
           {isSignedOut && <Badge tone="offer">{copy.signedOutBadge}</Badge>}

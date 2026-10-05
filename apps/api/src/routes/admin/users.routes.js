@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { STAFF_ROLES, USER_ROLES, UserModel } from '../../models/index.js';
+import { InviteModel, ServiceRequestModel, STAFF_ROLES, USER_ROLES, UserModel } from '../../models/index.js';
 import { deriveContactSearchFilter, paginationSchema } from '../../utils.js';
 
 const listQuerySchema = paginationSchema.extend({
@@ -34,7 +34,10 @@ adminUsersRouter.get('/', async (req, res) => {
   res.json({ items, total, page, limit });
 });
 
-// Owner-only: promote/demote team members. Sessions carry no role, so the change applies on the next request.
+// Owner-only role management. Promotion happens through email invites (main owner invites
+// 2nd owners, 2nd owners invite lawyers — role activates at first sign-in), so this endpoint
+// is for demotions and corrections. Guarded: never leave the platform ownerless, never
+// strand open assignments.
 adminUsersRouter.patch('/:userId/role', async (req, res) => {
   const { Role } = roleUpdateSchema.parse(req.body ?? {});
   const userId = req.params.userId;
@@ -53,9 +56,26 @@ adminUsersRouter.patch('/:userId/role', async (req, res) => {
     }
   }
 
+  // Demotions must not strand open work
+  if (user.Role !== 'client' && Role === 'client') {
+    const openCount = await ServiceRequestModel.countDocuments({
+      AssignedTo: userId,
+      Status: { $in: ['assigned', 'in-progress', 'awaiting-client'] },
+    });
+    if (openCount > 0) {
+      return res.status(400).json({
+        error: `${user.Email} still has ${openCount} open assignment${openCount === 1 ? '' : 's'}. Reassign that work before removing their team access.`,
+      });
+    }
+  }
+
   const updated = await UserModel.findByIdAndUpdate(userId, { $set: { Role } }, { returnDocument: 'after' })
     .select('FullName Email Phone Role createdAt lastLoginAt')
     .lean();
+  // Any pending invite for this email is moot once the role is set directly
+  if (Role === 'client') {
+    await InviteModel.updateMany({ Email: user.Email, Status: 'pending' }, { $set: { Status: 'revoked' } });
+  }
   req.log.info({ actorId: req.user.id, targetId: userId, from: user.Role, to: Role }, '[users] role changed');
   res.json({ user: updated });
 });

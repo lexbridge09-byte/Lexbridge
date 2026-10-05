@@ -49,3 +49,7 @@ function requireAny(...allowedRoles) {
 export const requireOwner = requireAny('owner');
 export const requireManager = requireAny('owner', 'manager');
 export const requireStaff = requireAny(...STAFF_ROLES);
+// The team workspace: lawyers and 2nd owners only — the main owner lives in /admin and gets 404 here
+export const requireTeamMember = requireAny('manager', 'lawyer');
+// Self-service client area: staff accounts are hard-blocked (404) so one account is one view
+export const requireClient = requireAny('client');

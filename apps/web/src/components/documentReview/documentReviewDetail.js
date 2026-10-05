@@ -3,6 +3,7 @@
 import { Check, ChevronLeft, LoaderCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDictionary } from '@/brand/localeContext';
+import { ReferenceCodeTag } from '@/components/copyButton';
 import { DocumentReviewReport } from '@/components/documentReview/documentReviewReport';
 import { CheckboxField, TextAreaField, TextField } from '@/components/formFields';
 import { LanguageSelectField } from '@/components/languageSelectField';
@@ -202,7 +203,10 @@ export function DocumentReviewDetail({ referenceCode }) {
           <h1 className="break-all text-h3 text-ink">{review.OriginalName}</h1>
           {review.Status === 'completed' ? <RiskBadge level={review.RiskLevel} /> : <DocumentReviewStatusBadge status={review.Status} />}
         </div>
-        <p className="mt-0.5 text-sm text-ink-muted">{copy.meta(review.ReferenceCode, format.dateTime(review.createdAt))}</p>
+        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+          <ReferenceCodeTag code={review.ReferenceCode} />
+          <span className="text-sm text-ink-muted">{format.dateTime(review.createdAt)}</span>
+        </div>
       </div>
 
       {isPending && <ReviewProgress review={review} now={now} copy={copy} />}

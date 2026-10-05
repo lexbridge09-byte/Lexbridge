@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import { z } from 'zod';
-import { CANCELLATION_NOTICE_HOURS, CONSULTATION_MODE_KEYS, CONSULTATION_TYPE_KEYS, SUPPORTED_LANGUAGE_KEYS } from '@lexbridge/shared';
-import { createRateLimiter, requireAuth } from '../middleware/index.js';
+import { CANCELLATION_NOTICE_HOURS, CONSULTATION_MODE_KEYS, CONSULTATION_TYPE_KEYS, getIntakeFields, sanitizeIntakeDetails, SERVICE_CATEGORY_KEYS, SUPPORTED_LANGUAGE_KEYS } from '@lexbridge/shared';
+import { createRateLimiter, requireClient } from '../middleware/index.js';
 import { ConsultationModel, SlotModel, UserModel } from '../models/index.js';
 import {
   CLIENT_CONSULTATION_FIELDS,
@@ -39,6 +39,9 @@ const bookingSchema = z.object({
   ConsentGiven: z.literal(true, { error: 'Please accept the consent to continue' }),
   WhatsAppOptIn: z.boolean().optional().default(false),
   PreferredLanguage: z.enum(SUPPORTED_LANGUAGE_KEYS).optional().default('en'),
+  IntakeCategory: z.enum(SERVICE_CATEGORY_KEYS).optional(),
+  IntakeSubtype: z.string().trim().max(80).optional().default(''),
+  IntakeDetails: z.record(z.string(), z.string().max(300)).optional().default({}),
 });
 
 export const consultationsRouter = Router();
@@ -61,9 +64,15 @@ consultationsRouter.get('/slots', async (req, res) => {
   res.json({ slots });
 });
 
-consultationsRouter.post('/', requireAuth, bookingLimiter, async (req, res) => {
+consultationsRouter.post('/', requireClient, bookingLimiter, async (req, res) => {
   const input = bookingSchema.parse(req.body);
   const now = new Date();
+  // Topic intake: only consult a subtype that exists, then whitelist its answers
+  const intakeSubtype = input.IntakeSubtype && getIntakeFields(input.IntakeSubtype) ? input.IntakeSubtype : '';
+  const intake = intakeSubtype ? sanitizeIntakeDetails(intakeSubtype, input.IntakeDetails) : { ok: true, details: {} };
+  if (!intake.ok) {
+    return res.status(400).json({ error: 'Some required topic details are missing.', details: intake.missing });
+  }
   const consultationId = new mongoose.Types.ObjectId();
 
   // Atomic claim: only one booking can move an open slot to booked
@@ -89,6 +98,9 @@ consultationsRouter.post('/', requireAuth, bookingLimiter, async (req, res) => {
       DurationMinutes: slot.DurationMinutes,
       Phone: input.Phone,
       Description: input.Description,
+      IntakeCategory: input.IntakeCategory ?? '',
+      IntakeSubtype: intakeSubtype,
+      IntakeDetails: intake.details,
       WhatsAppOptIn: input.WhatsAppOptIn,
       PreferredLanguage: input.PreferredLanguage,
       ConsentGiven: true,
@@ -111,7 +123,7 @@ consultationsRouter.post('/', requireAuth, bookingLimiter, async (req, res) => {
   res.status(201).json({ consultation: extractClientConsultation(consultation) });
 });
 
-consultationsRouter.get('/mine', requireAuth, async (req, res) => {
+consultationsRouter.get('/mine', requireClient, async (req, res) => {
   const consultations = await ConsultationModel.find({ Client: req.user.id })
     .select(CLIENT_CONSULTATION_FIELDS.join(' '))
     .sort({ StartsAt: -1 })
@@ -126,7 +138,7 @@ consultationsRouter.get('/mine', requireAuth, async (req, res) => {
   res.json({ consultations: [...upcoming, ...past].map(extractClientConsultation) });
 });
 
-consultationsRouter.post('/mine/:referenceCode/cancel', requireAuth, async (req, res) => {
+consultationsRouter.post('/mine/:referenceCode/cancel', requireClient, async (req, res) => {
   const consultation = await ConsultationModel.findOne({
     ReferenceCode: req.params.referenceCode,
     Client: req.user.id,

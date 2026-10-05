@@ -5,6 +5,39 @@ export const team = {
 
   nav: {
     assignments: 'My assignments',
+    desk: 'Team requests',
+    lawyers: 'Lawyers',
+  },
+
+  desk: {
+    metadataTitle: 'Team requests',
+    title: 'Team requests',
+    description: 'Every client request. Assign work to lawyers, track progress and deliver the finished files.',
+  },
+
+  lawyers: {
+    metadataTitle: 'Lawyers',
+    title: 'Lawyers',
+    description: 'Onboard lawyers and consultants who work for you. They see only the requests you assign to them.',
+    inviteTitle: 'Invite a lawyer',
+    inviteIntro: "Enter their email and they'll get an invitation. Their access activates the first time they sign in with that email — no passwords.",
+    emailLabel: 'Email',
+    emailPlaceholder: 'lawyer@example.com',
+    inviteAction: 'Send invite',
+    inviteSent: (email) => `Invitation sent to ${email}. It activates on their first sign-in.`,
+    pendingTitle: 'Pending invitations',
+    pendingEmpty: 'No pending invitations.',
+    activeTitle: 'Active lawyers',
+    activeEmpty: 'No lawyers yet. Invite one above.',
+    emailColumn: 'Email',
+    nameColumn: 'Name',
+    expiresColumn: 'Expires',
+    actionsColumn: 'Actions',
+    resend: 'Resend',
+    revoke: 'Revoke',
+    removeAccess: 'Remove access',
+    busy: 'Working…',
+    notProvided: '—',
   },
 
   requests: {

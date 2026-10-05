@@ -105,7 +105,7 @@ export function ServiceSearch({ items, className = '' }) {
           onFocus={() => setIsOpen(true)}
           onBlur={() => setIsOpen(false)}
           onKeyDown={handleKeyDown}
-          className="control-glass block h-12 w-full rounded-2xl pl-12 pr-4 text-[15px] shadow-hairline placeholder:text-on-canvas-subtle transition-colors duration-(--dur-150) focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/25"
+          className="control-glass block h-12 w-full rounded-card pl-12 pr-4 text-[15px] shadow-hairline placeholder:text-on-canvas-subtle transition-colors duration-(--dur-150) focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/25"
         />
       </div>
 
@@ -114,7 +114,7 @@ export function ServiceSearch({ items, className = '' }) {
           id={listboxId}
           role="listbox"
           aria-label={trimmedQuery ? copy.results(matches.length) : copy.suggestions}
-          className="absolute inset-x-0 top-full z-40 mt-2 max-h-96 overflow-y-auto rounded-2xl border border-line bg-card p-1.5 text-ink shadow-float"
+          className="absolute inset-x-0 top-full z-40 mt-2 max-h-96 overflow-y-auto rounded-card border border-line bg-card p-1.5 text-ink shadow-float"
         >
           {!trimmedQuery && <li role="presentation" className="px-3 pb-1 pt-2 text-xs font-semibold text-ink-muted">{copy.suggestions}</li>}
           {options.map((option, optionIndex) => {

@@ -2,6 +2,7 @@
 
 import { ChevronLeft } from 'lucide-react';
 import { useDictionary } from '@/brand/localeContext';
+import { ReferenceCodeTag } from '@/components/copyButton';
 import { deriveOrderTitle } from '@/components/dashboard/ordersList';
 import { ErrorNote, LoadingNote } from '@/components/loadState';
 import { LocaleLink } from '@/components/localeLink';
@@ -74,7 +75,10 @@ export function OrderDetail({ referenceCode }) {
           <h1 className="text-h3 text-ink">{deriveOrderTitle(order, commerceCopy.orders)}</h1>
           <OrderStatusBadge status={order.Status} />
         </div>
-        <p className="mt-0.5 text-sm text-ink-muted">{copy.meta(order.ReferenceCode, format.dateTime(order.createdAt))}</p>
+        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+          <ReferenceCodeTag code={order.ReferenceCode} />
+          <span className="text-sm text-ink-muted">{format.dateTime(order.createdAt)}</span>
+        </div>
       </div>
 
       <div className="grid items-start gap-5 lg:grid-cols-[1.1fr_1fr]">

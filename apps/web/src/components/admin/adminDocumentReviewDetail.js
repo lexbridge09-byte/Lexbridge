@@ -1,9 +1,12 @@
 'use client';
 
+import { getDisplayableIntakeDetails } from '@lexbridge/shared';
 import { useDictionary } from '@/brand/localeContext';
 import { ADMIN_LINK_CLASS, AdminBackLink, AdminPanel } from '@/components/admin/adminStyles';
+import { ReferenceCodeTag } from '@/components/copyButton';
 import { DocumentReviewReport } from '@/components/documentReview/documentReviewReport';
 import { ErrorNote, LoadingNote } from '@/components/loadState';
+import { IntakeDetailsPanel } from '@/components/intakeDetailsPanel';
 import { LocaleLink } from '@/components/localeLink';
 import { DocumentReviewStatusBadge, RiskBadge } from '@/components/statusBadge';
 import { useFormatters } from '@/lib/localeTools';
@@ -34,23 +37,32 @@ export function AdminDocumentReviewDetail({ referenceCode }) {
     <div>
       <AdminBackLink href="/admin/document-reviews">{copy.breadcrumb}</AdminBackLink>
       <div className="mt-2 flex flex-wrap items-center gap-3">
-        <h1 className="text-h3 text-ink">{review.ReferenceCode}</h1>
+        <h1 className="sr-only">{review.ReferenceCode}</h1>
+        <ReferenceCodeTag code={review.ReferenceCode} size="lg" />
         <DocumentReviewStatusBadge status={review.Status} />
         <RiskBadge level={review.RiskLevel} />
       </div>
-      <p className="mt-0.5 text-sm text-ink-muted">{copy.meta(format.dateTime(review.createdAt))}</p>
+      <p className="mt-0.5 text-sm text-on-canvas-muted">{copy.meta(format.dateTime(review.createdAt))}</p>
 
       <div className="mt-5 grid items-start gap-5 lg:grid-cols-[1fr_20rem]">
         <section aria-labelledby="review-report-title" className="order-2 lg:order-1">
           <h2 id="review-report-title" className="mb-3 text-h4 text-ink">
             {copy.reportTitle}
           </h2>
-          {review.Report ? <DocumentReviewReport report={review.Report} /> : <p className="text-sm text-ink-muted">{copy.noReport}</p>}
+          {review.Report ? <DocumentReviewReport report={review.Report} /> : <p className="text-sm text-on-canvas-muted">{copy.noReport}</p>}
         </section>
 
         <AdminPanel className="order-1 lg:sticky lg:top-24 lg:order-2">
           <dl className="space-y-3">
             <DetailItem label={copy.owner}>{review.Owner?.FullName ? `${review.Owner.FullName}, ${review.Owner.Email}` : review.Owner?.Email ?? '—'}</DetailItem>
+            {getDisplayableIntakeDetails('document-review', review.IntakeDetails).length > 0 && (
+              <div className="border-t border-line pt-3">
+                <p className="text-xs font-semibold text-ink-muted">{dictionary.intake.detailsTitle}</p>
+                <div className="mt-2">
+                  <IntakeDetailsPanel subtype="document-review" details={review.IntakeDetails} />
+                </div>
+              </div>
+            )}
             <DetailItem label={copy.file}>
               {review.OriginalName} ({format.fileSize(review.SizeBytes)})
               {review.FileDeletedAt && <span className="block text-xs text-ink-muted">{copy.fileDeleted}</span>}

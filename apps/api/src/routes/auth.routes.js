@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { ADMIN_EMAILS, IS_PRODUCTION, JWT_SECRET, SESSION_COOKIE_NAME } from '../config/index.js';
 import { createRateLimiter, requireAuth } from '../middleware/index.js';
-import { OtpModel, UserModel } from '../models/index.js';
+import { InviteModel, OtpModel, UserModel } from '../models/index.js';
 import { enqueueNotifications, sendMail } from '../services/index.js';
 import { extractPublicUser } from '../utils.js';
 
@@ -116,6 +116,20 @@ authRouter.post('/verify-otp', verifyOtpLimiter, async (req, res) => {
 
   const update = { lastLoginAt: new Date() };
   if (ADMIN_EMAILS.has(email)) update.Role = 'owner';
+
+  // Team onboarding: a pending, unexpired invite promotes the account on first sign-in.
+  // The OTP already proved they own the inbox, so the invite needs no separate token.
+  const invite = await InviteModel.findOne({
+    Email: email,
+    Status: 'pending',
+    expiresAt: { $gt: new Date() },
+    Role: { $in: ['manager', 'lawyer'] },
+  });
+  if (invite && !ADMIN_EMAILS.has(email)) {
+    update.Role = invite.Role;
+    invite.Status = 'accepted';
+    await invite.save();
+  }
 
   const user = await UserModel.findOneAndUpdate(
     { Email: email },

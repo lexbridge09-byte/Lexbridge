@@ -35,7 +35,7 @@ export function ProductCard({ product }) {
   const actionHref = canBuy ? `/checkout/${product.Slug}` : `/services/${product.Slug}`;
 
   return (
-    <article className="relative flex h-full flex-col rounded-2xl border border-line bg-card p-4 shadow-sm transition hover:border-primary-100 hover:shadow-card">
+    <article className="lift relative flex h-full flex-col rounded-card border border-line bg-card p-4 shadow-sm">
       <p className="flex items-center justify-between gap-2 text-xs">
         <span className="font-semibold text-primary">{labels.productCategory(product.Category)}</span>
         {product.TurnaroundText && (
@@ -46,7 +46,7 @@ export function ProductCard({ product }) {
         )}
       </p>
       <h3 className="mt-1.5 font-display text-[15px] font-semibold leading-6 text-ink">
-        <LocaleLink href={`/services/${product.Slug}`} className="after:absolute after:inset-0 after:rounded-2xl after:content-['']">
+        <LocaleLink href={`/services/${product.Slug}`} className="after:absolute after:inset-0 after:rounded-card after:content-['']">
           {product.Title}
         </LocaleLink>
       </h3>

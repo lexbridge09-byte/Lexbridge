@@ -92,7 +92,7 @@ function ArticleForm({ article }) {
               required
               defaultValue={article?.Title ?? ''}
               placeholder={copy.titlePlaceholder}
-              className={`mt-1 font-display text-lg ${ADMIN_CONTROL_CLASS}`}
+              className={`mt-1 font-display text-base ${ADMIN_CONTROL_CLASS}`}
             />
             <FieldError id="article-title-error" message={fieldErrors.Title} />
           </div>

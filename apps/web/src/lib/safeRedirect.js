@@ -9,10 +9,10 @@ export function deriveSafeNextPath(value) {
   return value;
 }
 
-// Staff land in their own workspace; clients land in their dashboard
+// One account, one view: each role lands in — and only sees — its own area
 export function deriveHomePath(user) {
-  if (user?.Role === 'owner' || user?.Role === 'manager') return '/admin';
-  if (user?.Role === 'lawyer') return '/team';
+  if (user?.Role === 'owner') return '/admin';
+  if (user?.Role === 'manager' || user?.Role === 'lawyer') return '/team';
   return '/dashboard';
 }
 

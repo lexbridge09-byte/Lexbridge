@@ -106,7 +106,7 @@ export function AdminWhatsAppContacts() {
 
       <WhatsAppSetupNotice status={status} />
 
-      <form onSubmit={handleSearchSubmit} className="mb-4 grid gap-3 rounded-2xl border border-line bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-end">
+      <form onSubmit={handleSearchSubmit} className="mb-4 grid gap-3 rounded-card border border-line bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-end">
         <div>
           <label htmlFor="whatsapp-q" className={ADMIN_LABEL_CLASS}>
             {dictionary.admin.common.search}

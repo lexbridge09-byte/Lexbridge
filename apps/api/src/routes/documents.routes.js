@@ -1,7 +1,7 @@
 import { pipeline } from 'node:stream/promises';
 import { Router } from 'express';
 import { z } from 'zod';
-import { createRateLimiter, requireAuth, uploadSingleDocument } from '../middleware/index.js';
+import { createRateLimiter, requireAuth, requireClient, uploadSingleDocument } from '../middleware/index.js';
 import { ConsultationModel, DocumentModel, ServiceRequestModel, UserModel } from '../models/index.js';
 import { STAFF_ROLES } from '../models/index.js';
 import { deleteDocumentFile, openDocumentStream, saveDocumentFile } from '../services/index.js';
@@ -71,7 +71,7 @@ export function extractClientDocument(document) {
 
 export const documentsRouter = Router();
 
-documentsRouter.get('/mine', requireAuth, async (req, res) => {
+documentsRouter.get('/mine', requireClient, async (req, res) => {
   const documents = await DocumentModel.find({ Owner: req.user.id })
     .select(CLIENT_DOCUMENT_FIELDS)
     .sort({ createdAt: -1 })
@@ -80,7 +80,7 @@ documentsRouter.get('/mine', requireAuth, async (req, res) => {
   res.json({ documents });
 });
 
-documentsRouter.post('/', requireAuth, uploadLimiter, uploadSingleDocument, async (req, res) => {
+documentsRouter.post('/', requireClient, uploadLimiter, uploadSingleDocument, async (req, res) => {
   if (!req.file) throw createHttpError(400, 'Choose a file to upload.');
   const { RequestReference } = uploadFieldsSchema.parse(req.body ?? {});
 

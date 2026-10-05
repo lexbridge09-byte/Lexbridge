@@ -71,6 +71,8 @@ export const ux = {
     documents: 'Documents',
     documentReviews: 'Document reviews',
     team: 'My assignments',
+    desk: 'Team requests',
+    lawyers: 'Lawyers',
     admin: 'Admin',
     signOut: 'Sign out',
     signingOut: 'Signing out…',

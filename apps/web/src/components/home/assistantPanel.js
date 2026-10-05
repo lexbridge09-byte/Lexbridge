@@ -8,7 +8,7 @@ export function AssistantPanel({ copy, action }) {
       <div className="grid items-center gap-6 rounded-panel border border-line bg-assistant p-5 sm:p-8 lg:grid-cols-2 lg:gap-12 lg:p-10">
         <div>
           <span className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-xs font-semibold text-primary-dark ring-1 ring-primary-100">
-            <span aria-hidden="true" className="size-2 rounded-full bg-primary motion-safe:animate-pulse" />
+            <span aria-hidden="true" className="size-2 rounded-full bg-primary motion-safe:animate-live" />
             {copy.pill}
           </span>
           <h2 id="assistant-title" className="mt-3 text-section text-ink">

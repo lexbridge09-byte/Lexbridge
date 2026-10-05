@@ -10,6 +10,11 @@ export const common = {
   skipToContent: 'मुख्य सामग्री पर जाएँ',
   homeLinkLabel: 'LexBridge होम',
   scrollTop: 'ऊपर जाएँ',
+  collapseSidebar: 'साइडबार छोटा करें',
+  expandSidebar: 'साइडबार बड़ा करें',
+  copy: 'कॉपी करें',
+  copied: 'कॉपी हो गया',
+  close: 'बंद करें',
 
   nav: {
     mainLabel: 'मुख्य',
@@ -23,6 +28,7 @@ export const common = {
     findSolution: 'समाधान खोजें',
     insights: 'कानूनी गाइड',
     bareActs: 'बेयर एक्ट',
+    backToSite: 'वेबसाइट देखें',
     about: 'हमारे बारे में',
     contact: 'संपर्क',
     faq: 'सवाल-जवाब',

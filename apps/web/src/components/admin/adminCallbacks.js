@@ -99,7 +99,7 @@ export function AdminCallbacks() {
     <div>
       <AdminPageHeading title={copy.title} description={copy.description} />
 
-      <form onSubmit={handleFilterSubmit} className="mb-4 grid gap-3 rounded-2xl border border-line bg-card p-4 sm:grid-cols-[12rem_1fr_auto] sm:items-end">
+      <form onSubmit={handleFilterSubmit} className="mb-4 grid gap-3 rounded-card border border-line bg-card p-4 sm:grid-cols-[12rem_1fr_auto] sm:items-end">
         <AdminField id="callback-status-filter" label={common.status}>
           <select id="callback-status-filter" name="status" defaultValue={filters.status} className={ADMIN_CONTROL_CLASS}>
             <option value="">{common.allStatuses}</option>
@@ -149,7 +149,7 @@ export function AdminCallbacks() {
                     </span>
                     <span className="flex items-center gap-3">
                       <CallbackStatusBadge status={callback.Status} />
-                      <ChevronDown aria-hidden="true" className="size-4 text-primary transition-transform group-open:rotate-180" strokeWidth={2} />
+                      <ChevronDown aria-hidden="true" className="size-4 text-primary transition-transform duration-(--dur-200) ease-(--ease-standard) motion-reduce:transition-none group-open:rotate-180" strokeWidth={2} />
                     </span>
                   </summary>
                   <div className="space-y-3 px-4 pb-4">

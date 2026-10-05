@@ -67,11 +67,11 @@ function FlagToggle({ flag, labels, summaries, copy, onChanged }) {
         aria-label={labels[flag.key] ?? flag.key}
         onClick={toggle}
         disabled={isSaving}
-        className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-150 ${flag.stored ? 'bg-primary' : 'bg-line-strong'} ${isSaving ? 'opacity-60' : ''}`}
+        className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-(--dur-150) ease-(--ease-productive) motion-reduce:transition-none ${flag.stored ? 'bg-primary' : 'bg-line-strong'} ${isSaving ? 'opacity-60' : ''}`}
       >
         <span
           aria-hidden="true"
-          className={`inline-block size-5 rounded-full bg-card shadow-sm transition-transform duration-150 ${flag.stored ? 'translate-x-6' : 'translate-x-1'}`}
+          className={`inline-block size-5 rounded-full bg-card shadow-sm transition-transform duration-(--dur-150) ease-(--ease-spring) motion-reduce:transition-none ${flag.stored ? 'translate-x-6' : 'translate-x-1'}`}
         />
       </button>
     </li>

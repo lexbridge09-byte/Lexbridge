@@ -12,6 +12,10 @@ const consultationSchema = new mongoose.Schema(
     DurationMinutes: { type: Number, required: true },
     Phone: { type: String, required: true, trim: true, maxlength: 20 },
     Description: { type: String, required: true, maxlength: 3000 },
+    // Topic + subtype-specific intake answers, whitelisted against @lexbridge/shared intakeCatalog
+    IntakeDetails: { type: mongoose.Schema.Types.Mixed, default: {} },
+    IntakeCategory: { type: String, default: '', maxlength: 60 },
+    IntakeSubtype: { type: String, default: '', maxlength: 80 },
     Status: { type: String, enum: CONSULTATION_STATUSES, default: 'scheduled' },
     MeetingLink: { type: String, default: '', maxlength: 500 },
     AdminNote: { type: String, default: '', maxlength: 2000 },

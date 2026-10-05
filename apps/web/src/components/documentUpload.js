@@ -11,11 +11,17 @@ import { useFormatters } from '@/lib/localeTools';
 import { uploadApiFile } from '@/lib/uploadClient';
 import { redirectToLogin } from '@/lib/useApiData';
 
+/*
+  `kinds` turns the single-purpose uploader into one form with a file-kind choice:
+  [{ value, endpoint, label, description }] — the picked kind decides the upload endpoint.
+*/
 export function DocumentUpload({
+  isBare = false,
   endpoint = '/documents',
   requestReference = '',
   referenceOptions,
   isReferenceRequired = false,
+  kinds,
   title,
   submitLabel,
   onUploaded,
@@ -26,6 +32,7 @@ export function DocumentUpload({
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [kindValue, setKindValue] = useState(kinds?.[0]?.value ?? '');
   const inputId = `document-file-${requestReference || 'general'}`;
   const maxSizeLabel = format.fileSize(DOCUMENT_MAX_BYTES);
 
@@ -52,6 +59,8 @@ export function DocumentUpload({
       return;
     }
 
+    const chosenKind = kinds?.find((kind) => kind.value === kindValue) ?? kinds?.[0];
+
     const formData = new FormData();
     if (chosenReference) formData.append('RequestReference', chosenReference);
     formData.append('file', file);
@@ -59,7 +68,7 @@ export function DocumentUpload({
     setIsUploading(true);
     setMessage(null);
     try {
-      const data = await uploadApiFile(endpoint, formData);
+      const data = await uploadApiFile(chosenKind?.endpoint ?? endpoint, formData);
       form.reset();
       setMessage({ tone: 'success', text: copy.uploaded(file.name) });
       onUploaded?.(data.document);
@@ -74,13 +83,39 @@ export function DocumentUpload({
     }
   }
 
-  return (
-    <Card padding="md">
+  const form = (
       <form onSubmit={handleSubmit} className="space-y-4">
-        <h3 className="flex items-center gap-2 text-h4 text-ink">
-          <Upload aria-hidden="true" className="size-5 text-primary" strokeWidth={1.75} />
-          {title ?? copy.title}
-        </h3>
+        {!isBare && (
+          <h3 className="flex items-center gap-2 text-h4 text-ink">
+            <Upload aria-hidden="true" className="size-5 text-primary" strokeWidth={1.75} />
+            {title ?? copy.title}
+          </h3>
+        )}
+
+        {kinds && kinds.length > 1 && (
+          <fieldset>
+            <legend className="text-sm font-semibold text-ink">{dictionary.admin.requestDetail.uploadKindLabel}</legend>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {kinds.map((kind) => (
+                <label
+                  key={kind.value}
+                  className={`cursor-pointer rounded-xl border px-3 py-2.5 transition-colors duration-(--dur-150) hover:border-primary-100 has-[:checked]:border-primary has-[:checked]:bg-primary-50 ${kind.value === kindValue ? 'border-primary bg-primary-50' : 'border-line bg-card'}`}
+                >
+                  <input
+                    type="radio"
+                    name="uploadKind"
+                    value={kind.value}
+                    checked={kind.value === kindValue}
+                    onChange={() => setKindValue(kind.value)}
+                    className="sr-only"
+                  />
+                  <span className="block text-sm font-semibold text-ink">{kind.label}</span>
+                  {kind.description && <span className="mt-0.5 block text-xs leading-5 text-ink-muted">{kind.description}</span>}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
 
         {referenceOptions && (
           <div>
@@ -126,6 +161,8 @@ export function DocumentUpload({
           {isUploading ? copy.busy : (submitLabel ?? copy.submit)}
         </Button>
       </form>
-    </Card>
   );
+
+  if (isBare) return form;
+  return <Card padding="md">{form}</Card>;
 }

@@ -44,7 +44,7 @@ export function AdminOverview() {
 
       <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {summaryItems.map((item) => (
-          <div key={item.key} className="relative rounded-2xl border border-line bg-card p-4 shadow-sm hover:border-primary-100">
+          <div key={item.key} className="relative rounded-card border border-line bg-card p-4 shadow-sm hover:border-primary-100">
             <dt className="text-xs font-semibold text-ink-muted">{item.label}</dt>
             <dd className="mt-1 font-display text-2xl font-bold text-ink">
               <LocaleLink href={item.href} className="after:absolute after:inset-0 after:content-['']">

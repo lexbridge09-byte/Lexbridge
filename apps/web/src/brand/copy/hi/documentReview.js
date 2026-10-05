@@ -78,6 +78,8 @@ export const documentReview = {
     trust: (days) => `सुरक्षित अपलोड। फ़ाइल ${days} दिन बाद हटा दी जाती है।`,
     wrongType: 'सिर्फ़ PDF फ़ाइल की समीक्षा हो सकती है।',
     tooLarge: (maxSizeLabel) => `फ़ाइल ${maxSizeLabel} तक हो सकती है।`,
+    aboutTitle: 'आपके दस्तावेज़ के बारे में',
+    missingDetails: 'पहले हाइलाइट किए गए प्रश्नों के जवाब दें।',
   },
 
   report: {

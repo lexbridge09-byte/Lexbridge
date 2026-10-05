@@ -1,8 +1,10 @@
 import { Inter, Noto_Sans_Devanagari, Plus_Jakarta_Sans } from 'next/font/google';
 import { notFound } from 'next/navigation';
+import { ViewTransition } from 'react';
 import { getDictionary, getMobileTabs, getPrimaryCta, getServerFeatures, isSupportedLocale, LOCALE_TAGS, SUPPORTED_LOCALES } from '@/brand';
 import { LocaleProvider } from '@/brand/localeProviders';
 import { FeaturesProvider } from '@/components/featuresProvider';
+import { HideOnOffice, OfficeHeader } from '@/components/officeChrome';
 import { MobileTabBar } from '@/components/mobileTabBar';
 import { PromoStrip } from '@/components/promoStrip';
 import { ScrollChrome } from '@/components/scrollChrome';
@@ -81,21 +83,26 @@ export default async function RootLayout({ children, params }) {
             >
               {dictionary.common.skipToContent}
             </a>
-            <PromoStrip promo={dictionary.common.promo} />
+            <HideOnOffice><PromoStrip promo={dictionary.common.promo} /></HideOnOffice>
             <ScrollChrome label={dictionary.common.scrollTop} />
-            <SiteHeader dictionary={dictionary} locale={lang} />
-            <main id="main" tabIndex={-1} className="flex-1 outline-none">
-              {children}
-            </main>
-            <SiteFooter dictionary={dictionary} />
-            <StickyActionBar
+            <HideOnOffice><SiteHeader dictionary={dictionary} locale={lang} /></HideOnOffice>
+            <OfficeHeader />
+            {/* Quiet cross-fade between pages (Next View Transitions; RM-disabled in globals.css) */}
+            <ViewTransition>
+              <main id="main" tabIndex={-1} className="flex-1 outline-none">
+                {children}
+              </main>
+            </ViewTransition>
+            <HideOnOffice><SiteFooter dictionary={dictionary} /></HideOnOffice>
+            <HideOnOffice><StickyActionBar
               cta={primaryCta}
               label={dictionary.common.stickyBar.label}
               title={dictionary.common.stickyBar.title}
               note={primaryCta.note}
               hasCallback={Boolean(features.callbackRequests)}
-            />
-            <MobileTabBar tabs={getMobileTabs(dictionary, features)} label={dictionary.common.tabs.label} />
+            /></HideOnOffice>
+            <HideOnOffice><MobileTabBar tabs={getMobileTabs(dictionary, features)} label={dictionary.common.tabs.label} /></HideOnOffice>
+            <HideOnOffice>
             {features.whatsAppChatButton && (
               <WhatsAppButton
                 href={deriveWhatsAppHref(dictionary.whatsapp.greeting)}
@@ -103,6 +110,7 @@ export default async function RootLayout({ children, params }) {
                 text={dictionary.whatsapp.button.text}
               />
             )}
+            </HideOnOffice>
           </FeaturesProvider>
         </LocaleProvider>
       </body>

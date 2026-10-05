@@ -1,5 +1,6 @@
 export { sendMail } from './mailService.js';
 export { sendInviteEmail } from './notificationService.js';
+export { applyRequestUpdate, loadRequestForUpdate } from './serviceRequestService.js';
 export {
   getEffectiveFlags,
   getFlagDetails,

@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowLeft } from 'lucide-react';
+import { getIntakeFields, getIntakeSubtypes } from '@lexbridge/shared';
 import { createElement, useRef, useState } from 'react';
 import { useDictionary } from '@/brand/localeContext';
 import { CheckboxField, FieldError, SelectField, TextAreaField, TextField } from '@/components/formFields';
@@ -19,32 +20,62 @@ const MATTER_FIELDS = ['ServiceCategory', 'Subtype', 'Description'];
 // Matches the API rule in serviceRequests.routes.js, so step one never passes what the server rejects
 const DESCRIPTION_MIN_LENGTH = 20;
 
+// Gathers the conditional intake answers for the chosen subtype into the API's flat object
+function collectIntakeDetails(formData, subtypeKey) {
+  const details = {};
+  for (const field of getIntakeFields(subtypeKey) ?? []) {
+    const value = String(formData.get(`IntakeDetails.${field.key}`) ?? '').trim();
+    if (value) details[field.key] = value.slice(0, field.maxLength ?? 300);
+  }
+  return details;
+}
+
 const TILE_CLASS =
   'flex h-full cursor-pointer items-center gap-3 rounded-xl border border-line bg-card px-3 py-2.5 transition-colors duration-(--dur-150) hover:border-line-strong has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary';
 
-// Document types with icons render as tiles (one tap); plain lists stay a select
-function SubtypePicker({ label, options, placeholder, error }) {
-  if (!options.some((option) => option.icon)) {
-    return <SelectField label={label} name="Subtype" options={options} placeholder={placeholder} error={error} />;
-  }
+// Subtype choices render as compact chips (Hick's law: few, scannable options); icons optional
+const SUBTYPE_CHIP_CLASS =
+  'inline-flex min-h-11 cursor-pointer items-center rounded-control border px-3.5 py-2 text-sm font-semibold transition-colors duration-(--dur-150) has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:checked]:text-primary-dark hover:border-primary-100 border-line bg-card text-ink';
+
+function SubtypePicker({ label, options, error, onChange }) {
   return (
     <fieldset>
       <legend className="text-sm font-semibold text-ink">{label}</legend>
-      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+      <div className="mt-2 flex flex-wrap gap-2">
         {options.map((option) => (
-          <label key={option.value} className={TILE_CLASS}>
-            <input type="radio" name="Subtype" value={option.value} className="sr-only" />
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary">
-              {createElement(getIcon(option.icon), { 'aria-hidden': true, className: 'size-[18px]', strokeWidth: 1.75 })}
-            </span>
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold text-ink">{option.label}</span>
-              {option.description && <span className="block truncate text-xs text-ink-muted">{option.description}</span>}
-            </span>
+          <label key={option.value} className={SUBTYPE_CHIP_CLASS}>
+            <input type="radio" name="Subtype" value={option.value} onChange={onChange} className="sr-only" />
+            {option.label}
           </label>
         ))}
       </div>
       <FieldError id="Subtype-error" message={error} />
+    </fieldset>
+  );
+}
+
+// Conditional subtype-specific questions, revealed only after a subtype is chosen
+function IntakeDetailsFields({ subtypeKey, error }) {
+  const intake = useDictionary().intake;
+  const fields = getIntakeFields(subtypeKey) ?? [];
+  if (fields.length === 0) return null;
+  return (
+    <fieldset key={subtypeKey} className="motion-safe:animate-rise rounded-xl border border-line bg-card-dim/60 p-4">
+      <legend className="px-1 text-xs font-semibold text-ink-muted">{intake.detailsTitle}</legend>
+      <div className="stagger grid gap-3 sm:grid-cols-2">
+        {fields.map((field) => {
+          const name = `IntakeDetails.${field.key}`;
+          const label = intake.fields[field.key]?.label ?? field.key;
+          if (field.type === 'select') {
+            const options = (field.options ?? []).map((optionKey) => ({ value: optionKey, label: intake.options[optionKey] ?? optionKey }));
+            return <SelectField key={field.key} label={label} name={name} options={options} placeholder={intake.choose} required={field.required} error={error?.[name]} />;
+          }
+          if (field.type === 'date') {
+            return <TextField key={field.key} label={label} name={name} type="date" required={field.required} error={error?.[name]} />;
+          }
+          return <TextField key={field.key} label={label} name={name} type="text" maxLength={field.maxLength ?? 300} required={field.required} error={error?.[name]} />;
+        })}
+      </div>
     </fieldset>
   );
 }
@@ -73,14 +104,27 @@ export function ServiceRequestForm({
   const stepStatusRef = useRef(null);
   // A matter already described elsewhere (e.g. the solution finder) skips straight to contact details
   const [step, setStep] = useState(() => (initialDescription && (isCategoryLocked || defaultCategory) ? DETAILS_STEP : MATTER_STEP));
+  const [stepDirection, setStepDirection] = useState('forward');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [referenceCode, setReferenceCode] = useState('');
   const [hasCopiedCode, setHasCopiedCode] = useState(false);
+  const [matterCategory, setMatterCategory] = useState(defaultCategory);
+  const [subtypeKey, setSubtypeKey] = useState('');
   const stepNames = [copy.stepMatter, copy.stepDetails];
+  const intakeCopy = dictionary.intake;
+
+  // Subtype chips: page-provided options win (drafting), otherwise the intake catalog for the category
+  const catalogSubtypeKeys = getIntakeSubtypes(isCategoryLocked || !subtypeOptions ? matterCategory : '');
+  const effectiveSubtypeOptions = subtypeOptions ?? [
+    ...catalogSubtypeKeys.map((key) => ({ value: key, label: intakeCopy.subtypes[key]?.label ?? key })),
+    { value: 'other', label: intakeCopy.otherLabel },
+  ];
+  const showIntake = Boolean(subtypeKey && subtypeKey !== 'other' && getIntakeFields(subtypeKey));
 
   function goToStep(nextStep, fieldToFocus) {
+    setStepDirection(nextStep >= step ? 'forward' : 'back');
     setStep(nextStep);
     // Focus after the step becomes visible: the first invalid field, otherwise the step announcement
     requestAnimationFrame(() => {
@@ -94,6 +138,12 @@ export function ServiceRequestForm({
     const errors = {};
     if (!isCategoryLocked && !formData.get('ServiceCategory')) errors.ServiceCategory = copy.stepErrors.service;
     if (String(formData.get('Description') ?? '').trim().length < DESCRIPTION_MIN_LENGTH) errors.Description = copy.stepErrors.description;
+    // Required intake questions for the chosen subtype
+    for (const field of getIntakeFields(subtypeKey) ?? []) {
+      if (field.required && !String(formData.get(`IntakeDetails.${field.key}`) ?? '').trim()) {
+        errors[`IntakeDetails.${field.key}`] = intakeCopy.fieldRequired;
+      }
+    }
     return errors;
   }
 
@@ -129,6 +179,7 @@ export function ServiceRequestForm({
           Phone: formData.get('Phone'),
           ServiceCategory: isCategoryLocked ? defaultCategory : formData.get('ServiceCategory'),
           Subtype: formData.get('Subtype') ?? '',
+          IntakeDetails: collectIntakeDetails(formData, subtypeKey),
           Description: formData.get('Description'),
           Source: source,
           ConsentGiven: formData.get('ConsentGiven') === 'on',
@@ -201,7 +252,7 @@ export function ServiceRequestForm({
         {copy.stepStatus(step, stepNames.length, stepNames[step - 1])}
       </p>
 
-      <div hidden={step !== MATTER_STEP} className="space-y-4 motion-safe:animate-fade-in">
+      <div hidden={step !== MATTER_STEP} className={`space-y-4 motion-safe:${stepDirection === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}>
         {!isCategoryLocked && (
           <SelectField
             label={copy.service}
@@ -211,10 +262,22 @@ export function ServiceRequestForm({
             defaultValue={defaultCategory}
             required
             error={fieldErrors.ServiceCategory}
+            onChange={(event) => {
+              setMatterCategory(event.target.value);
+              setSubtypeKey('');
+            }}
           />
         )}
-        {subtypeOptions && (
-          <SubtypePicker label={subtypeLabel} options={subtypeOptions} placeholder={copy.subtypePlaceholder} error={fieldErrors.Subtype} />
+        {(subtypeOptions || catalogSubtypeKeys.length > 0) && (
+          <div>
+            <SubtypePicker
+              label={subtypeLabel ?? intakeCopy.subtypeLabel}
+              options={effectiveSubtypeOptions}
+              error={fieldErrors.Subtype}
+              onChange={(event) => setSubtypeKey(event.target.value)}
+            />
+            {showIntake && <IntakeDetailsFields subtypeKey={subtypeKey} error={fieldErrors} />}
+          </div>
         )}
         <TextAreaField
           label={descriptionLabel ?? copy.descriptionLabel}
@@ -232,7 +295,7 @@ export function ServiceRequestForm({
         </Button>
       </div>
 
-      <div hidden={step !== DETAILS_STEP} className="space-y-4 motion-safe:animate-fade-in">
+      <div hidden={step !== DETAILS_STEP} className={`space-y-4 motion-safe:${stepDirection === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}>
         <TextField label={copy.fullName} name="FullName" autoComplete="name" required error={fieldErrors.FullName} />
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField label={copy.email} name="Email" type="email" autoComplete="email" required error={fieldErrors.Email} />

@@ -5,6 +5,39 @@ export const team = {
 
   nav: {
     assignments: 'मेरे काम',
+    desk: 'टीम अनुरोध',
+    lawyers: 'वकील',
+  },
+
+  desk: {
+    metadataTitle: 'टीम अनुरोध',
+    title: 'टीम अनुरोध',
+    description: 'सभी क्लाइंट अनुरोध। वकीलों को काम सौंपें, प्रगति देखें और तैयार फ़ाइलें भेजें।',
+  },
+
+  lawyers: {
+    metadataTitle: 'वकील',
+    title: 'वकील',
+    description: 'आपके लिए काम करने वाले वकील और सलाहकारों को जोड़ें। उन्हें केवल आपके सौंपे गए अनुरोध ही दिखते हैं।',
+    inviteTitle: 'वकील को इन्वाइट करें',
+    inviteIntro: 'उनका ईमेल डालें — उन्हें निमंत्रण ईमेल मिलेगा। उस ईमेल से पहली बार साइन इन करते ही उनकी एक्सेस चलू हो जाएगी — कोई पासवर्ड नहीं।',
+    emailLabel: 'ईमेल',
+    emailPlaceholder: 'lawyer@example.com',
+    inviteAction: 'इन्वाइट भेजें',
+    inviteSent: (email) => `${email} को निमंत्रण भेज दिया गया। उनके पहले साइन-इन पर एक्सेस चलू हो जाएगा।`,
+    pendingTitle: 'लंबित निमंत्रण',
+    pendingEmpty: 'अभी कोई लंबित निमंत्रण नहीं।',
+    activeTitle: 'सक्रिय वकील',
+    activeEmpty: 'अभी कोई वकील नहीं। ऊपर से इन्वाइट करें।',
+    emailColumn: 'ईमेल',
+    nameColumn: 'नाम',
+    expiresColumn: 'समाप्ति',
+    actionsColumn: 'कार्य',
+    resend: 'दुबारा भेजें',
+    revoke: 'रद्द करें',
+    removeAccess: 'एक्सेस हटाएं',
+    busy: 'हो रहा है…',
+    notProvided: '—',
   },
 
   requests: {

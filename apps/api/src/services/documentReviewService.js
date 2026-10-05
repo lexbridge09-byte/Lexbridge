@@ -22,7 +22,7 @@ const CLIENT_REVIEW_LIST_KEYS = [
   'createdAt',
   'completedAt',
 ];
-const CLIENT_REVIEW_KEYS = [...CLIENT_REVIEW_LIST_KEYS, 'Report', 'FileDeletedAt'];
+const CLIENT_REVIEW_KEYS = [...CLIENT_REVIEW_LIST_KEYS, 'IntakeDetails', 'Report', 'FileDeletedAt'];
 
 export const CLIENT_REVIEW_LIST_FIELDS = CLIENT_REVIEW_LIST_KEYS.join(' ');
 export const CLIENT_REVIEW_FIELDS = CLIENT_REVIEW_KEYS.join(' ');
@@ -46,7 +46,7 @@ export async function getReviewAllowance(ownerId) {
   return { limit: DOCUMENT_REVIEW_DAILY_LIMIT, used, remaining: Math.max(0, DOCUMENT_REVIEW_DAILY_LIMIT - used) };
 }
 
-export async function createDocumentReview({ file, owner }) {
+export async function createDocumentReview({ file, owner, intakeDetails }) {
   const allowance = await getReviewAllowance(owner.id);
   if (allowance.remaining === 0) {
     throw createHttpError(429, `You can review up to ${allowance.limit} documents in 24 hours. Please try again later.`);
@@ -68,6 +68,7 @@ export async function createDocumentReview({ file, owner }) {
       StoredName: storedName,
       SizeBytes: file.size,
       PageCountEstimate: pageCountEstimate,
+      IntakeDetails: intakeDetails ?? {},
       MaxAttempts: DOCUMENT_REVIEW_MAX_ATTEMPTS,
       nextAttemptAt: new Date(),
     }));

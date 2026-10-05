@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { CANCELLATION_NOTICE_HOURS } from '@lexbridge/shared';
 import { useDictionary } from '@/brand/localeContext';
+import { ReferenceCodeTag } from '@/components/copyButton';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
 import { LocaleLink } from '@/components/localeLink';
 import { ConsultationStatusBadge } from '@/components/statusBadge';
@@ -58,7 +59,7 @@ function ConsultationItem({ consultation, nowMs, onChanged }) {
           labels.consultationMode(consultation.Mode),
         )}
       </p>
-      <p className="text-xs text-ink-muted">{copy.reference(consultation.ReferenceCode)}</p>
+      <ReferenceCodeTag code={consultation.ReferenceCode} className="mt-0.5" />
 
       {consultation.Description && (
         <p className="mt-3 max-w-[65ch] whitespace-pre-line rounded-xl bg-card-dim px-4 py-2.5 text-sm leading-6 text-ink">

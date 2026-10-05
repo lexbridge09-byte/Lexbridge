@@ -32,6 +32,8 @@ const serviceRequestSchema = new mongoose.Schema(
     PhoneLast10: { type: String, default: '' },
     ServiceCategory: { type: String, enum: SERVICE_CATEGORY_KEYS, required: true },
     Subtype: { type: String, trim: true, default: '', maxlength: 120 },
+    // Subtype-specific intake answers, whitelisted against @lexbridge/shared intakeCatalog
+    IntakeDetails: { type: mongoose.Schema.Types.Mixed, default: {} },
     Description: { type: String, required: true, maxlength: 5000 },
     Source: { type: String, enum: REQUEST_SOURCES, required: true },
     Status: { type: String, enum: REQUEST_STATUSES, default: 'submitted' },

@@ -30,15 +30,15 @@ export function buildAdminQuery(filters, page, limit = PAGE_LIMIT) {
   return params.toString();
 }
 
-export function AdminRequests({ initialStatus = '' }) {
+export function AdminRequests({ initialStatus = '', basePath = '/admin/service-requests', detailHrefBase = '/admin/requests', heading } = {}) {
   const dictionary = useDictionary();
-  const copy = dictionary.admin.requests;
+  const copy = heading ? { ...dictionary.admin.requests, title: heading.title, description: heading.description } : dictionary.admin.requests;
   const common = dictionary.admin.common;
   const labels = useCatalogLabels();
   const format = useFormatters();
   const [filters, setFilters] = useState({ status: initialStatus, category: '', q: '' });
   const [page, setPage] = useState(1);
-  const { data, error, isLoading, reload } = useApiData(`/admin/service-requests?${buildAdminQuery(filters, page)}`);
+  const { data, error, isLoading, reload } = useApiData(`${basePath}?${buildAdminQuery(filters, page)}`);
 
   function handleFilterSubmit(event) {
     event.preventDefault();
@@ -58,7 +58,7 @@ export function AdminRequests({ initialStatus = '' }) {
     <div>
       <AdminPageHeading title={copy.title} description={copy.description} />
 
-      <form onSubmit={handleFilterSubmit} className="mb-4 grid gap-3 rounded-2xl border border-line bg-card p-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_2fr_auto] lg:items-end">
+      <form onSubmit={handleFilterSubmit} className="mb-3 grid gap-3 rounded-card border border-line bg-card p-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_2fr_auto] lg:items-end">
         <div>
           <label htmlFor="filter-status" className={ADMIN_LABEL_CLASS}>
             {common.status}
@@ -131,7 +131,7 @@ export function AdminRequests({ initialStatus = '' }) {
               {items.map((request) => (
                 <tr key={request.ReferenceCode} className="hover:bg-card-hover">
                   <td className={ADMIN_TD_CLASS}>
-                    <LocaleLink href={`/admin/requests/${request.ReferenceCode}`} className={ADMIN_LINK_CLASS}>
+                    <LocaleLink href={`${detailHrefBase}/${request.ReferenceCode}`} className={ADMIN_LINK_CLASS}>
                       {request.ReferenceCode}
                     </LocaleLink>
                   </td>
@@ -141,7 +141,7 @@ export function AdminRequests({ initialStatus = '' }) {
                   </td>
                   <td className={ADMIN_TD_CLASS}>
                     {labels.service(request.ServiceCategory)}
-                    {request.Subtype && <span className="block text-xs text-ink-muted">{request.Subtype}</span>}
+                    {request.Subtype && <span className="block text-xs text-ink-muted">{dictionary.intake.subtypes[request.Subtype]?.label ?? request.Subtype}</span>}
                   </td>
                   <td className={ADMIN_TD_CLASS}>
                     <RequestStatusBadge status={request.Status} />

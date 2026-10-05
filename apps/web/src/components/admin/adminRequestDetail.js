@@ -1,15 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { REQUEST_STATUSES } from '@lexbridge/shared';
+import { PenLine, Upload } from 'lucide-react';
+import { REQUEST_STATUSES, getDisplayableIntakeDetails } from '@lexbridge/shared';
 import { useDictionary } from '@/brand/localeContext';
 import { ADMIN_CONTROL_CLASS, ADMIN_LABEL_CLASS, ADMIN_LINK_CLASS, AdminBackLink, AdminPanel } from '@/components/admin/adminStyles';
 import { DocumentList } from '@/components/documentList';
 import { DocumentUpload } from '@/components/documentUpload';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
+import { IntakeDetailsPanel } from '@/components/intakeDetailsPanel';
+import { ReferenceCodeTag } from '@/components/copyButton';
 import { RequestStatusBadge } from '@/components/statusBadge';
 import { StatusTimeline } from '@/components/statusTimeline';
 import { Button } from '@/components/ui';
+import { Modal } from '@/components/ui/modal';
 import { requestApi } from '@/lib/apiClient';
 import { localizeApiError } from '@/lib/apiErrors';
 import { useCatalogLabels, useFormatters } from '@/lib/localeTools';
@@ -22,7 +26,7 @@ function deriveClientWhatsAppHref(phone) {
   return `https://wa.me/${withCountryCode}`;
 }
 
-function RequestUpdateForm({ request, team, onSaved }) {
+function RequestUpdateForm({ request, team, basePath, onSaved, isBare = false }) {
   const dictionary = useDictionary();
   const copy = dictionary.admin.requestDetail.update;
   const common = dictionary.admin.common;
@@ -51,7 +55,7 @@ function RequestUpdateForm({ request, team, onSaved }) {
     setIsSaving(true);
     setMessage(null);
     try {
-      await requestApi(`/admin/service-requests/${encodeURIComponent(request.ReferenceCode)}`, { method: 'PATCH', body });
+      await requestApi(`${basePath}/${encodeURIComponent(request.ReferenceCode)}`, { method: 'PATCH', body });
       onSaved();
     } catch (error) {
       if (error.status === 401) {
@@ -63,8 +67,7 @@ function RequestUpdateForm({ request, team, onSaved }) {
     }
   }
 
-  return (
-    <AdminPanel as="form" title={copy.title} onSubmit={handleSubmit}>
+  const content = (
       <div className="space-y-3">
         <div>
           <label htmlFor="update-status" className={ADMIN_LABEL_CLASS}>
@@ -85,14 +88,15 @@ function RequestUpdateForm({ request, team, onSaved }) {
           <textarea
             id="update-note"
             name="Note"
-            rows={3}
+            rows={isBare ? 3 : 2}
             maxLength={1000}
-            aria-describedby="update-note-hint"
-            className={`mt-1 ${ADMIN_CONTROL_CLASS}`}
+            className={`mt-1 resize-none ${ADMIN_CONTROL_CLASS}`}
           />
-          <p id="update-note-hint" className="mt-1 text-xs text-ink-muted">
-            {copy.noteHint}
-          </p>
+          {!isBare && (
+            <p className="mt-1 text-xs text-ink-muted">
+              {copy.noteHint}
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor="update-assigned" className={ADMIN_LABEL_CLASS}>
@@ -114,39 +118,52 @@ function RequestUpdateForm({ request, team, onSaved }) {
           </select>
         </div>
         <FormMessage message={message} />
-        <Button type="submit" size="sm" disabled={isSaving}>
+        <Button type="submit" size="sm" disabled={isSaving} className="w-full">
           {isSaving ? common.saving : copy.save}
         </Button>
       </div>
+  );
+
+  if (isBare) return <form onSubmit={handleSubmit}>{content}</form>;
+  return (
+    <AdminPanel as="form" title={copy.title} onSubmit={handleSubmit}>
+      {content}
     </AdminPanel>
   );
 }
 
+// dt/dd fragments inside a two-column dl grid: labels align down one column, values down the next
 function DetailItem({ label, children }) {
   return (
-    <div>
-      <dt className="text-xs font-semibold text-ink-muted">{label}</dt>
-      <dd className="mt-0.5 text-sm text-ink">{children}</dd>
-    </div>
+    <>
+      <dt className="text-xs font-semibold text-ink-muted sm:pt-0.5">{label}</dt>
+      <dd className="min-w-0 break-words text-sm text-ink">{children}</dd>
+    </>
   );
 }
 
-export function AdminRequestDetail({ referenceCode }) {
+export function AdminRequestDetail({
+  referenceCode,
+  basePath = '/admin/service-requests',
+  backHref = '/admin/requests',
+  teamSourcePath = '/admin/users?role=staff&limit=100',
+} = {}) {
   const dictionary = useDictionary();
   const copy = dictionary.admin.requestDetail;
   const labels = useCatalogLabels();
   const format = useFormatters();
-  const requestData = useApiData(`/admin/service-requests/${encodeURIComponent(referenceCode)}`);
-  const teamData = useApiData('/admin/users?role=staff&limit=100');
+  const requestData = useApiData(`${basePath}/${encodeURIComponent(referenceCode)}`);
+  const teamData = useApiData(teamSourcePath);
   const [savedMessage, setSavedMessage] = useState('');
+  const [activeModal, setActiveModal] = useState(null);
 
   if (requestData.isLoading && !requestData.data) return <LoadingNote />;
   if (requestData.error?.status === 404) {
     return (
       <div>
-        <p className="text-ink-muted">{copy.notFound(referenceCode)}</p>
+        <p className="text-on-canvas-muted">{copy.notFound(referenceCode)}</p>
         <div className="mt-3">
-          <AdminBackLink href="/admin/requests">{copy.back}</AdminBackLink>
+          <AdminBackLink href={backHref}>{copy.back}</AdminBackLink>
         </div>
       </div>
     );
@@ -158,7 +175,7 @@ export function AdminRequestDetail({ referenceCode }) {
   const documents = requestData.data?.documents ?? [];
   const team = teamData.data?.items ?? [];
   const clientWhatsAppHref = request.WhatsAppOptIn ? deriveClientWhatsAppHref(request.Phone) : '';
-  const serviceLabel = `${labels.service(request.ServiceCategory)}${request.Subtype ? `, ${request.Subtype}` : ''}`;
+  const serviceLabel = `${labels.service(request.ServiceCategory)}${request.Subtype ? `, ${dictionary.intake.subtypes[request.Subtype]?.label ?? request.Subtype}` : ''}`;
 
   function handleSaved() {
     setSavedMessage(copy.saved);
@@ -167,14 +184,17 @@ export function AdminRequestDetail({ referenceCode }) {
 
   return (
     <div>
-      <AdminBackLink href="/admin/requests">{copy.breadcrumb}</AdminBackLink>
-      <div className="mt-2 flex flex-wrap items-center gap-3">
-        <h1 className="text-h3 text-ink">{request.ReferenceCode}</h1>
-        <RequestStatusBadge status={request.Status} />
+      <AdminBackLink href={backHref}>{copy.breadcrumb}</AdminBackLink>
+      <div className="mt-2">
+        <h1 className="sr-only">{request.ReferenceCode}</h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <ReferenceCodeTag code={request.ReferenceCode} size="lg" />
+          <RequestStatusBadge status={request.Status} />
+        </div>
+        <p className="mt-1.5 text-sm text-on-canvas-muted">
+          {copy.meta(serviceLabel, format.dateTime(request.createdAt), labels.requestSource(request.Source))}
+        </p>
       </div>
-      <p className="mt-0.5 text-sm text-ink-muted">
-        {copy.meta(serviceLabel, format.dateTime(request.createdAt), labels.requestSource(request.Source))}
-      </p>
 
       {savedMessage && (
         <div className="mt-3">
@@ -182,10 +202,10 @@ export function AdminRequestDetail({ referenceCode }) {
         </div>
       )}
 
-      <div className="mt-5 grid items-start gap-5 lg:grid-cols-[1.4fr_1fr]">
-        <div className="space-y-5">
+      <div className="mt-4">
+        <div className="space-y-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0 lg:pr-[21.5rem]">
           <AdminPanel as="section" title={copy.clientTitle}>
-            <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+            <dl className="grid gap-x-6 gap-y-2.5 sm:grid-cols-[9.5rem_minmax(0,1fr)]">
               <DetailItem label={copy.name}>{request.FullName}</DetailItem>
               <DetailItem label={copy.email}>
                 <a href={`mailto:${request.Email}`} className={`break-all ${ADMIN_LINK_CLASS}`}>
@@ -215,36 +235,74 @@ export function AdminRequestDetail({ referenceCode }) {
             </dl>
           </AdminPanel>
 
+          {/* What the client answered for the subtype — the context that informs assignment */}
+          {getDisplayableIntakeDetails(request.Subtype, request.IntakeDetails).length > 0 && (
+            <AdminPanel as="section" title={dictionary.intake.detailsTitle}>
+              <IntakeDetailsPanel subtype={request.Subtype} details={request.IntakeDetails} />
+            </AdminPanel>
+          )}
+
           <AdminPanel as="section" title={copy.requirement}>
             <p className="max-w-[70ch] whitespace-pre-line text-sm leading-6 text-ink">{request.Description}</p>
           </AdminPanel>
 
-          <AdminPanel as="section" title={copy.history}>
-            <StatusTimeline entries={request.StatusHistory} />
-          </AdminPanel>
-        </div>
-
-        <div className="space-y-5 lg:sticky lg:top-24">
-          <RequestUpdateForm key={request.updatedAt} request={request} team={team} onSaved={handleSaved} />
-
           <AdminPanel as="section" title={copy.documents}>
             <DocumentList documents={documents} emptyText={copy.noDocuments} />
           </AdminPanel>
-          <DocumentUpload
-            endpoint="/admin/documents"
-            requestReference={request.ReferenceCode}
-            title={copy.shareTitle}
-            submitLabel={copy.shareSubmit}
-            onUploaded={requestData.reload}
-          />
-          <DocumentUpload
-            endpoint={`/team/requests/${encodeURIComponent(request.ReferenceCode)}/deliverable`}
-            requestReference={request.ReferenceCode}
-            title={copy.deliverableTitle}
-            submitLabel={copy.deliverableSubmit}
-            onUploaded={requestData.reload}
-          />
+
         </div>
+
+        {/* Pinned right edge, mirroring the left sidebar: two action buttons open popups so the
+            forms never crowd the rail, and the history timeline fills the remaining height. */}
+        <div className="mt-4 flex flex-col gap-3 lg:fixed lg:bottom-0 lg:right-0 lg:top-16 lg:mt-0 lg:w-[20rem] lg:border-l lg:border-line-canvas lg:bg-surface-alt lg:p-4">
+          <div className="grid grid-cols-2 gap-2">
+            <Button size="sm" variant="secondary" className="w-full" onClick={() => setActiveModal('update')}>
+              <PenLine aria-hidden="true" className="size-4" strokeWidth={1.75} />
+              {copy.updateCta}
+            </Button>
+            <Button size="sm" variant="secondary" className="w-full" onClick={() => setActiveModal('upload')}>
+              <Upload aria-hidden="true" className="size-4" strokeWidth={1.75} />
+              {copy.uploadCta}
+            </Button>
+          </div>
+          <AdminPanel as="section" title={copy.history} className="flex min-h-0 flex-1 flex-col">
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <StatusTimeline entries={request.StatusHistory} />
+            </div>
+          </AdminPanel>
+        </div>
+
+        {activeModal === 'update' && (
+          <Modal title={copy.update.title} onClose={() => setActiveModal(null)}>
+            <RequestUpdateForm
+              key={request.updatedAt}
+              request={request}
+              team={team}
+              basePath={basePath}
+              isBare
+              onSaved={() => {
+                handleSaved();
+                setActiveModal(null);
+              }}
+            />
+          </Modal>
+        )}
+        {activeModal === 'upload' && (
+          <Modal title={dictionary.forms.upload.title} onClose={() => setActiveModal(null)}>
+            <DocumentUpload
+              requestReference={request.ReferenceCode}
+              isBare
+              kinds={[
+                { value: 'document', endpoint: '/admin/documents', label: copy.kindDocument, description: copy.kindDocumentHint },
+                { value: 'deliverable', endpoint: `/team/requests/${encodeURIComponent(request.ReferenceCode)}/deliverable`, label: copy.kindDeliverable, description: copy.kindDeliverableHint },
+              ]}
+              onUploaded={() => {
+                requestData.reload();
+                setActiveModal(null);
+              }}
+            />
+          </Modal>
+        )}
       </div>
     </div>
   );

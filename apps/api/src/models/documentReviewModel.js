@@ -9,6 +9,8 @@ const documentReviewSchema = new mongoose.Schema(
     ReferenceCode: { type: String, required: true, unique: true },
     Owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     OriginalName: { type: String, required: true, maxlength: 150 },
+    // Client's answers about the document, whitelisted against @lexbridge/shared intakeCatalog
+    IntakeDetails: { type: mongoose.Schema.Types.Mixed, default: {} },
     StoredName: { type: String, required: true },
     SizeBytes: { type: Number, required: true },
     PageCountEstimate: { type: Number, default: 0 },

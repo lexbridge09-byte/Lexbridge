@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireFeature, requireManager, requireOwner, requireStaff } from '../../middleware/index.js';
+import { requireFeature, requireOwner, requireStaff } from '../../middleware/index.js';
 import { adminArticlesRouter } from './articles.routes.js';
 import { adminCallbacksRouter } from './callbacks.routes.js';
 import { adminConsultationsRouter } from './consultations.routes.js';
@@ -34,6 +34,7 @@ adminRouter.use('/coupons', requireOwner, requireFeature('coupons'), adminCoupon
 adminRouter.use('/document-reviews', requireOwner, requireFeature('aiDocumentReview'), adminDocumentReviewsRouter);
 adminRouter.use('/callbacks', requireOwner, requireFeature('callbackRequests'), adminCallbacksRouter);
 
-// Manager + owner: the assignment desk — requests and their documents. Nothing else.
-adminRouter.use('/service-requests', requireManager, adminServiceRequestsRouter);
-adminRouter.use('/documents', requireManager, requireFeature('documentUploads'), adminDocumentsRouter);
+// Manager + owner work through the /team workspace; every /admin area is owner-only.
+// Manager's request desk lives at /team/desk (routes/team), not here.
+adminRouter.use('/service-requests', requireOwner, adminServiceRequestsRouter);
+adminRouter.use('/documents', requireOwner, requireFeature('documentUploads'), adminDocumentsRouter);

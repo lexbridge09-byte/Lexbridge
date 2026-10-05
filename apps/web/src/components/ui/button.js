@@ -26,8 +26,8 @@ const SIZE_CLASSES = {
 export function buttonClassName({ variant = 'primary', size = 'md', isFullWidth = false, className = '' } = {}) {
   return [
     'inline-flex select-none items-center justify-center gap-2 text-center font-semibold',
-    'transition-[background-color,border-color,color,box-shadow,filter,transform] duration-150 ease-(--ease-standard)',
-    variant === 'link' ? '' : 'active:scale-[0.98]',
+    'transition-[background-color,border-color,color,box-shadow,filter,transform] duration-(--dur-150) ease-(--ease-standard)',
+    variant === 'link' ? '' : 'active:scale-(--press-scale)',
     'disabled:pointer-events-none disabled:opacity-55 aria-disabled:pointer-events-none aria-disabled:opacity-55',
     'motion-reduce:transition-none motion-reduce:active:scale-100',
     VARIANT_CLASSES[variant] ?? VARIANT_CLASSES.primary,

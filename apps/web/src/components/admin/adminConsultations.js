@@ -2,10 +2,11 @@
 
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import { CONSULTATION_STATUSES } from '@lexbridge/shared';
+import { CONSULTATION_STATUSES, getDisplayableIntakeDetails } from '@lexbridge/shared';
 import { useDictionary } from '@/brand/localeContext';
 import { ADMIN_CONTROL_CLASS, ADMIN_LABEL_CLASS, ADMIN_LINK_CLASS, AdminPageHeading } from '@/components/admin/adminStyles';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
+import { IntakeDetailsPanel } from '@/components/intakeDetailsPanel';
 import { Pagination } from '@/components/pagination';
 import { ConsultationStatusBadge } from '@/components/statusBadge';
 import { Button } from '@/components/ui';
@@ -179,7 +180,7 @@ export function AdminConsultations() {
                     </span>
                     <span className="flex items-center gap-3">
                       <ConsultationStatusBadge status={consultation.Status} />
-                      <ChevronDown aria-hidden="true" className="size-4 text-primary transition-transform group-open:rotate-180" strokeWidth={2} />
+                      <ChevronDown aria-hidden="true" className="size-4 text-primary transition-transform duration-(--dur-200) ease-(--ease-standard) motion-reduce:transition-none group-open:rotate-180" strokeWidth={2} />
                     </span>
                   </summary>
                   <div className="px-4 pb-4">
@@ -199,6 +200,14 @@ export function AdminConsultations() {
                       <DetailItem label={copy.whatsApp}>{consultation.WhatsAppOptIn ? copy.optedIn : copy.notOptedIn}</DetailItem>
                     </dl>
                     {consultation.Description && <p className="mt-3 max-w-[70ch] whitespace-pre-line text-sm leading-6 text-ink">{consultation.Description}</p>}
+                    {getDisplayableIntakeDetails(consultation.IntakeSubtype, consultation.IntakeDetails).length > 0 && (
+                      <div className="mt-3 rounded-xl border border-line bg-card-dim/60 p-3">
+                        <p className="text-xs font-semibold text-ink-muted">{dictionary.intake.detailsTitle}</p>
+                        <div className="mt-2">
+                          <IntakeDetailsPanel subtype={consultation.IntakeSubtype} details={consultation.IntakeDetails} />
+                        </div>
+                      </div>
+                    )}
                     <ConsultationEditor key={consultation.updatedAt ?? consultation.Status} consultation={consultation} onSaved={reload} />
                   </div>
                 </details>

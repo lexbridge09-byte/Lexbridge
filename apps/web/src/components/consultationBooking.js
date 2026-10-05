@@ -2,9 +2,9 @@
 
 import { ArrowLeft, Check, CircleCheck } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { CONSULTATION_MODES, CONSULTATION_TYPES } from '@lexbridge/shared';
+import { CONSULTATION_MODES, CONSULTATION_TYPES , getIntakeFields, getIntakeSubtypes, sanitizeIntakeDetails } from '@lexbridge/shared';
 import { useDictionary, useLocale } from '@/brand/localeContext';
-import { CheckboxField, FieldError, TextAreaField, TextField } from '@/components/formFields';
+import { CheckboxField, FieldError, SelectField, TextAreaField, TextField } from '@/components/formFields';
 import { LocaleLink } from '@/components/localeLink';
 import { Button, ButtonLink, Card, InlineAlert, SkeletonList, StepIndicator } from '@/components/ui';
 import { WhatsAppOptInField } from '@/components/whatsAppOptInField';
@@ -17,7 +17,9 @@ import { useIsFeatureEnabled } from '@/components/featuresProvider';
 
 const FORM_ID = 'consultation-form';
 const DRAFT_STORAGE_KEY = 'lexbridge.consultationDraft';
-const EMPTY_DRAFT = { ConsultationType: '', Mode: '', SlotId: '', Phone: '', Description: '', WhatsAppOptIn: false };
+const EMPTY_DRAFT = { ConsultationType: '', Mode: '', SlotId: '', Phone: '', Description: '', WhatsAppOptIn: false, IntakeCategory: '', IntakeSubtype: '', IntakeDetails: {} };
+const INTAKE_CHIP_CLASS =
+  'inline-flex min-h-11 cursor-pointer items-center rounded-control border border-line bg-card px-3.5 py-2 text-sm font-semibold text-ink transition-colors duration-(--dur-150) hover:border-primary-100 has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:checked]:text-primary-dark';
 const CHOICE_STEP = 1;
 const TIME_STEP = 2;
 const DETAILS_STEP = 3;
@@ -57,7 +59,7 @@ function groupSlotsByDate(slots) {
 }
 
 const CHOICE_CARD_CLASS =
-  'flex h-full cursor-pointer items-start gap-3 rounded-2xl border border-line bg-card p-3.5 transition-colors duration-(--dur-150) hover:border-line-strong has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:checked]:ring-2 has-[:checked]:ring-primary-100 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary';
+  'flex h-full cursor-pointer items-start gap-3 rounded-card border border-line bg-card p-3.5 transition-colors duration-(--dur-150) hover:border-line-strong has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:checked]:ring-2 has-[:checked]:ring-primary-100 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary';
 
 const CHIP_CLASS =
   'shrink-0 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors duration-(--dur-150) has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary';
@@ -88,10 +90,13 @@ export function ConsultationBooking() {
   const format = useFormatters();
   const stepStatusRef = useRef(null);
   const [session, setSession] = useState({ isChecked: false, user: null });
+  const intakeCopy = dictionary.intake;
   const [slotsState, setSlotsState] = useState({ isLoaded: false, slots: [], error: '' });
   const [slotsReloadCount, setSlotsReloadCount] = useState(0);
   const [draft, setDraft] = useState(EMPTY_DRAFT);
+  const intakeSubtypeKeys = draft.IntakeCategory ? getIntakeSubtypes(draft.IntakeCategory) : [];
   const [step, setStep] = useState(CHOICE_STEP);
+  const [stepDirection, setStepDirection] = useState('forward');
   const [selectedDateKey, setSelectedDateKey] = useState('');
   const [hasConsented, setHasConsented] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -144,12 +149,17 @@ export function ConsultationBooking() {
   // Never show a step whose earlier choices are missing, e.g. a restored time that has since been booked
   const activeStep = !hasChoice ? CHOICE_STEP : step === DETAILS_STEP && slotsState.isLoaded && !selectedSlot ? TIME_STEP : step;
 
+  function updateIntakeDetail(key, value) {
+    updateDraft('IntakeDetails', { ...draft.IntakeDetails, [key]: value });
+  }
+
   function updateDraft(field, value) {
     setDraft((current) => ({ ...current, [field]: value }));
     setFieldErrors((current) => (current[field] ? { ...current, [field]: '' } : current));
   }
 
   function goToStep(nextStep) {
+    setStepDirection(nextStep >= activeStep ? 'forward' : 'back');
     setStep(nextStep);
     setFormError('');
     requestAnimationFrame(() => stepStatusRef.current?.focus());
@@ -157,10 +167,17 @@ export function ConsultationBooking() {
 
   function validateStep() {
     if (activeStep === CHOICE_STEP) {
-      return {
+      const errors = {
         ...(!draft.ConsultationType && { ConsultationType: copy.validation.type }),
         ...(!draft.Mode && { Mode: copy.validation.mode }),
       };
+      // Required topic questions for the chosen subtype
+      for (const field of getIntakeFields(draft.IntakeSubtype) ?? []) {
+        if (field.required && !String(draft.IntakeDetails[field.key] ?? '').trim()) {
+          errors[`IntakeDetails.${field.key}`] = dictionary.intake.fieldRequired;
+        }
+      }
+      return errors;
     }
     if (activeStep === TIME_STEP && !selectedSlot) return { SlotId: copy.validation.slot };
     return {};
@@ -205,6 +222,9 @@ export function ConsultationBooking() {
           PreferredLanguage: locale,
           ConsentGiven: hasConsented,
           WhatsAppOptIn: draft.WhatsAppOptIn,
+          IntakeCategory: draft.IntakeCategory,
+          IntakeSubtype: draft.IntakeSubtype,
+          IntakeDetails: draft.IntakeDetails,
         },
       });
       clearDraft();
@@ -287,7 +307,7 @@ export function ConsultationBooking() {
             {stepCopy.stepStatus(activeStep, stepNames.length, stepNames[activeStep - 1])}
           </p>
           <form id={FORM_ID} onSubmit={handleSubmit} noValidate>
-            <div hidden={activeStep !== CHOICE_STEP} className="space-y-6 motion-safe:animate-fade-in">
+            <div hidden={activeStep !== CHOICE_STEP} className={`space-y-6 motion-safe:${stepDirection === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}>
               <fieldset>
                 <legend className="text-h4 text-ink">{copy.sections.type}</legend>
                 <div className="mt-3 grid gap-3 md:grid-cols-3">
@@ -333,9 +353,69 @@ export function ConsultationBooking() {
                 </div>
                 <FieldError id="Mode-error" message={fieldErrors.Mode} />
               </fieldset>
+
+              {/* Topic intake: tells the 2nd owner what kind of matter this is before they assign */}
+              <fieldset className="motion-safe:animate-fade-in rounded-xl border border-line bg-card-dim/60 p-4">
+                <legend className="px-1 text-h4 text-ink">{intakeCopy.topicTitle}</legend>
+                <p className="mt-1 text-sm text-ink-muted">{intakeCopy.topicIntro}</p>
+                <div className="mt-3 space-y-3">
+                  <SelectField
+                    label={intakeCopy.categoryLabel}
+                    name="IntakeCategory"
+                    options={labels.serviceOptions}
+                    placeholder={intakeCopy.categoryPlaceholder}
+                    value={draft.IntakeCategory}
+                    onChange={(event) => {
+                      // New area invalidates the previous subtype choice and its answers
+                      updateDraft('IntakeCategory', event.target.value);
+                      updateDraft('IntakeSubtype', '');
+                      updateDraft('IntakeDetails', {});
+                    }}
+                  />
+                  {draft.IntakeCategory && intakeSubtypeKeys.length > 0 && (
+                    <div>
+                      <p className="text-sm font-semibold text-ink">{intakeCopy.subtypeLabel}</p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {intakeSubtypeKeys.map((key) => (
+                          <label key={key} className={INTAKE_CHIP_CLASS}>
+                            <input
+                              type="radio"
+                              name="IntakeSubtype"
+                              value={key}
+                              checked={draft.IntakeSubtype === key}
+                              onChange={() => updateDraft('IntakeSubtype', key)}
+                              className="sr-only"
+                            />
+                            {intakeCopy.subtypes[key]?.label ?? key}
+                          </label>
+                        ))}
+                      </div>
+                      <FieldError id="IntakeSubtype-error" message={fieldErrors.IntakeSubtype} />
+                    </div>
+                  )}
+                  {draft.IntakeSubtype && (getIntakeFields(draft.IntakeSubtype) ?? []).length > 0 && (
+                    <div className="stagger grid gap-3 sm:grid-cols-2" key={draft.IntakeSubtype}>
+                      {(getIntakeFields(draft.IntakeSubtype) ?? []).map((field) => {
+                        const name = `IntakeDetails.${field.key}`;
+                        const label = intakeCopy.fields[field.key]?.label ?? field.key;
+                        const value = draft.IntakeDetails[field.key] ?? '';
+                        const setError = fieldErrors[name];
+                        if (field.type === 'select') {
+                          const options = (field.options ?? []).map((optionKey) => ({ value: optionKey, label: intakeCopy.options[optionKey] ?? optionKey }));
+                          return <SelectField key={field.key} label={label} name={name} options={options} placeholder={intakeCopy.choose} required={field.required} error={setError} value={value} onChange={(event) => updateIntakeDetail(field.key, event.target.value)} />;
+                        }
+                        if (field.type === 'date') {
+                          return <TextField key={field.key} label={label} name={name} type="date" required={field.required} error={setError} value={value} onChange={(event) => updateIntakeDetail(field.key, event.target.value)} />;
+                        }
+                        return <TextField key={field.key} label={label} name={name} type="text" maxLength={field.maxLength ?? 300} required={field.required} error={setError} value={value} onChange={(event) => updateIntakeDetail(field.key, event.target.value)} />;
+                      })}
+                    </div>
+                  )}
+                </div>
+              </fieldset>
             </div>
 
-            <fieldset hidden={activeStep !== TIME_STEP} className="motion-safe:animate-fade-in">
+            <fieldset hidden={activeStep !== TIME_STEP} className={`motion-safe:${stepDirection === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}>
               <legend className="text-h4 text-ink">{copy.sections.slot}</legend>
               <p className="mt-1 text-sm text-ink-muted">{copy.timeZoneNote}</p>
 
@@ -405,7 +485,7 @@ export function ConsultationBooking() {
               <FieldError id="SlotId-error" message={fieldErrors.SlotId} />
             </fieldset>
 
-            <fieldset hidden={activeStep !== DETAILS_STEP} className="space-y-4 motion-safe:animate-fade-in">
+            <fieldset hidden={activeStep !== DETAILS_STEP} className={`space-y-4 motion-safe:${stepDirection === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}>
               <legend className="text-h4 text-ink">{copy.sections.details}</legend>
               {hasSelections && (
                 <p className="rounded-xl bg-card-dim px-3.5 py-2.5 text-sm text-ink lg:hidden">

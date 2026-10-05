@@ -198,6 +198,7 @@ export const adminCommerce = {
     refundMeta: (adminLabel, dateLabel) => `${adminLabel}, ${dateLabel}`,
     refund: {
       title: 'रिफंड करें',
+      cta: 'रिफंड करें',
       full: (amountLabel) => `बाकी पूरी रकम (${amountLabel})`,
       partial: 'कुछ रकम',
       amount: 'रकम (₹)',

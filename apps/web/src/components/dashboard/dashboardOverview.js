@@ -50,7 +50,7 @@ export function DashboardOverview() {
   const documentCount = documents.data?.documents?.length ?? 0;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div>
         <h1 className="text-h3 text-ink">{copy.welcome(firstName)}</h1>
         <p className="mt-0.5 text-sm text-ink-muted">{copy.intro}</p>

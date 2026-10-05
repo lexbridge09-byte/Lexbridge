@@ -43,7 +43,7 @@ export function ServiceAreaTabs({ serviceKeys, serviceHrefs }) {
         aria-label={copy.tabsLabel}
         aria-orientation="vertical"
         onKeyDown={handleKeyDown}
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:sticky lg:top-24 lg:mx-0 lg:flex-col lg:gap-1 lg:rounded-2xl lg:border lg:border-line lg:bg-card lg:p-2 lg:shadow-sm"
+        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:sticky lg:top-24 lg:mx-0 lg:flex-col lg:gap-1 lg:rounded-card lg:border lg:border-line lg:bg-card lg:p-2 lg:shadow-sm"
       >
         {serviceKeys.map((serviceKey) => {
           const isActive = serviceKey === activeKey;

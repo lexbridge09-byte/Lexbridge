@@ -16,6 +16,7 @@ import { faq } from './faq.js';
 import { forms } from './forms.js';
 import { home } from './home.js';
 import { insights } from './insights.js';
+import { intake } from './intake.js';
 import { legal } from './legal.js';
 import { services } from './services.js';
 import { solutionFinder } from './solutionFinder.js';
@@ -42,6 +43,7 @@ export const EN_DICTIONARY = {
   forms,
   home,
   insights,
+  intake,
   legal,
   services,
   solutionFinder,

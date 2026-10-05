@@ -1,6 +1,8 @@
+import { redirect } from 'next/navigation';
 import { getDictionary, getServerFeatures, requireFeaturePage } from '@/brand';
-import { SectionNav } from '@/components/sectionNav';
-import { SignOutButton } from '@/components/signOutButton';
+import { loadAuthedUser } from '@/lib/serverApi';
+import { deriveHomePath } from '@/lib/safeRedirect';
+import { OfficeSidebar } from '@/components/officeSidebar';
 import { Container } from '@/components/ui';
 
 export async function generateMetadata({ params }) {
@@ -14,6 +16,13 @@ export default async function DashboardLayout({ children, params }) {
   const { lang } = await params;
   const dictionary = getDictionary(lang);
   const features = await getServerFeatures();
+
+  // One account, one view: team members never see the client dashboard — send them to their own area
+  const viewer = await loadAuthedUser();
+  if (viewer && viewer.Role !== 'client') {
+    redirect(`/${lang}${deriveHomePath(viewer)}`);
+  }
+
   const copy = dictionary.dashboard;
   const links = [
     { href: '/dashboard', label: copy.nav.overview, exact: true },
@@ -26,17 +35,11 @@ export default async function DashboardLayout({ children, params }) {
   ].filter((link) => !link.feature || features[link.feature]);
 
   return (
-    <div className="bg-surface-alt">
-      <Container className="py-5 lg:grid lg:grid-cols-[14rem_1fr] lg:gap-8 lg:py-8">
-        <SectionNav
-          label={copy.navLabel}
-          links={links}
-          footer={
-            <SignOutButton className="whitespace-nowrap rounded-full bg-card-dim px-4 py-2 text-sm font-semibold text-ink-muted hover:text-ink lg:w-full lg:rounded-xl lg:bg-transparent lg:px-3 lg:py-2.5 lg:hover:bg-card-hover" />
-          }
-        />
-        <div className="min-w-0">{children}</div>
-      </Container>
+    <div className="bg-surface-alt flex">
+      <OfficeSidebar label={copy.navLabel} links={links} />
+      <div className="min-w-0 flex-1">
+        <Container className="py-4 lg:py-6">{children}</Container>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { BRAND } from '@/brand';
+import { BRAND } from '@/brand/brandConfig';
 
 export function BrandLogo({ tone = 'dark' }) {
   return (

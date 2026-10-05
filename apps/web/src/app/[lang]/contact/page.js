@@ -98,7 +98,7 @@ export default async function ContactPage({ params, searchParams }) {
                   href={whatsAppHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-success px-6 py-3 text-[15px] font-semibold text-white hover:brightness-110"
+                  className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-card bg-success px-6 py-3 text-[15px] font-semibold text-white hover:brightness-110"
                 >
                   <MessageCircle aria-hidden="true" className="size-5" strokeWidth={2} />
                   {assistantCopy.cta}

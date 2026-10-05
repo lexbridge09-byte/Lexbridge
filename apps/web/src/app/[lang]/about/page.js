@@ -44,7 +44,7 @@ export default async function AboutPage({ params }) {
 
       <Section labelledBy="approach-title" size="sm">
         <Card padding="lg" className="flex flex-col gap-6 lg:flex-row lg:items-center lg:gap-10">
-          <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-primary">
+          <span className="flex size-14 shrink-0 items-center justify-center rounded-card bg-primary-50 text-primary">
             <ShieldCheck aria-hidden="true" className="size-7" strokeWidth={1.75} />
           </span>
           <div className="flex-1">

@@ -25,6 +25,15 @@ export { DOCUMENT_MAX_BYTES, DOCUMENT_ALLOWED_TYPES, DOCUMENT_ACCEPT_ATTRIBUTE }
 
 export { REQUEST_STATUS_LABELS } from './statusLabels.js';
 
+export {
+  INTAKE_SUBTYPES,
+  INTAKE_FIELD_TYPES,
+  getIntakeSubtypes,
+  getIntakeFields,
+  sanitizeIntakeDetails,
+  getDisplayableIntakeDetails,
+} from './intakeCatalog.js';
+
 export { WHATSAPP_AI_PLAN } from './whatsAppPlan.js';
 
 export { FEATURE_FLAGS, FEATURE_FLAG_KEYS, FEATURE_DEPENDENCIES, isFeatureEnabled, getEnabledFeatures } from './brand/featureFlags.js';

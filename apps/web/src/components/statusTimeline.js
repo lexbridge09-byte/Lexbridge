@@ -14,14 +14,15 @@ export function StatusTimeline({ entries, getLabel }) {
   if (orderedEntries.length === 0) return <p className="text-ink-muted">{emptyText}</p>;
 
   return (
-    <ol className="relative ml-3 border-l-2 border-line">
+    <ol className="timeline-draw relative ml-3">
       {orderedEntries.map((entry, entryIndex) => {
         const isLatest = entryIndex === 0;
         return (
           <li key={`${entry.changedAt}-${entryIndex}`} className="relative pb-5 pl-6 last:pb-0">
             <span
               aria-hidden="true"
-              className={`absolute -left-[9px] top-1 size-4 rounded-full ring-4 ring-white ${isLatest ? 'bg-primary' : 'bg-line-strong'}`}
+              style={{ '--stagger-i': Math.min(entryIndex, 4) }}
+              className={`timeline-dot absolute -left-[9px] top-1 size-4 rounded-full ring-4 ring-white ${isLatest ? 'bg-primary' : 'bg-line-strong'}`}
             />
             <p className={`font-semibold ${isLatest ? 'text-ink' : 'text-ink-muted'}`}>{labelFor(entry.Status)}</p>
             <p className="text-xs text-ink-muted">{format.dateTime(entry.changedAt)}</p>

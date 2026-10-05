@@ -7,17 +7,19 @@ export const ADMIN_CONTROL_CLASS =
 
 export const ADMIN_LABEL_CLASS = 'block text-xs font-semibold text-ink-muted';
 
-export const ADMIN_TABLE_CLASS = 'admin-table w-full min-w-[40rem] border-collapse text-left text-sm';
-export const ADMIN_TH_CLASS = 'border-b border-line bg-card-dim px-3 py-2.5 text-xs font-semibold text-ink-muted first:rounded-tl-xl last:rounded-tr-xl';
-export const ADMIN_TD_CLASS = 'border-b border-line px-3 py-2.5 align-top text-ink';
+export const ADMIN_TABLE_CLASS = 'admin-table w-full min-w-[36rem] border-collapse text-left text-sm';
+export const ADMIN_TH_CLASS = 'border-b border-line bg-card-dim px-3 py-2 text-xs font-semibold text-ink-muted first:rounded-tl-xl last:rounded-tr-xl';
+export const ADMIN_TD_CLASS = 'border-b border-line px-3 py-2 align-top text-ink';
 export const ADMIN_LINK_CLASS = 'font-semibold text-primary underline-offset-4 hover:underline';
 
+// The sidebar already names the current page, so the visible heading would repeat it:
+// the title stays for the document outline (sr-only), the description and actions remain visible.
 export function AdminPageHeading({ title, description, action }) {
   return (
-    <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+    <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="text-h3 text-on-canvas">{title}</h1>
-        {description && <p className="mt-0.5 text-sm text-on-canvas-muted">{description}</p>}
+        <h1 className="sr-only">{title}</h1>
+        {description && <p className="text-sm text-on-canvas-muted">{description}</p>}
       </div>
       {action}
     </div>
@@ -27,7 +29,7 @@ export function AdminPageHeading({ title, description, action }) {
 // White panel that holds tables and forms
 export function AdminPanel({ as: Element = 'div', title, action, className = '', children, ...elementProps }) {
   return (
-    <Element className={`rounded-2xl border border-line bg-card p-4 shadow-card sm:p-5 ${className}`} {...elementProps}>
+    <Element className={`rounded-card border border-line bg-card p-4 shadow-card ${className}`} {...elementProps}>
       {(title || action) && (
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           {title && <h2 className="text-h4 text-ink">{title}</h2>}

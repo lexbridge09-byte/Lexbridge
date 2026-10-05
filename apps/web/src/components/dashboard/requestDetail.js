@@ -7,6 +7,7 @@ import { DocumentList } from '@/components/documentList';
 import { DocumentUpload } from '@/components/documentUpload';
 import { ErrorNote, LoadingNote } from '@/components/loadState';
 import { LocaleLink } from '@/components/localeLink';
+import { ReferenceCodeTag } from '@/components/copyButton';
 import { RequestStatusBadge } from '@/components/statusBadge';
 import { StatusTimeline } from '@/components/statusTimeline';
 import { ButtonLink, Card } from '@/components/ui';
@@ -54,7 +55,10 @@ export function RequestDetail({ referenceCode }) {
           <h1 className="text-h3 text-ink">{request.Subtype || labels.service(request.ServiceCategory)}</h1>
           <RequestStatusBadge status={request.Status} />
         </div>
-        <p className="mt-0.5 text-sm text-ink-muted">{copy.meta(request.ReferenceCode, format.dateTime(request.createdAt))}</p>
+        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+          <ReferenceCodeTag code={request.ReferenceCode} />
+          <span className="text-sm text-ink-muted">{format.dateTime(request.createdAt)}</span>
+        </div>
       </div>
 
       <div className={`grid items-start gap-5 ${isDocumentsEnabled ? 'lg:grid-cols-[1.2fr_1fr]' : ''}`}>

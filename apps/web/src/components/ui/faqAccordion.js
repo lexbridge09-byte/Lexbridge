@@ -10,7 +10,7 @@ export function FaqAccordion({ items, isFirstOpen = true }) {
             {item.question}
             <ChevronDown
               aria-hidden="true"
-              className="size-4 shrink-0 text-primary-bright transition-transform group-open:rotate-180 motion-reduce:transition-none"
+              className="size-4 shrink-0 text-primary-bright transition-transform duration-(--dur-200) ease-(--ease-standard) motion-reduce:transition-none group-open:rotate-180"
               strokeWidth={2}
             />
           </summary>

@@ -1,7 +1,8 @@
 'use client';
 
 import { ChevronDown, CircleUserRound, LogOut } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { isOfficePath } from '@/lib/chromeRoutes';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useDictionary, useLocalizedHref } from '@/brand/localeContext';
 import { useIsFeatureEnabled } from '@/components/featuresProvider';
@@ -30,6 +31,7 @@ export function AccountMenu({ signInHref, signInLabel }) {
   const dictionary = useDictionary();
   const copy = dictionary.ux.account;
   const { status, user } = useSession();
+  const pathname = usePathname() ?? '/';
   const isPaymentsEnabled = useIsFeatureEnabled('onlinePayments');
   const isUploadsEnabled = useIsFeatureEnabled('documentUploads');
   const isReviewsEnabled = useIsFeatureEnabled('aiDocumentReview');
@@ -61,14 +63,30 @@ export function AccountMenu({ signInHref, signInLabel }) {
     );
   }
 
-  const items = [
-    { key: 'dashboard', href: '/dashboard', label: copy.dashboard },
-    isPaymentsEnabled && { key: 'orders', href: '/dashboard/orders', label: copy.orders },
-    isUploadsEnabled && { key: 'documents', href: '/dashboard/documents', label: copy.documents },
-    isReviewsEnabled && { key: 'reviews', href: '/dashboard/document-reviews', label: copy.documentReviews },
-    user.Role === 'lawyer' && { key: 'team', href: '/team', label: copy.team },
-    (user.Role === 'owner' || user.Role === 'manager') && { key: 'admin', href: '/admin', label: copy.admin },
-  ].filter(Boolean);
+  // In the office area the sidebar owns navigation — the menu stays account-only (no repetition)
+  const inOffice = isOfficePath(pathname);
+
+  // One account, one view: the menu shows only the signed-in role's own area
+  let items;
+  if (user.Role === 'owner') {
+    items = [{ key: 'admin', href: '/admin', label: copy.admin }];
+  } else if (user.Role === 'manager') {
+    items = [
+      { key: 'team', href: '/team', label: copy.team },
+      { key: 'desk', href: '/team/desk', label: copy.desk },
+      { key: 'lawyers', href: '/team/lawyers', label: copy.lawyers },
+    ];
+  } else if (user.Role === 'lawyer') {
+    items = [{ key: 'team', href: '/team', label: copy.team }];
+  } else {
+    items = [
+      { key: 'dashboard', href: '/dashboard', label: copy.dashboard },
+      isPaymentsEnabled && { key: 'orders', href: '/dashboard/orders', label: copy.orders },
+      isUploadsEnabled && { key: 'documents', href: '/dashboard/documents', label: copy.documents },
+      isReviewsEnabled && { key: 'reviews', href: '/dashboard/document-reviews', label: copy.documentReviews },
+    ].filter(Boolean);
+  }
+  if (inOffice) items = [];
 
   function focusItem(offset) {
     const menuItems = [...(menuRef.current?.querySelectorAll('[role="menuitem"]') ?? [])];
@@ -148,7 +166,7 @@ export function AccountMenu({ signInHref, signInLabel }) {
           role="menu"
           aria-label={copy.menuLabel}
           onKeyDown={handleMenuKeyDown}
-          className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl border border-line bg-card p-1.5 shadow-card"
+          className="absolute right-0 top-full z-50 mt-2 w-56 rounded-card border border-line bg-card p-1.5 shadow-card"
         >
           <p className="truncate px-3 py-2 text-xs text-ink-muted">{user.Email}</p>
           {items.map((item) => (

@@ -80,8 +80,21 @@
 
   --container-site: 75rem;
 
+  /* Durations + press depth (MOTION_SPEC.md): the only timing values components may use */
+  --dur-100: 100ms;
+  --dur-150: 150ms;
+  --dur-200: 200ms;
+  --dur-300: 300ms;
+  --dur-400: 400ms;
+  --dur-600: 600ms;
+  --press-scale: 0.97;
+
   /* Decorative extras only (never the hero text or primary action) */
   --animate-fade-in: fade-in 300ms var(--ease-out-soft) both;
+  --animate-rise: rise 300ms var(--ease-out-soft) both;
+  --animate-slide-in-right: slide-in-right 200ms var(--ease-out-soft) both;
+  --animate-slide-in-left: slide-in-left 200ms var(--ease-out-soft) both;
+  --animate-live: live 2s var(--ease-standard) infinite;
   --animate-spin: spin 800ms linear infinite;
 
   @keyframes fade-in {
@@ -93,6 +106,51 @@
     }
   }
 
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Wizard direction: forward enters from the right, back from the left */
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slide-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* "Live" status dot: gentle opacity breath, disabled under reduced motion by the global net */
+  @keyframes live {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+
   @keyframes spin {
     to {
       transform: rotate(360deg);
@@ -101,14 +159,43 @@
 }
 
 :root {
-  --dur-100: 100ms;
-  --dur-150: 150ms;
-  --dur-200: 200ms;
-  --dur-300: 300ms;
-  --dur-400: 400ms;
-  --dur-600: 600ms;
+  /* Lets the disclosure animation interpolate block-size to auto */
   interpolate-size: allow-keywords;
 }
+
+/* Stagger: direct children rise in sequence (works on any child list — no per-child setup).
+   Capped at 6 delays; deeper children appear with the last one. */
+@utility stagger {
+  > * {
+    animation: rise var(--dur-300) var(--ease-out-soft) both;
+  }
+  > *:nth-child(2) { animation-delay: 40ms; }
+  > *:nth-child(3) { animation-delay: 80ms; }
+  > *:nth-child(4) { animation-delay: 120ms; }
+  > *:nth-child(5) { animation-delay: 160ms; }
+  > *:nth-child(6) { animation-delay: 200ms; }
+  > *:nth-child(n + 7) { animation-delay: 200ms; }
+  @media (prefers-reduced-motion: reduce) {
+    > * {
+      animation: none;
+    }
+  }
+}
+
+/* Press feedback: shared depth for every tappable element (buttons, chips, tiles) */
+@utility press {
+  transition: transform var(--dur-100) var(--ease-standard);
+  &:active {
+    transform: scale(var(--press-scale));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &:active {
+      transform: none;
+    }
+  }
+}
+
 
 /* Type scale: mobile first, desktop from the lg breakpoint */
 @utility text-h1 {
@@ -292,7 +379,8 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
-    scroll-padding-top: 5rem;
+    /* Header (4rem) + promo strip (~2.3rem) that sits above it at the top of the page */
+    scroll-padding-top: 6.5rem;
     scrollbar-gutter: stable;
     scrollbar-width: thin;
     scrollbar-color: rgb(98 90 102 / 0.4) transparent;
@@ -365,6 +453,14 @@
 }
 
 @layer components {
+  /* Light surfaces always carry dark text — body default is light-on-canvas, so any unset
+     text inside a light card would otherwise be white-on-white */
+  .bg-card,
+  .bg-card-hover,
+  .bg-card-dim {
+    color: var(--color-ink);
+  }
+
   /* Back-office tables: soft row highlight on hover */
   .admin-table tbody tr {
     transition: background-color var(--dur-100) var(--ease-out-soft);
@@ -680,6 +776,78 @@
     opacity: 1;
     transform: translate(-50%, 0);
     transition-delay: 400ms;
+  }
+
+  /* Status timeline: each connector segment runs exactly dot-to-dot (a single entry draws no
+     line at all), and the dots pop in sequence. Without motion support everything is static. */
+  .timeline-draw {
+    position: relative;
+  }
+
+  .timeline-draw li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 1.25rem;
+    bottom: 0;
+    left: -2px;
+    width: 2px;
+    background: var(--color-line);
+    transform-origin: top;
+  }
+
+  .timeline-dot {
+    transform-origin: center;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .timeline-draw li:not(:last-child)::after {
+      animation: timeline-grow var(--dur-600) var(--ease-out-soft) both;
+    }
+
+    .timeline-draw .timeline-dot {
+      animation: dot-pop var(--dur-300) var(--ease-spring) both;
+      animation-delay: calc(var(--stagger-i, 0) * 60ms);
+    }
+  }
+}
+
+@keyframes timeline-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes dot-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Cross-document page transitions (Next View Transitions): a quiet 150/200ms cross-fade
+   on the same easing tokens as everything else. Old snapshot leaves faster than the new one enters. */
+::view-transition-old(root) {
+  animation: fade-in var(--dur-150) var(--ease-exit) both reverse;
+}
+
+::view-transition-new(root) {
+  animation: fade-in var(--dur-200) var(--ease-enter) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }
 

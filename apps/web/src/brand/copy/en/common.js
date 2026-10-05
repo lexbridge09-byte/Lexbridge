@@ -10,6 +10,11 @@ export const common = {
   skipToContent: 'Skip to content',
   homeLinkLabel: 'LexBridge home',
   scrollTop: 'Back to top',
+  collapseSidebar: 'Collapse sidebar',
+  expandSidebar: 'Expand sidebar',
+  copy: 'Copy',
+  copied: 'Copied',
+  close: 'Close',
 
   nav: {
     mainLabel: 'Main',
@@ -23,6 +28,7 @@ export const common = {
     findSolution: 'Find my solution',
     insights: 'Legal guides',
     bareActs: 'Bare Acts',
+    backToSite: 'View website',
     about: 'About',
     contact: 'Contact',
     faq: 'FAQ',
