@@ -49,31 +49,21 @@ export default async function HomePage({ params }) {
 
   return (
     <>
-      {/* Hero: the headline, subhead and primary action render immediately (no entrance animation) */}
-      <section className="relative isolate overflow-hidden bg-hero text-white">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-grid-lines [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_75%)]"
-        />
-        <div aria-hidden="true" className="absolute -top-40 left-[18%] -z-10 size-[34rem] rounded-full bg-primary/15 blur-[130px]" />
-        <div aria-hidden="true" className="absolute -right-24 bottom-10 -z-10 size-[26rem] rounded-full bg-primary-bright/10 blur-[110px]" />
+      {/* Hero: headline, subhead and primary action render immediately (no entrance animation).
+          Only the decorative background is clipped — the search dropdown must overflow freely. */}
+      <section className="relative isolate bg-hero text-white">
+        <div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute inset-0 bg-grid-lines [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_75%)]" />
+          <div className="absolute -top-40 left-[18%] size-[34rem] rounded-full bg-primary/15 blur-[130px]" />
+          <div className="absolute -right-24 bottom-10 size-[26rem] rounded-full bg-primary-bright/10 blur-[110px]" />
+        </div>
         <Container className="grid items-center gap-10 py-10 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:py-16">
           <div>
-            <ul aria-label={home.hero.trustLabel} className="flex flex-wrap gap-x-5 gap-y-2">
-              {BRAND.trustClaims.map((claim) => {
-                const Icon = getIcon(claim.icon);
-                return (
-                  <li
-                    key={claim.key}
-                    className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-white/90 backdrop-blur-sm sm:text-sm"
-                  >
-                    <Icon aria-hidden="true" className="size-4 text-accent" strokeWidth={2} />
-                    {home.hero.trust[claim.key]}
-                  </li>
-                );
-              })}
-            </ul>
-            <h1 className="mt-5 text-h1">{home.hero.title}</h1>
+            <p className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold tracking-wide text-primary-bright">
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
+              {home.hero.eyebrow}
+            </p>
+            <h1 className="mt-4 text-h1">{home.hero.title}</h1>
             <p className="mt-4 max-w-xl text-base leading-7 text-white/85 lg:text-lg lg:leading-8">{home.hero.subtitle}</p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <ButtonLink href={primaryCta.href} variant="onDark" size="lg" className="sm:min-w-56">
@@ -85,6 +75,18 @@ export default async function HomePage({ params }) {
             </div>
             <p className="mt-3 text-sm text-white/75">{primaryCta.note}</p>
             <ServiceSearch items={buildSearchItems(dictionary, lang, products, features)} className="mt-6 max-w-xl" />
+            {/* Trust claims moved below the fold line: the message lands first, proof follows */}
+            <ul aria-label={home.hero.trustLabel} className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/75">
+              {BRAND.trustClaims.map((claim) => {
+                const Icon = getIcon(claim.icon);
+                return (
+                  <li key={claim.key} className="flex items-center gap-2">
+                    <Icon aria-hidden="true" className="size-4 shrink-0 text-accent" strokeWidth={2} />
+                    {home.hero.trust[claim.key]}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
           <RequestPreview mockup={home.hero.mockup} />
         </Container>

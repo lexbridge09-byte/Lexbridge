@@ -1,20 +1,24 @@
 import { BadgeCheck, Check, Lock, Video } from 'lucide-react';
 import { Badge } from '@/components/ui';
 
-// Decorative product preview built in HTML (no screenshot), hidden from assistive technology
+// Decorative product preview built in HTML (no screenshot), hidden from assistive technology.
+// Echoes the real dashboard: reference chip, status badge, progress steps, next-step facts.
 export function RequestPreview({ mockup }) {
   const completedStepCount = mockup.steps.length - 1;
 
   return (
     <div aria-hidden="true" className="relative mx-auto hidden w-full max-w-md sm:block lg:mx-0 lg:justify-self-end">
       {/* Soft glow as a static radial gradient: no blur filter, which is costly on low-end phones */}
-      <div className="absolute -inset-10 -z-10 rounded-[3rem] bg-[radial-gradient(closest-side,rgb(216_52_79/0.28),transparent)]" />
-      <div className="rounded-panel bg-card p-5 text-ink shadow-float ring-1 ring-primary/20 sm:p-6">
+      <div className="absolute -inset-10 -z-10 rounded-[3rem] bg-[radial-gradient(closest-side,rgb(197_160_89/0.3),transparent)]" />
+      <div className="rounded-panel bg-card p-5 text-ink shadow-float ring-1 ring-primary/25 sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs font-semibold text-ink-muted">{mockup.title}</p>
           <Badge tone="active">{mockup.status}</Badge>
         </div>
-        <p className="mt-1 font-display text-xl font-bold">{mockup.category}</p>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <p className="font-display text-xl font-bold">{mockup.category}</p>
+          <code className="rounded-md bg-card-dim px-2 py-0.5 font-mono text-xs font-bold tracking-widest text-ink-muted">{mockup.reference}</code>
+        </div>
 
         <ol className="mt-5 space-y-3">
           {mockup.steps.map((step, stepIndex) => {
@@ -48,12 +52,12 @@ export function RequestPreview({ mockup }) {
             </p>
           </div>
         </div>
-      </div>
 
-      {/* Decorative extra: a single 300ms fade after load, never looping */}
-      <div className="absolute -bottom-5 -left-3 hidden items-center gap-2 rounded-control bg-card px-4 py-3 text-sm font-semibold text-ink shadow-raised [animation-delay:400ms] motion-safe:animate-fade-in sm:flex">
-        <BadgeCheck className="size-5 text-success" strokeWidth={2} />
-        {mockup.assignedLabel}
+        {/* Assigned strip lives inside the card so nothing hangs over the edges */}
+        <div className="mt-3 flex items-center gap-2 rounded-xl bg-success/10 px-3 py-2.5 text-sm font-semibold text-ink">
+          <BadgeCheck className="size-5 shrink-0 text-success" strokeWidth={2} />
+          {mockup.assignedLabel}
+        </div>
       </div>
     </div>
   );

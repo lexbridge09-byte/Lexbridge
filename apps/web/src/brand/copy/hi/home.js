@@ -1,5 +1,6 @@
 export const home = {
   hero: {
+    eyebrow: 'भारत के लिए कानूनी सेवाएँ',
     title: 'आज ही साफ़ कानूनी मदद पाएँ',
     subtitle: 'फ़ोन या वीडियो पर योग्य कानूनी विशेषज्ञ से बात करें। पैसे देने से पहले फ़ीस देखें।',
     trustLabel: 'LexBridge क्यों',
@@ -11,6 +12,7 @@ export const home = {
     priceFrom: (priceLabel) => `तय कीमत वाली सेवाएँ ${priceLabel} से`,
     mockup: {
       title: 'आपका मामला',
+      reference: 'LB-2601-8H3K2Q',
       category: 'प्रॉपर्टी विवाद',
       status: 'काम जारी',
       steps: ['शिकायत मिली', 'सही सेवा चुनी गई', 'सलाह का समय तय'],

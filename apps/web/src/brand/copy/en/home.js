@@ -1,5 +1,6 @@
 export const home = {
   hero: {
+    eyebrow: 'Legal services for India',
     title: 'Get clear legal help today',
     subtitle: 'Talk to a qualified legal professional by phone or video. See the fee before you pay.',
     trustLabel: 'Why LexBridge',
@@ -12,6 +13,7 @@ export const home = {
     // Decorative product preview; not a real client or case
     mockup: {
       title: 'Your matter',
+      reference: 'LB-2601-8H3K2Q',
       category: 'Property dispute',
       status: 'In progress',
       steps: ['Concern received', 'Service matched', 'Consultation booked'],
