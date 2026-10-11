@@ -8,6 +8,8 @@ const documentReviewSchema = new mongoose.Schema(
   {
     ReferenceCode: { type: String, required: true, unique: true },
     Owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    AssignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    AssignedAt: { type: Date, default: null },
     OriginalName: { type: String, required: true, maxlength: 150 },
     // Client's answers about the document, whitelisted against @lexbridge/shared intakeCatalog
     IntakeDetails: { type: mongoose.Schema.Types.Mixed, default: {} },
@@ -50,5 +52,6 @@ documentReviewSchema.index({ Status: 1, createdAt: -1 });
 documentReviewSchema.index({ createdAt: -1 });
 // File retention sweep
 documentReviewSchema.index({ FileDeletedAt: 1, fileDeleteAfter: 1 });
+documentReviewSchema.index({ AssignedTo: 1, Status: 1, createdAt: -1 });
 
 export const DocumentReviewModel = mongoose.model('DocumentReview', documentReviewSchema);

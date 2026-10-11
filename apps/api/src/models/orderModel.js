@@ -76,6 +76,9 @@ const orderSchema = new mongoose.Schema(
     // The service request the team works from, created once payment is confirmed
     ServiceRequest: { type: mongoose.Schema.Types.ObjectId, ref: 'ServiceRequest', default: null },
     ServiceRequestReference: { type: String, default: '' },
+    AssignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    AssignedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    AssignedAt: { type: Date, default: null },
     ConsentGiven: { type: Boolean, required: true },
     consentedAt: { type: Date, required: true },
     paidAt: { type: Date, default: null },
@@ -91,6 +94,7 @@ orderSchema.index({ Client: 1, createdAt: -1 });
 orderSchema.index({ Email: 1, createdAt: -1 });
 orderSchema.index({ Status: 1, createdAt: -1 });
 orderSchema.index({ createdAt: -1 });
+orderSchema.index({ AssignedTo: 1, Status: 1, createdAt: -1 });
 orderSchema.index({ PhoneLast10: 1, createdAt: -1 });
 orderSchema.index({ paidAt: -1 });
 // Per-customer coupon limits count paid orders by code and email

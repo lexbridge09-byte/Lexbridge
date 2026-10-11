@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { CONSULTATION_STATUSES } from '@lexbridge/shared';
-import { ConsultationModel } from '../../models/index.js';
+import { ConsultationModel, STAFF_ROLES, UserModel } from '../../models/index.js';
 import {
   notifyConsultationCancelled,
   notifyMeetingLinkAdded,
+  recordWorkAssignmentEvent,
   releaseConsultationSlot,
 } from '../../services/index.js';
-import { paginationSchema } from '../../utils.js';
+import { objectIdSchema, paginationSchema } from '../../utils.js';
 
 const CLIENT_POPULATE_FIELDS = 'FullName Email Phone';
 
@@ -24,6 +25,7 @@ const updateSchema = z
       .union([z.url({ protocol: /^https$/, error: 'Enter a meeting link starting with https://' }), z.literal('')])
       .optional(),
     AdminNote: z.string().trim().max(2000).optional(),
+    AssignedTo: objectIdSchema.nullable().optional(),
   })
   .refine((input) => Object.values(input).some((value) => value !== undefined), 'Nothing to update');
 
@@ -45,6 +47,7 @@ adminConsultationsRouter.get('/', async (req, res) => {
       .skip((page - 1) * limit)
       .limit(limit)
       .populate('Client', CLIENT_POPULATE_FIELDS)
+      .populate('AssignedTo', 'FullName Email Role')
       .lean(),
     ConsultationModel.countDocuments(filter),
   ]);
@@ -64,14 +67,23 @@ adminConsultationsRouter.patch('/:referenceCode', async (req, res) => {
   const isBeingCancelled = input.Status === 'cancelled' && consultation.Status !== 'cancelled';
   const hasNewMeetingLink = Boolean(input.MeetingLink) && input.MeetingLink !== consultation.MeetingLink;
 
+  if (input.AssignedTo !== undefined && input.AssignedTo !== null) {
+    const assignee = await UserModel.exists({ _id: input.AssignedTo, Role: { $in: STAFF_ROLES } });
+    if (!assignee) return res.status(400).json({ error: 'Choose an active lawyer, manager, or owner.' });
+  }
+
   if (input.Status) consultation.Status = input.Status;
   if (input.MeetingLink !== undefined) consultation.MeetingLink = input.MeetingLink;
   if (input.AdminNote !== undefined) consultation.AdminNote = input.AdminNote;
+  const previousAssignee = consultation.AssignedTo;
+  if (input.AssignedTo !== undefined) consultation.AssignedTo = input.AssignedTo;
   if (isBeingCancelled) consultation.cancelledAt = new Date();
 
   await consultation.save();
+  await recordWorkAssignmentEvent({ workKind: 'consultation', referenceCode: consultation.ReferenceCode, actorId: req.user.id, previousAssignee, newAssignee: consultation.AssignedTo });
   if (isBeingCancelled) await releaseConsultationSlot(consultation);
   await consultation.populate('Client', CLIENT_POPULATE_FIELDS);
+  await consultation.populate('AssignedTo', 'FullName Email Role');
 
   if (isBeingCancelled) {
     await notifyConsultationCancelled(consultation, consultation.Client, 'team');

@@ -79,3 +79,4 @@ export {
 } from './documentReviewService.js';
 export { startDocumentReviewWorker, stopDocumentReviewWorker } from './documentReviewWorker.js';
 export { getPublicStats, countOpenCallbacks } from './statsService.js';
+export { recordWorkAssignmentEvent } from './workAssignmentService.js';

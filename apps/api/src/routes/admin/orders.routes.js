@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { ORDER_STATUSES } from '@lexbridge/shared';
-import { OrderModel } from '../../models/index.js';
-import { refundOrder } from '../../services/index.js';
-import { deriveContactSearchFilter, paginationSchema } from '../../utils.js';
+import { OrderModel, STAFF_ROLES, UserModel } from '../../models/index.js';
+import { recordWorkAssignmentEvent, refundOrder } from '../../services/index.js';
+import { deriveContactSearchFilter, objectIdSchema, paginationSchema } from '../../utils.js';
 
 const ADMIN_ORDER_LIST_FIELDS = 'ReferenceCode FullName Email Phone Items SubtotalPaise DiscountPaise TotalPaise CouponCode Status RefundedPaise ServiceRequestReference paidAt createdAt';
 
@@ -17,6 +17,7 @@ const refundSchema = z.object({
   AmountPaise: z.number().int('Use whole paise').min(1).optional(),
   Reason: z.string().trim().min(3, 'Add a reason for the refund').max(500),
 });
+const updateSchema = z.object({ AssignedTo: objectIdSchema.nullable().optional() }).refine((input) => input.AssignedTo !== undefined, 'Nothing to update');
 
 export const adminOrdersRouter = Router();
 
@@ -32,6 +33,7 @@ adminOrdersRouter.get('/', async (req, res) => {
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
+      .populate('AssignedTo', 'FullName Email Role')
       .lean(),
     OrderModel.countDocuments(filter),
   ]);
@@ -43,8 +45,26 @@ adminOrdersRouter.get('/:referenceCode', async (req, res) => {
     .populate('Client', 'FullName Email Phone')
     .populate('ServiceRequest', 'ReferenceCode Status')
     .populate('Refunds.CreatedBy', 'FullName Email')
+    .populate('AssignedTo', 'FullName Email Role')
     .lean();
   if (!order) return res.status(404).json({ error: 'Order not found' });
+  res.json({ order });
+});
+
+adminOrdersRouter.patch('/:referenceCode', async (req, res) => {
+  const input = updateSchema.parse(req.body ?? {});
+  const order = await OrderModel.findOne({ ReferenceCode: req.params.referenceCode });
+  if (!order) return res.status(404).json({ error: 'Order not found' });
+  if (input.AssignedTo !== null && !(await UserModel.exists({ _id: input.AssignedTo, Role: { $in: STAFF_ROLES } }))) {
+    return res.status(400).json({ error: 'Choose an active lawyer, manager, or owner.' });
+  }
+  const previousAssignee = order.AssignedTo;
+  order.AssignedTo = input.AssignedTo;
+  order.AssignedBy = input.AssignedTo === null ? null : req.user.id;
+  order.AssignedAt = input.AssignedTo === null ? null : new Date();
+  await order.save();
+  await recordWorkAssignmentEvent({ workKind: 'order', referenceCode: order.ReferenceCode, actorId: req.user.id, previousAssignee, newAssignee: order.AssignedTo });
+  await order.populate('AssignedTo', 'FullName Email Role');
   res.json({ order });
 });
 

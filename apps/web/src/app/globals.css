@@ -393,6 +393,8 @@
     font-size: 1rem;
     line-height: 1.5rem;
     caret-color: var(--color-primary);
+    /* Prevent wide decorative/carousel children from creating a page-level horizontal scrollbar. */
+    overflow-x: clip;
   }
 
   ::-webkit-scrollbar {
@@ -617,14 +619,35 @@
     box-shadow: 0 0 0 3px rgb(198 40 40 / 0.16);
   }
 
-  .control::-webkit-outer-spin-button,
-  .control::-webkit-inner-spin-button {
+  .control[type='number']::-webkit-outer-spin-button,
+  .control[type='number']::-webkit-inner-spin-button {
     margin: 0;
     -webkit-appearance: none;
   }
 
   .control[type='number'] {
     -moz-appearance: textfield;
+  }
+
+  /* Native date/time fields also appear in admin forms without .control. Keep
+     their picker affordance and light-surface text, including in dark OS mode. */
+  input:is([type='date'], [type='time'], [type='datetime-local']) {
+    appearance: auto;
+    color-scheme: light;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 2.875rem;
+  }
+
+  input:is([type='date'], [type='time'], [type='datetime-local'])::-webkit-date-and-time-value {
+    min-height: 1.5em;
+    text-align: start;
+  }
+
+  input:is([type='date'], [type='time'], [type='datetime-local'])::-webkit-calendar-picker-indicator {
+    opacity: 1;
+    flex-shrink: 0;
+    cursor: pointer;
   }
 
   textarea.control {

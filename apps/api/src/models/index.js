@@ -36,3 +36,5 @@ export { OrderModel, ORDER_ITEM_LIMIT, ORDER_REFUND_LIMIT } from './orderModel.j
 export { CouponModel } from './couponModel.js';
 export { DocumentReviewModel, DOCUMENT_REVIEW_FAILURE_REASONS } from './documentReviewModel.js';
 export { CallbackRequestModel, CALLBACK_NOTE_LIMIT } from './callbackRequestModel.js';
+export { WorkAssignmentEventModel } from './workAssignmentEventModel.js';
+export { FollowUpModel } from './followUpModel.js';

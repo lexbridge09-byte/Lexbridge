@@ -18,7 +18,7 @@ export function LanguageSwitcher({ label, className = '' }) {
   const pathWithoutLocale = stripLocale(usePathname() ?? '/');
 
   return (
-    <div role="group" aria-label={label} className={`inline-flex items-center rounded-full bg-canvas-raised p-0.5 ${className}`}>
+    <div role="group" aria-label={label} className={`inline-flex max-w-full shrink-0 items-center rounded-full bg-canvas-raised p-0.5 ${className}`}>
       {SUPPORTED_LOCALES.map((targetLocale) => {
         const isCurrent = targetLocale === locale;
         return (

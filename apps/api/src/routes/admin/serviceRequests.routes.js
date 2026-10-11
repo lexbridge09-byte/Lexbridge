@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { REQUEST_STATUSES, SERVICE_CATEGORY_KEYS } from '@lexbridge/shared';
 import { DocumentModel, ServiceRequestModel } from '../../models/index.js';
-import { applyRequestUpdate, notifyRequestStatusChanged } from '../../services/index.js';
+import { applyRequestUpdate, notifyRequestStatusChanged, recordWorkAssignmentEvent } from '../../services/index.js';
 import { deriveContactSearchFilter, objectIdSchema, paginationSchema } from '../../utils.js';
 import { CLIENT_DOCUMENT_FIELDS } from '../documents.routes.js';
 
@@ -62,13 +62,14 @@ adminServiceRequestsRouter.patch('/:referenceCode', async (req, res) => {
   const request = await ServiceRequestModel.findOne({ ReferenceCode: req.params.referenceCode });
   if (!request) return res.status(404).json({ error: 'Request not found' });
 
+  const previousAssignee = request.AssignedTo;
   const result = await applyRequestUpdate(request, input, req.user);
   if (result.error) return res.status(result.error).json({ error: result.message });
 
   await request.save();
+  await recordWorkAssignmentEvent({ workKind: 'service-request', referenceCode: request.ReferenceCode, actorId: req.user.id, previousAssignee, newAssignee: request.AssignedTo });
   await request.populate('AssignedTo', 'FullName Email');
 
   if (result.hasStatusChanged || result.note) await notifyRequestStatusChanged(request, result.note);
   res.json({ request });
 });
-

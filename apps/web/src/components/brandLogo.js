@@ -1,11 +1,11 @@
 import { BRAND } from '@/brand/brandConfig';
 
-export function BrandLogo({ tone = 'dark' }) {
+export function BrandLogo({ tone = 'dark', isCompact = false }) {
   return (
     <span className="flex items-center gap-2">
       <span
         aria-hidden="true"
-        className="flex size-9 items-center justify-center rounded-xl bg-cta font-display text-lg font-extrabold ring-1 ring-white/25"
+        className={`${isCompact ? 'hidden sm:flex' : 'flex'} size-9 shrink-0 items-center justify-center rounded-xl bg-cta font-display text-lg font-extrabold ring-1 ring-white/25`}
       >
         {BRAND.name.charAt(0)}
       </span>

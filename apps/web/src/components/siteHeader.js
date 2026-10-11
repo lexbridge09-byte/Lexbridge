@@ -121,8 +121,8 @@ export async function SiteHeader({ dictionary, locale }) {
           copy={{ ...common.menu, navLabel: common.nav.mainLabel, languageLabel: common.language.label }}
         />
 
-        <LocaleLink href="/" aria-label={common.homeLinkLabel} className="rounded-lg">
-          <BrandLogo />
+        <LocaleLink href="/" aria-label={common.homeLinkLabel} className="min-w-0 shrink-0 rounded-lg">
+          <BrandLogo isCompact />
         </LocaleLink>
 
         <nav aria-label={common.nav.mainLabel} className="ml-4 hidden xl:block">
@@ -142,12 +142,16 @@ export async function SiteHeader({ dictionary, locale }) {
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5">
-          <LanguageSwitcher label={common.language.label} className="hidden sm:inline-flex" />
+          <div className="hidden sm:block">
+            <LanguageSwitcher label={common.language.label} />
+          </div>
           {features.callbackRequests && <CallbackRequestButton variant="header" />}
           {accountLink && <AccountMenu signInHref={accountLink.href} signInLabel={accountLink.label} />}
-          <ButtonLink href={primaryCta.href} size="sm" className="hidden min-w-46 whitespace-nowrap md:inline-flex">
-            {primaryCta.label}
-          </ButtonLink>
+          <div className="hidden lg:block">
+            <ButtonLink href={primaryCta.href} size="sm" className="min-w-46 whitespace-nowrap">
+              {primaryCta.label}
+            </ButtonLink>
+          </div>
         </div>
       </div>
     </header>

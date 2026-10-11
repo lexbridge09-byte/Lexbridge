@@ -32,6 +32,8 @@ const callbackRequestSchema = new mongoose.Schema(
     ServiceCategory: { type: String, enum: SERVICE_CATEGORY_KEYS, default: 'other' },
     Topic: { type: String, trim: true, default: '', maxlength: 500 },
     Status: { type: String, enum: CALLBACK_STATUSES, default: 'new' },
+    AssignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    AssignedAt: { type: Date, default: null },
     Notes: {
       type: [callbackNoteSchema],
       default: [],
@@ -49,5 +51,6 @@ callbackRequestSchema.index({ Status: 1, createdAt: -1 });
 callbackRequestSchema.index({ createdAt: -1 });
 // Admin phone search and duplicate detection
 callbackRequestSchema.index({ PhoneLast10: 1, createdAt: -1 });
+callbackRequestSchema.index({ AssignedTo: 1, Status: 1, createdAt: -1 });
 
 export const CallbackRequestModel = mongoose.model('CallbackRequest', callbackRequestSchema);

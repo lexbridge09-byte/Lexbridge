@@ -11,7 +11,7 @@ export function MobileMenu({ navItems, accountLink, primaryCta, copy }) {
   const pathname = usePathname();
 
   return (
-    <details key={pathname} className="group xl:hidden">
+    <details key={pathname} className="group shrink-0 xl:hidden">
       <summary className="-ml-2 flex size-11 cursor-pointer list-none items-center justify-center rounded-xl text-on-canvas hover:bg-canvas-raised [&::-webkit-details-marker]:hidden">
         <Menu aria-hidden="true" className="size-6 group-open:hidden" strokeWidth={1.75} />
         <X aria-hidden="true" className="hidden size-6 group-open:block" strokeWidth={1.75} />
@@ -52,7 +52,7 @@ export function MobileMenu({ navItems, accountLink, primaryCta, copy }) {
             )}
           </ul>
         </nav>
-        <div className="mt-4 flex items-center justify-between gap-3 rounded-xl bg-card-dim px-3 py-2">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-card-dim px-3 py-2">
           <span className="text-sm font-semibold text-ink">{copy.languageLabel}</span>
           <LanguageSwitcher label={copy.languageLabel} className="bg-card" />
         </div>

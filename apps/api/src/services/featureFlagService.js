@@ -19,6 +19,19 @@ function normalizeStoredFlags(storedFlags) {
   for (const [key, value] of Object.entries(storedFlags ?? {})) {
     if (Object.hasOwn(flags, key) && typeof value === 'boolean') flags[key] = value;
   }
+  // The commerce/API smoke test runs an isolated process and uses the same
+  // test-only override contract as the shared package. Never allow this
+  // process-level escape hatch outside the test environment.
+  if (process.env.NODE_ENV === 'test' && process.env.FEATURE_FLAGS_OVERRIDE) {
+    try {
+      const overrides = JSON.parse(process.env.FEATURE_FLAGS_OVERRIDE);
+      for (const [key, value] of Object.entries(overrides)) {
+        if (Object.hasOwn(flags, key) && typeof value === 'boolean') flags[key] = value;
+      }
+    } catch {
+      // Invalid test overrides are ignored; stored flags remain authoritative.
+    }
+  }
   return flags;
 }
 

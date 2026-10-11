@@ -10,9 +10,9 @@ import { Button, ButtonLink, Card, InlineAlert, SkeletonList, StepIndicator } fr
 import { WhatsAppOptInField } from '@/components/whatsAppOptInField';
 import { requestApi } from '@/lib/apiClient';
 import { localizeApiError, localizeFieldErrors } from '@/lib/apiErrors';
-import { formatDateKey } from '@/lib/formatValues';
 import { useCatalogLabels, useFormatters } from '@/lib/localeTools';
 import { deriveLoginHref } from '@/lib/safeRedirect';
+import { deriveSlotSelection } from '@/lib/consultationSlots';
 import { useIsFeatureEnabled } from '@/components/featuresProvider';
 
 const FORM_ID = 'consultation-form';
@@ -62,7 +62,7 @@ const CHOICE_CARD_CLASS =
   'flex h-full cursor-pointer items-start gap-3 rounded-card border border-line bg-card p-3.5 transition-colors duration-(--dur-150) hover:border-line-strong has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:checked]:ring-2 has-[:checked]:ring-primary-100 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary';
 
 const CHIP_CLASS =
-  'shrink-0 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors duration-(--dur-150) has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary';
+  'inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors duration-(--dur-150) focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary';
 
 function SummaryRow({ label, value, isMissing }) {
   return (
@@ -141,13 +141,16 @@ export function ConsultationBooking() {
   }, [slotsReloadCount, dictionary]);
 
   const slotGroups = useMemo(() => groupSlotsByDate(slotsState.slots), [slotsState.slots]);
-  const selectedSlot = slotsState.slots.find((slot) => slot._id === draft.SlotId) ?? null;
-  const activeDateKey = selectedDateKey || (selectedSlot ? formatDateKey(selectedSlot.StartsAt) : slotGroups[0]?.dateKey ?? '');
-  const activeGroup = slotGroups.find((group) => group.dateKey === activeDateKey) ?? slotGroups[0];
+  const { selectedSlot, activeGroup } = deriveSlotSelection(slotGroups, draft.SlotId, selectedDateKey, slotsState.isLoaded);
   const hasChoice = Boolean(draft.ConsultationType && draft.Mode);
   const hasSelections = Boolean(hasChoice && selectedSlot);
   // Never show a step whose earlier choices are missing, e.g. a restored time that has since been booked
-  const activeStep = !hasChoice ? CHOICE_STEP : step === DETAILS_STEP && slotsState.isLoaded && !selectedSlot ? TIME_STEP : step;
+  const activeStep = !hasChoice ? CHOICE_STEP : step === DETAILS_STEP && !selectedSlot ? TIME_STEP : step;
+
+  function reloadSlots() {
+    setSlotsState({ isLoaded: false, slots: [], error: '' });
+    setSlotsReloadCount((count) => count + 1);
+  }
 
   function updateIntakeDetail(key, value) {
     updateDraft('IntakeDetails', { ...draft.IntakeDetails, [key]: value });
@@ -237,7 +240,7 @@ export function ConsultationBooking() {
       }
       if (error.status === 409) {
         updateDraft('SlotId', '');
-        setSlotsReloadCount((count) => count + 1);
+        reloadSlots();
         goToStep(TIME_STEP);
         setFormError(copy.slots.taken);
       } else {
@@ -302,7 +305,7 @@ export function ConsultationBooking() {
     <div>
       {stepIndicator}
       <div className="grid items-start gap-5 lg:grid-cols-[1.7fr_1fr] lg:gap-8">
-        <Card padding="lg">
+        <Card padding="lg" className="min-w-0">
           <p ref={stepStatusRef} tabIndex={-1} aria-live="polite" className="sr-only">
             {stepCopy.stepStatus(activeStep, stepNames.length, stepNames[activeStep - 1])}
           </p>
@@ -415,18 +418,19 @@ export function ConsultationBooking() {
               </fieldset>
             </div>
 
-            <fieldset hidden={activeStep !== TIME_STEP} className={`motion-safe:${stepDirection === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}>
+            <fieldset hidden={activeStep !== TIME_STEP} aria-busy={!slotsState.isLoaded} className={`min-w-0 motion-safe:${stepDirection === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}>
               <legend className="text-h4 text-ink">{copy.sections.slot}</legend>
               <p className="mt-1 text-sm text-ink-muted">{copy.timeZoneNote}</p>
 
               {!slotsState.isLoaded ? (
-                <div className="mt-3">
+                <div className="mt-3" role="status">
+                  <p className="mb-2 text-sm text-ink-muted">{copy.slots.loading}</p>
                   <SkeletonList label={copy.slots.loading} rows={2} />
                 </div>
               ) : slotsState.error ? (
                 <InlineAlert tone="error" className="mt-3">
                   <p>{slotsState.error}</p>
-                  <Button variant="link" onClick={() => setSlotsReloadCount((count) => count + 1)} className="mt-1">
+                  <Button variant="link" onClick={reloadSlots} className="mt-1">
                     {copy.slots.retry}
                   </Button>
                 </InlineAlert>
@@ -440,7 +444,7 @@ export function ConsultationBooking() {
                 </InlineAlert>
               ) : (
                 <>
-                  <div role="group" aria-label={copy.slots.datesLabel} className="scroll-row mt-3 flex gap-2 pb-2">
+                  <div role="group" aria-label={copy.slots.datesLabel} className="mt-3 flex flex-wrap gap-2">
                     {slotGroups.map((group) => {
                       const isActive = group.dateKey === activeGroup?.dateKey;
                       return (
@@ -448,8 +452,11 @@ export function ConsultationBooking() {
                           key={group.dateKey}
                           type="button"
                           aria-pressed={isActive}
-                          onClick={() => setSelectedDateKey(group.dateKey)}
-                          className={`${CHIP_CLASS} ${isActive ? 'border-primary bg-primary text-white' : 'border-line bg-card text-ink hover:border-line-strong'}`}
+                          onClick={() => {
+                            setSelectedDateKey(group.dateKey);
+                            if (!isActive) updateDraft('SlotId', '');
+                          }}
+                          className={`${CHIP_CLASS} ${isActive ? 'border-primary bg-primary text-ink' : 'border-line bg-card text-ink hover:border-line-strong'}`}
                         >
                           {format.shortDay(group.daySlots[0].StartsAt)}
                         </button>
@@ -459,11 +466,11 @@ export function ConsultationBooking() {
                   {activeGroup && (
                     <div className="mt-3">
                       <p className="text-sm font-semibold text-ink">{format.day(activeGroup.daySlots[0].StartsAt)}</p>
-                      <div role="radiogroup" aria-label={copy.slots.timesLabel} className="mt-2 flex flex-wrap gap-2">
+                      <div role="radiogroup" aria-label={copy.slots.timesLabel} aria-describedby={fieldErrors.SlotId ? 'SlotId-error' : undefined} aria-invalid={Boolean(fieldErrors.SlotId)} className="mt-2 flex flex-wrap gap-2">
                         {activeGroup.daySlots.map((slot) => (
                           <label
                             key={slot._id}
-                            className={`${CHIP_CLASS} tabular cursor-pointer border-line bg-card text-ink hover:border-line-strong has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:checked]:text-primary-dark`}
+                            className={`${CHIP_CLASS} tabular cursor-pointer ${draft.SlotId === slot._id ? 'border-primary bg-primary-50 text-primary-dark' : 'border-line bg-card text-ink hover:border-line-strong'}`}
                           >
                             <input
                               type="radio"
@@ -471,7 +478,7 @@ export function ConsultationBooking() {
                               value={slot._id}
                               checked={draft.SlotId === slot._id}
                               onChange={() => updateDraft('SlotId', slot._id)}
-                              className="sr-only"
+                              className="radio"
                             />
                             {format.time(slot.StartsAt)}
                             <span className="sr-only">{copy.slots.durationForScreenReaders(slot.DurationMinutes)}</span>
@@ -555,7 +562,7 @@ export function ConsultationBooking() {
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={isSubmitting || (activeStep === DETAILS_STEP && (!hasSelections || !session.isChecked))}
+                  disabled={isSubmitting || (activeStep === TIME_STEP && (!slotsState.isLoaded || !selectedSlot)) || (activeStep === DETAILS_STEP && (!hasSelections || !session.isChecked))}
                   className="w-full sm:w-auto sm:min-w-44"
                 >
                   {activeStep !== DETAILS_STEP ? stepCopy.continue : isSubmitting ? copy.submit.busy : session.user ? copy.submit.idle : copy.submit.signIn}

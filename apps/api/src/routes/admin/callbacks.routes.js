@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { CALLBACK_STATUSES } from '@lexbridge/shared';
-import { CALLBACK_NOTE_LIMIT, CallbackRequestModel } from '../../models/index.js';
+import { CALLBACK_NOTE_LIMIT, CallbackRequestModel, STAFF_ROLES, UserModel } from '../../models/index.js';
+import { objectIdSchema } from '../../utils.js';
 import { derivePhoneLast10, escapeRegex, paginationSchema } from '../../utils.js';
+import { recordWorkAssignmentEvent } from '../../services/index.js';
 
 const listQuerySchema = paginationSchema.extend({
   status: z.enum(CALLBACK_STATUSES).optional(),
@@ -13,6 +15,7 @@ const updateSchema = z
   .object({
     Status: z.enum(CALLBACK_STATUSES).optional(),
     Note: z.string().trim().max(1000).optional(),
+    AssignedTo: objectIdSchema.nullable().optional(),
   })
   .refine((input) => input.Status !== undefined || Boolean(input.Note), 'Nothing to update');
 
@@ -46,14 +49,19 @@ adminCallbacksRouter.get('/', async (req, res) => {
 
 adminCallbacksRouter.patch('/:referenceCode', async (req, res) => {
   const input = updateSchema.parse(req.body);
-  const callback = await CallbackRequestModel.findOne({ ReferenceCode: req.params.referenceCode }).select('Status').lean();
+  const callback = await CallbackRequestModel.findOne({ ReferenceCode: req.params.referenceCode }).select('Status AssignedTo').lean();
   if (!callback) return res.status(404).json({ error: 'Callback request not found' });
 
   const status = input.Status ?? callback.Status;
+  if (input.AssignedTo !== undefined && input.AssignedTo !== null) {
+    const assignee = await UserModel.exists({ _id: input.AssignedTo, Role: { $in: STAFF_ROLES } });
+    if (!assignee) return res.status(400).json({ error: 'Choose an active lawyer, manager, or owner.' });
+  }
+  const assignment = input.AssignedTo === undefined ? {} : { AssignedTo: input.AssignedTo, AssignedAt: input.AssignedTo ? new Date() : null };
   const updated = await CallbackRequestModel.findOneAndUpdate(
     { _id: callback._id },
     {
-      $set: { Status: status },
+      $set: { Status: status, ...assignment },
       $push: {
         Notes: {
           $each: [{ Status: status, Note: input.Note ?? '', ChangedBy: req.user.id, changedAt: new Date() }],
@@ -62,6 +70,7 @@ adminCallbacksRouter.patch('/:referenceCode', async (req, res) => {
       },
     },
     { returnDocument: 'after' },
-  ).populate('Notes.ChangedBy', 'FullName Email').lean();
+  ).populate('Notes.ChangedBy', 'FullName Email').populate('AssignedTo', 'FullName Email Role').lean();
+  await recordWorkAssignmentEvent({ workKind: 'callback', referenceCode: callback.ReferenceCode, actorId: req.user.id, previousAssignee: callback.AssignedTo, newAssignee: updated.AssignedTo });
   res.json({ callback: updated });
 });
