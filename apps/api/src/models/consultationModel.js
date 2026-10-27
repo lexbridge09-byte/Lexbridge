@@ -5,7 +5,10 @@ const consultationSchema = new mongoose.Schema(
   {
     ReferenceCode: { type: String, required: true, unique: true },
     Client: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    Slot: { type: mongoose.Schema.Types.ObjectId, ref: 'Slot', required: true },
+    // Built-in bookings claim a Slot; Calendly bookings carry Calendly's event/invitee URIs instead
+    Slot: { type: mongoose.Schema.Types.ObjectId, ref: 'Slot', required() { return !this.CalendlyInviteeUri; } },
+    CalendlyEventUri: { type: String, default: '' },
+    CalendlyInviteeUri: { type: String, default: undefined },
     ConsultationType: { type: String, enum: CONSULTATION_TYPE_KEYS, required: true },
     Mode: { type: String, enum: CONSULTATION_MODE_KEYS, required: true },
     StartsAt: { type: Date, required: true },
@@ -32,5 +35,7 @@ const consultationSchema = new mongoose.Schema(
 consultationSchema.index({ Client: 1, StartsAt: -1 });
 consultationSchema.index({ Status: 1, StartsAt: 1 });
 consultationSchema.index({ StartsAt: 1 });
+// A Calendly booking can be recorded only once
+consultationSchema.index({ CalendlyInviteeUri: 1 }, { unique: true, sparse: true });
 
 export const ConsultationModel = mongoose.model('Consultation', consultationSchema);

@@ -10,6 +10,19 @@ export const services = {
   tabsLabel: 'कानूनी सेवाएँ',
   notSure: 'तय नहीं कर पा रहे?',
   notSureLink: 'अपनी समस्या बताएँ',
+  eyebrow: 'सेवाएँ',
+  area: {
+    coveredTitle: 'इसमें क्या शामिल है',
+    problemsTitle: 'आम स्थितियाँ',
+    stepsTitle: 'यह कैसे काम करता है',
+    actionNote: 'कोई भी भुगतान वाला काम शुरू होने से पहले फ़ीस दिखाई जाएगी।',
+    describe: 'इसके बजाय अपनी समस्या बताएँ',
+    relatedTitle: 'अन्य सेवाएँ',
+    allServices: 'सभी सेवाएँ',
+    selected: 'आपकी स्थिति',
+  },
+  showMore: 'और देखें',
+  notSureBody: 'अपने शब्दों में बताएँ क्या हुआ। हम सही सेवा मुफ़्त में सुझाएँगे।',
 
   items: {
     'legal-consultation': {

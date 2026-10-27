@@ -48,7 +48,7 @@ export function handleErrors(err, req, res, next) {
   if (DATABASE_UNAVAILABLE_ERRORS.has(err?.name)) {
     (req.log ?? logger).error({ err }, '[error] database unavailable');
     res.set('Retry-After', '5');
-    return res.status(503).json({ error: 'LexBridge is temporarily unavailable. Please try again shortly.' });
+    return res.status(503).json({ error: 'LexBridge Consultants is temporarily unavailable. Please try again shortly.' });
   }
   if (!err?.expose) (req.log ?? logger).error({ err }, '[error] unhandled request error');
   res.status(err?.status ?? 500).json({ error: err?.expose ? err.message : 'Something went wrong' });

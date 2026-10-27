@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useDictionary, useLocalizedHref } from '@/brand/localeContext';
 import { ADMIN_CONTROL_CLASS, AdminBackLink, AdminField, AdminPanel } from '@/components/admin/adminStyles';
+import { Select } from '@/components/selectMenu';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
 import { LocaleLink } from '@/components/localeLink';
 import { Button } from '@/components/ui';
@@ -155,22 +156,22 @@ function ProductForm({ product }) {
         <AdminPanel>
           <div className="space-y-3">
             <AdminField id="product-category" label={copy.category} error={fieldErrors.Category}>
-              <select id="product-category" name="Category" required defaultValue={product?.Category ?? PRODUCT_CATEGORY_KEYS[0]} className={ADMIN_CONTROL_CLASS}>
+              <Select id="product-category" name="Category" required defaultValue={product?.Category ?? PRODUCT_CATEGORY_KEYS[0]} className={ADMIN_CONTROL_CLASS}>
                 {PRODUCT_CATEGORY_KEYS.map((categoryKey) => (
                   <option key={categoryKey} value={categoryKey}>
                     {labels.productCategory(categoryKey)}
                   </option>
                 ))}
-              </select>
+              </Select>
             </AdminField>
             <AdminField id="product-service" label={copy.serviceCategory} error={fieldErrors.ServiceCategory}>
-              <select id="product-service" name="ServiceCategory" required defaultValue={product?.ServiceCategory ?? 'legal-drafting'} className={ADMIN_CONTROL_CLASS}>
+              <Select id="product-service" name="ServiceCategory" required defaultValue={product?.ServiceCategory ?? 'legal-drafting'} className={ADMIN_CONTROL_CLASS}>
                 {labels.serviceOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </AdminField>
             <div className="grid grid-cols-2 gap-3">
               <AdminField id="product-price" label={copy.price} error={fieldErrors.PricePaise}>

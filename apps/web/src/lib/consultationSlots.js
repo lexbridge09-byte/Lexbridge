@@ -8,15 +8,19 @@ export function deriveSlotSelection(slotGroups, slotId, selectedDateKey, isLoade
   return { activeGroup, selectedSlot };
 }
 
-// Availability is a prerequisite, not a dead-end step. Failed/loading requests
-// must never be mistaken for an empty calendar.
+// Wizard steps. Each step is short enough to fit one screen.
+export const CONSULTATION_STEPS = Object.freeze({ choice: 1, matter: 2, time: 3, details: 4 });
+
+// Availability is a prerequisite, not a dead-end step. Failed/loading requests must never be
+// mistaken for an empty calendar. With no open times the time step is skipped (request flow).
 export function deriveConsultationFlow({ step, hasChoice, selectedSlot, isLoaded, error, slotCount }) {
+  const { choice, matter, time, details } = CONSULTATION_STEPS;
   const isAvailabilityReady = isLoaded && !error;
   const isRequestFlow = Boolean(isAvailabilityReady && slotCount === 0);
-  const steps = isRequestFlow ? [1, 3] : [1, 2, 3];
-  let activeStep = hasChoice && isAvailabilityReady ? step : 1;
-  if (isRequestFlow && activeStep === 2) activeStep = 3;
-  if (!isRequestFlow && activeStep === 3 && !selectedSlot) activeStep = 2;
+  const steps = isRequestFlow ? [choice, matter, details] : [choice, matter, time, details];
+  let activeStep = hasChoice && isAvailabilityReady ? step : choice;
+  if (isRequestFlow && activeStep === time) activeStep = details;
+  if (!isRequestFlow && activeStep === details && !selectedSlot) activeStep = time;
   const stepIndex = steps.indexOf(activeStep);
   return {
     isAvailabilityReady,

@@ -3,7 +3,7 @@ export const home = {
     eyebrow: 'भारत के लिए कानूनी सेवाएँ',
     title: 'आज ही साफ़ कानूनी मदद पाएँ',
     subtitle: 'फ़ोन या वीडियो पर योग्य कानूनी विशेषज्ञ से बात करें। पैसे देने से पहले फ़ीस देखें।',
-    trustLabel: 'LexBridge क्यों',
+    trustLabel: 'LexBridge Consultants क्यों',
     trust: {
       qualified: 'योग्य विशेषज्ञ',
       confidential: 'निजी और सुरक्षित',
@@ -66,7 +66,7 @@ export const home = {
   },
 
   trust: {
-    title: 'लोग LexBridge क्यों चुनते हैं',
+    title: 'लोग LexBridge Consultants क्यों चुनते हैं',
     items: [
       { icon: 'qualified', title: 'योग्य विशेषज्ञ', description: 'आपका मामला ऐसे विशेषज्ञ को जाता है जो ऐसे मामले देखते हैं।' },
       { icon: 'confidential', title: 'निजी और सुरक्षित', description: 'आपकी जानकारी और फ़ाइलें सिर्फ़ आपके मामले के लिए हैं।' },
@@ -85,7 +85,7 @@ export const home = {
   },
 
   stats: {
-    label: 'LexBridge आँकड़ों में',
+    label: 'LexBridge Consultants आँकड़ों में',
     requestsResolved: 'सुलझाए गए अनुरोध',
     consultationsCompleted: 'पूरी हुई सलाह',
     documentsReviewed: 'जाँचे गए दस्तावेज़',
@@ -98,5 +98,9 @@ export const home = {
   faq: {
     title: 'आम सवाल',
     viewAll: 'सभी सवाल देखें',
+    description: 'बुक करने से पहले झटपट जवाब।',
+    helpTitle: 'अब भी कोई सवाल है?',
+    helpBody: 'हमसे सीधे पूछें। जवाब असली व्यक्ति देगा।',
+    answerLabel: 'जवाब',
   },
 };

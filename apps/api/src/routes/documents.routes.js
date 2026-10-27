@@ -123,7 +123,14 @@ documentsRouter.get('/:id/download', requireAuth, async (req, res) => {
   const fileStream = await openDocumentStream(document.StoredName);
   res.set('X-Content-Type-Options', 'nosniff');
   res.set('Cache-Control', 'private, no-store');
-  res.attachment(deriveSafeFileName(document.OriginalName));
+  // ?inline=1 lets the browser show PDFs and images in the preview pane; anything else still downloads
+  const isPreviewable = /^(application\/pdf|image\/(png|jpe?g|webp|gif))$/.test(document.MimeType ?? '');
+  const safeName = deriveSafeFileName(document.OriginalName);
+  if (req.query.inline === '1' && isPreviewable) {
+    res.set('Content-Disposition', `inline; filename="${safeName.replace(/"/g, '')}"`);
+  } else {
+    res.attachment(safeName);
+  }
   res.type(document.MimeType);
   if (document.SizeBytes) res.set('Content-Length', String(document.SizeBytes));
 

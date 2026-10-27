@@ -2,32 +2,32 @@
 
 /*
   LexBridge design tokens. Deep charcoal canvas (#14171F) with light floating cards (#F4F5F7), one
-  bronze accent (#C5A059) reserved for primary actions and highlights. Two text worlds: dark text
+  rose-gold accent (#C88F6C, from the logo) reserved for primary actions and highlights. Two text worlds: dark text
   on light cards (ink*) and white/gray text on the dark canvas (on-canvas*). Every text/background
   pair meets WCAG AA. Motion follows MOTION_SPEC.md: tokens only, transform/opacity only.
 */
 @theme {
   /* Dark canvas (page background, sections, chrome) */
-  --color-canvas: #14171f;
-  --color-canvas-alt: #1b1f2a;
-  --color-canvas-raised: #222735;
-  --color-line-canvas: #2a303d;
+  --color-canvas: #12141b;
+  --color-canvas-alt: #191c25;
+  --color-canvas-raised: #212532;
+  --color-line-canvas: #2b3040;
 
   /* Light floating surfaces (cards, forms, modals, tables) */
   --color-card: #f4f5f7;
   --color-card-hover: #ffffff;
   --color-card-dim: #e9ebee;
 
-  /* Bronze accent. Bright bronze reads on the dark canvas; primary-dark is the AA-safe
-     bronze for text, links and icons on light cards. */
-  --color-primary: #c5a059;
-  --color-primary-dark: #7d6130;
-  --color-primary-deep: #14171f;
-  --color-primary-bright: #d9bc7a;
-  --color-primary-50: #f7f1e3;
-  --color-primary-100: #eee2c6;
-  --color-accent: #d9bc7a;
-  --color-accent-50: #faf5e9;
+  /* Rose-gold accent from the logo. Bright rose gold reads on the dark canvas; primary-dark is the
+     AA-safe tone for text, links and icons on light cards. */
+  --color-primary: #c88f6c;
+  --color-primary-dark: #8a5338;
+  --color-primary-deep: #12141b;
+  --color-primary-bright: #e7b596;
+  --color-primary-50: #f8ece4;
+  --color-primary-100: #f0d9cb;
+  --color-accent: #e7b596;
+  --color-accent-50: #fbf3ee;
 
   --color-success: #1d7a46;
   --color-success-50: #e7f4ec;
@@ -47,14 +47,16 @@
   --color-on-canvas-subtle: #7e8594;
 
   /* Hairlines and input borders on light surfaces */
-  --color-surface: #14171f;
-  --color-surface-alt: #1b1f2a;
+  --color-surface: #12141b;
+  --color-surface-alt: #191c25;
   --color-line: #e4e6ec;
   --color-line-hover: #c9cdd6;
   --color-line-strong: #858d9d;
 
   /* Latin glyphs come from the first font; Devanagari falls through to Noto Sans Devanagari */
-  --font-display: var(--font-jakarta), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
+  --font-brand: var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-heading: var(--font-cormorant), var(--font-devanagari), ui-serif, Georgia, serif;
+  --font-display: var(--font-inter), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
 
   /* Radius by hierarchy: controls 12, cards 16, panels 20, pills full */
@@ -67,7 +69,7 @@
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.1), 0 10px 24px -8px rgb(0 0 0 / 0.35);
   --shadow-raised: 0 16px 36px -12px rgb(0 0 0 / 0.5);
   --shadow-soft: 8px 10px 48px rgb(0 0 0 / 0.3);
-  --shadow-glow: 0 6px 18px -4px rgb(197 160 89 / 0.35);
+  --shadow-glow: 0 6px 18px -4px rgb(200 143 108 / 0.35);
   --shadow-float: 0 18px 40px -14px rgb(0 0 0 / 0.55);
 
   /* Easing (MOTION_SPEC.md) */
@@ -92,8 +94,8 @@
   /* Decorative extras only (never the hero text or primary action) */
   --animate-fade-in: fade-in 300ms var(--ease-out-soft) both;
   --animate-rise: rise 300ms var(--ease-out-soft) both;
-  --animate-slide-in-right: slide-in-right 200ms var(--ease-out-soft) both;
-  --animate-slide-in-left: slide-in-left 200ms var(--ease-out-soft) both;
+  --animate-slide-in-right: slide-in-right 280ms var(--ease-out-soft) both;
+  --animate-slide-in-left: slide-in-left 280ms var(--ease-out-soft) both;
   --animate-live: live 2s var(--ease-standard) infinite;
   --animate-spin: spin 800ms linear infinite;
 
@@ -121,7 +123,7 @@
   @keyframes slide-in-right {
     from {
       opacity: 0;
-      transform: translateX(8px);
+      transform: translateX(20px);
     }
     to {
       opacity: 1;
@@ -132,7 +134,7 @@
   @keyframes slide-in-left {
     from {
       opacity: 0;
-      transform: translateX(-8px);
+      transform: translateX(-20px);
     }
     to {
       opacity: 1;
@@ -200,42 +202,42 @@
 
 /* Type scale: mobile first, desktop from the lg breakpoint */
 @utility text-h1 {
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 2rem;
-  line-height: 2.5rem;
-  letter-spacing: -0.025em;
+  font-size: 2.375rem;
+  line-height: 2.75rem;
+  letter-spacing: -0.01em;
   text-wrap: balance;
   @media (width >= 64rem) {
-    font-size: 3.25rem;
-    line-height: 4rem;
+    font-size: 3.75rem;
+    line-height: 4.125rem;
   }
 }
 
 @utility text-h2 {
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 1.75rem;
-  line-height: 2.25rem;
-  letter-spacing: -0.02em;
+  font-size: 2rem;
+  line-height: 2.375rem;
+  letter-spacing: -0.01em;
   text-wrap: balance;
   @media (width >= 64rem) {
-    font-size: 2.5rem;
-    line-height: 3.125rem;
+    font-size: 2.875rem;
+    line-height: 3.25rem;
   }
 }
 
 /* Section headings: smaller than page titles so the content starts sooner */
 @utility text-section {
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 1.625rem;
-  line-height: 2.125rem;
-  letter-spacing: -0.02em;
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  letter-spacing: -0.01em;
   text-wrap: balance;
   @media (width >= 64rem) {
-    font-size: 2rem;
-    line-height: 2.5rem;
+    font-size: 2.375rem;
+    line-height: 2.75rem;
   }
 }
 
@@ -271,16 +273,16 @@
   background-image: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-bright) 100%);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.35),
-    0 6px 18px -4px rgb(197 160 89 / 0.45);
+    0 6px 18px -4px rgb(200 143 108 / 0.45);
   color: var(--color-canvas);
 }
 
 @utility bg-hero {
   background-color: var(--color-canvas);
   background-image:
-    radial-gradient(48rem 28rem at 88% 8%, rgb(197 160 89 / 0.2), transparent 62%),
-    radial-gradient(36rem 24rem at 4% 92%, rgb(197 160 89 / 0.08), transparent 60%),
-    linear-gradient(160deg, #14171f 0%, #181c27 55%, #1f2434 100%);
+    radial-gradient(48rem 28rem at 88% 8%, rgb(200 143 108 / 0.2), transparent 62%),
+    radial-gradient(36rem 24rem at 4% 92%, rgb(200 143 108 / 0.08), transparent 60%),
+    linear-gradient(160deg, #12141b 0%, #171a24 55%, #1d2130 100%);
 }
 
 @utility bg-grid-lines {
@@ -292,8 +294,8 @@
 
 @utility bg-assistant {
   background-image:
-    radial-gradient(40rem 22rem at 12% 0%, rgb(247 241 227 / 0.9), transparent 70%),
-    radial-gradient(36rem 20rem at 100% 100%, rgb(238 226 198 / 0.95), transparent 70%),
+    radial-gradient(40rem 22rem at 12% 0%, rgb(248 236 228 / 0.9), transparent 70%),
+    radial-gradient(36rem 20rem at 100% 100%, rgb(240 217 203 / 0.95), transparent 70%),
     linear-gradient(var(--color-card), var(--color-card));
 }
 
@@ -304,13 +306,13 @@
 /* One-px bronze gradient divider between dark sections */
 @utility divider-bronze {
   height: 1px;
-  background-image: linear-gradient(to right, transparent, rgb(197 160 89 / 0.45), transparent);
+  background-image: linear-gradient(to right, transparent, rgb(200 143 108 / 0.45), transparent);
 }
 
 /* Frosted control for dark sections (search bar on the hero) */
 @utility control-glass {
   border: 1px solid var(--color-line-canvas);
-  background-color: rgb(27 31 42 / 0.7);
+  background-color: rgb(25 28 37 / 0.7);
   backdrop-filter: blur(12px);
   color: var(--color-on-canvas);
 }
@@ -416,7 +418,7 @@
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background-color: rgb(197 160 89 / 0.55);
+    background-color: rgb(200 143 108 / 0.55);
   }
 
   h1,
@@ -616,7 +618,7 @@
     border-color: var(--color-primary-dark);
     box-shadow:
       inset 0 1px 2px rgb(26 29 38 / 0.04),
-      0 0 0 3px rgb(197 160 89 / 0.25);
+      0 0 0 3px rgb(200 143 108 / 0.25);
   }
 
   .control:disabled {
@@ -951,5 +953,68 @@
 @keyframes success-draw {
   to {
     stroke-dashoffset: 0;
+  }
+}
+
+/* Decorative "being reviewed" light band that sweeps down a sample document, then rests */
+@utility scan-sweep {
+  background-image: linear-gradient(to bottom, transparent, rgb(200 143 108 / 0.14), transparent);
+  @media (prefers-reduced-motion: no-preference) {
+    animation: scan-sweep 3.2s var(--ease-standard) 0.6s infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
+}
+
+@keyframes scan-sweep {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  15% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(18rem);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(18rem);
+  }
+}
+
+/* Thin, rounded scrollbar for light floating panels (dropdowns, menus) */
+@utility scroll-soft {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(98 105 121 / 0.35) transparent;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    margin-block: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgb(98 105 121 / 0.3);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(138 83 56 / 0.6);
+  }
+}
+
+/* Dropdown entrance: quick fade + scale from the edge it hangs from */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

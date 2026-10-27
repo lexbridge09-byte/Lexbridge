@@ -1,3 +1,4 @@
+import { ArrowRight } from 'lucide-react';
 import {
   BRAND,
   getDictionary,
@@ -5,20 +6,20 @@ import {
   getPrimaryCta,
   getProblemShortcuts,
   getSecondaryCta,
-  getSituationGroups,
   getServerFeatures,
 } from '@/brand';
 import { buildSearchItems } from '@/brand/searchIndex';
 import { ProductCard } from '@/components/commerce/productCard';
 import { AiReviewPanel } from '@/components/home/aiReviewPanel';
+import { FaqExplorer } from '@/components/home/faqExplorer';
 import { GuidesList } from '@/components/home/guidesList';
+import { HeroBridge } from '@/components/home/heroBridge';
 import { HowItWorks } from '@/components/home/howItWorks';
 import { ProblemShortcuts } from '@/components/home/problemShortcuts';
 import { RequestPreview } from '@/components/home/requestPreview';
-import { SituationTiles } from '@/components/home/situationTiles';
 import { TrustBlock } from '@/components/home/trustBlock';
 import { ServiceSearch } from '@/components/serviceSearch';
-import { ButtonLink, Container, FaqAccordion, Section, SectionHeader, StatsStrip, TestimonialCarousel } from '@/components/ui';
+import { ButtonLink, Container, Reveal, Section, SectionHeader, StatsStrip, TestimonialCarousel } from '@/components/ui';
 import { getIcon } from '@/lib/icons';
 import { loadPublishedProducts } from '@/lib/publicProducts';
 import { loadPublicStats } from '@/lib/publicStats';
@@ -56,6 +57,7 @@ export default async function HomePage({ params }) {
           <div className="absolute inset-0 bg-grid-lines [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_75%)]" />
           <div className="absolute -top-40 left-[18%] size-[34rem] rounded-full bg-primary/15 blur-[130px]" />
           <div className="absolute -right-24 bottom-10 size-[26rem] rounded-full bg-primary-bright/10 blur-[110px]" />
+          <HeroBridge />
         </div>
         <Container className="grid items-center gap-10 py-10 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:py-16">
           <div>
@@ -95,15 +97,6 @@ export default async function HomePage({ params }) {
 
       <ProblemShortcuts title={dictionary.ux.problems.title} problems={getProblemShortcuts(dictionary, products, features)} />
 
-      <SituationTiles
-        title={home.situations.title}
-        description={home.situations.description}
-        groups={getSituationGroups(dictionary, products, features)}
-        allServicesLabel={dictionary.common.nav.allServices}
-        priceFrom={dictionary.common.price.from}
-        locale={lang}
-      />
-
       {featuredProducts.length > 0 && (
         <Section labelledBy="products-title">
           <SectionHeader
@@ -138,18 +131,21 @@ export default async function HomePage({ params }) {
 
       <TestimonialCarousel title={home.testimonials.title} items={BRAND.testimonials} />
 
-      <Section labelledBy="faq-title" size="sm">
-        <div className="grid gap-5 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
-          <div>
-            <h2 id="faq-title" className="text-section text-on-canvas">
-              {home.faq.title}
-            </h2>
-            <ButtonLink href="/faq" variant="linkOnDark" className="mt-2">
-              {home.faq.viewAll}
-            </ButtonLink>
-          </div>
-          <FaqAccordion items={faqItems} />
-        </div>
+      <Section labelledBy="faq-title">
+        <Reveal>
+          <SectionHeader
+            id="faq-title"
+            title={home.faq.title}
+            description={home.faq.description}
+            action={
+              <ButtonLink href="/faq" variant="linkOnDark" className="group">
+                {home.faq.viewAll}
+                <ArrowRight aria-hidden="true" className="size-4 transition-transform duration-(--dur-150) group-hover:translate-x-1 motion-reduce:transition-none" strokeWidth={2} />
+              </ButtonLink>
+            }
+          />
+          <FaqExplorer items={faqItems} copy={home.faq} contactLabel={dictionary.common.cta.contact} />
+        </Reveal>
       </Section>
     </>
   );

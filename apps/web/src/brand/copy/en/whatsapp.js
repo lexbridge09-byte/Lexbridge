@@ -1,8 +1,8 @@
 export const whatsapp = {
-  greeting: 'Hello LexBridge, I need help with a legal matter.',
+  greeting: 'Hello LexBridge Consultants, I need help with a legal matter.',
 
   button: {
-    label: 'Chat with LexBridge on WhatsApp (opens in a new tab)',
+    label: 'Chat with LexBridge Consultants on WhatsApp (opens in a new tab)',
     text: 'WhatsApp us',
   },
 

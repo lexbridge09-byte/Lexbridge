@@ -1,4 +1,4 @@
-import { SlotModel } from '../models/index.js';
+import { releaseSlotSeat } from './slotSeats.js';
 
 export const CLIENT_CONSULTATION_FIELDS = [
   '_id',
@@ -17,10 +17,7 @@ export function extractClientConsultation(consultation) {
   return Object.fromEntries(CLIENT_CONSULTATION_FIELDS.map((field) => [field, consultation[field]]));
 }
 
-// Only releases the slot if it still points at this consultation
+// Gives back this consultation's seat (a time can hold several clients when several lawyers work)
 export async function releaseConsultationSlot(consultation) {
-  await SlotModel.updateOne(
-    { _id: consultation.Slot, Consultation: consultation._id },
-    { $set: { Status: 'open', Consultation: null } },
-  );
+  await releaseSlotSeat(consultation.Slot, consultation._id);
 }

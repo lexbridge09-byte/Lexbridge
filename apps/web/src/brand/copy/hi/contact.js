@@ -1,7 +1,7 @@
 export const contact = {
   metadata: {
     title: 'संपर्क',
-    description: 'LexBridge को बताइए आपको किसमें मदद चाहिए।',
+    description: 'LexBridge Consultants को बताइए आपको किसमें मदद चाहिए।',
   },
   header: {
     title: 'संपर्क करें',

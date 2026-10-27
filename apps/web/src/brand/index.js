@@ -1,5 +1,5 @@
 /*
-  Brand folder: everything that makes the website "LexBridge" lives here.
+  Brand folder: everything that makes the website "LexBridge Consultants" lives here.
 
   - brandConfig.js       Language-neutral settings: trust claims, company details, problems, situations, thresholds
   - copy/en, copy/hi     Every user-facing string, one module per area, identical shapes per language
@@ -40,6 +40,7 @@ export {
 } from './locales.js';
 export {
   deriveProblemHref,
+  deriveServiceActionHref,
   deriveServiceHref,
   getAccountLink,
   getFooterGroups,

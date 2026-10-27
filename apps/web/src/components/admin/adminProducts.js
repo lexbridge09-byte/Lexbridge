@@ -13,6 +13,7 @@ import {
   AdminTable,
 } from '@/components/admin/adminStyles';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
+import { Select } from '@/components/selectMenu';
 import { LocaleLink } from '@/components/localeLink';
 import { Badge, ButtonLink } from '@/components/ui';
 import { requestApi } from '@/lib/apiClient';
@@ -66,21 +67,21 @@ export function AdminProducts() {
 
       <div className="mb-4 grid max-w-xl gap-3 sm:grid-cols-2">
         <AdminField id="product-category-filter" label={copy.category}>
-          <select id="product-category-filter" value={category} onChange={(event) => setCategory(event.target.value)} className={ADMIN_CONTROL_CLASS}>
+          <Select id="product-category-filter" value={category} onChange={(event) => setCategory(event.target.value)} className={ADMIN_CONTROL_CLASS}>
             <option value="">{copy.allCategories}</option>
             {PRODUCT_CATEGORY_KEYS.map((categoryKey) => (
               <option key={categoryKey} value={categoryKey}>
                 {labels.productCategory(categoryKey)}
               </option>
             ))}
-          </select>
+          </Select>
         </AdminField>
         <AdminField id="product-published-filter" label={copy.visibility}>
-          <select id="product-published-filter" value={published} onChange={(event) => setPublished(event.target.value)} className={ADMIN_CONTROL_CLASS}>
+          <Select id="product-published-filter" value={published} onChange={(event) => setPublished(event.target.value)} className={ADMIN_CONTROL_CLASS}>
             <option value="">{copy.all}</option>
             <option value="true">{copy.published}</option>
             <option value="false">{copy.hidden}</option>
-          </select>
+          </Select>
         </AdminField>
       </div>
 

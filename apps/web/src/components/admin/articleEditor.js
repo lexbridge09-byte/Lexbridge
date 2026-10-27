@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { ARTICLE_STATUSES, ARTICLE_TOPIC_KEYS } from '@lexbridge/shared';
 import { useDictionary, useLocalizedHref } from '@/brand/localeContext';
 import { ADMIN_CONTROL_CLASS, ADMIN_LABEL_CLASS, AdminPanel } from '@/components/admin/adminStyles';
+import { Select } from '@/components/selectMenu';
 import { FieldError } from '@/components/formFields';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
 import { LocaleLink } from '@/components/localeLink';
@@ -118,27 +119,27 @@ function ArticleForm({ article }) {
               <label htmlFor="article-topic" className={ADMIN_LABEL_CLASS}>
                 {copy.topic}
               </label>
-              <select id="article-topic" name="Topic" required defaultValue={article?.Topic ?? ''} className={`mt-1 ${ADMIN_CONTROL_CLASS}`}>
+              <Select id="article-topic" name="Topic" required defaultValue={article?.Topic ?? ''} className={`mt-1 ${ADMIN_CONTROL_CLASS}`}>
                 <option value="">{copy.topicPlaceholder}</option>
                 {ARTICLE_TOPIC_KEYS.map((topicKey) => (
                   <option key={topicKey} value={topicKey}>
                     {labels.articleTopic(topicKey)}
                   </option>
                 ))}
-              </select>
+              </Select>
               <FieldError id="article-topic-error" message={fieldErrors.Topic} />
             </div>
             <div>
               <label htmlFor="article-status" className={ADMIN_LABEL_CLASS}>
                 {copy.status}
               </label>
-              <select id="article-status" name="Status" defaultValue={article?.Status ?? 'draft'} className={`mt-1 ${ADMIN_CONTROL_CLASS}`}>
+              <Select id="article-status" name="Status" defaultValue={article?.Status ?? 'draft'} className={`mt-1 ${ADMIN_CONTROL_CLASS}`}>
                 {ARTICLE_STATUSES.map((status) => (
                   <option key={status} value={status}>
                     {labels.articleStatus(status)}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
           </div>
           <div className="md:col-span-2">

@@ -13,6 +13,7 @@ import {
   AdminTable,
 } from '@/components/admin/adminStyles';
 import { ErrorNote, LoadingNote } from '@/components/loadState';
+import { Select } from '@/components/selectMenu';
 import { LocaleLink } from '@/components/localeLink';
 import { ArticleStatusBadge } from '@/components/statusBadge';
 import { ButtonLink } from '@/components/ui';
@@ -45,7 +46,7 @@ export function AdminArticles() {
         <label htmlFor="article-status-filter" className={ADMIN_LABEL_CLASS}>
           {dictionary.admin.common.status}
         </label>
-        <select
+        <Select
           id="article-status-filter"
           value={status}
           onChange={(event) => setStatus(event.target.value)}
@@ -57,7 +58,7 @@ export function AdminArticles() {
               {filterLabels[statusOption] ?? labels.articleStatus(statusOption)}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       {isLoading && !data ? (

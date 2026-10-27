@@ -1,14 +1,14 @@
 export const about = {
   metadata: {
     title: 'About',
-    description: 'LexBridge makes legal help easier to understand and reach.',
+    description: 'LexBridge Consultants makes legal help easier to understand and reach.',
   },
   header: {
-    title: 'About LexBridge',
+    title: 'About LexBridge Consultants',
     lead: 'Making legal help easier to understand and reach.',
   },
 
-  story: 'Most people don’t know whom to call or what to prepare. LexBridge makes that first step simple.',
+  story: 'Most people don’t know whom to call or what to prepare. LexBridge Consultants makes that first step simple.',
 
   mission: {
     title: 'Mission',

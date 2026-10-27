@@ -2,8 +2,8 @@ import Markdown from 'react-markdown';
 
 // react-markdown ignores raw HTML by default, so article bodies can't inject markup
 const MARKDOWN_COMPONENTS = {
-  h1: ({ children }) => <h2 className="mt-10 text-h3 text-on-canvas">{children}</h2>,
-  h2: ({ children }) => <h2 className="mt-10 text-h3 text-on-canvas">{children}</h2>,
+  h1: ({ children }) => <h2 className="mt-12 font-heading text-3xl font-bold leading-tight text-on-canvas">{children}</h2>,
+  h2: ({ children }) => <h2 className="mt-12 font-heading text-3xl font-bold leading-tight text-on-canvas">{children}</h2>,
   h3: ({ children }) => <h3 className="mt-8 text-h4 text-on-canvas">{children}</h3>,
   h4: ({ children }) => <h4 className="mt-6 text-base font-semibold text-on-canvas">{children}</h4>,
   p: ({ children }) => <p className="mt-4">{children}</p>,
@@ -26,8 +26,8 @@ const MARKDOWN_COMPONENTS = {
     );
   },
   strong: ({ children }) => <strong className="font-semibold text-on-canvas">{children}</strong>,
-  code: ({ children }) => <code className="rounded-md bg-card-dim px-1.5 py-0.5 text-[0.9em]">{children}</code>,
-  hr: () => <hr className="my-8 border-line" />,
+  code: ({ children }) => <code className="rounded-md bg-canvas-raised px-1.5 py-0.5 text-[0.9em] text-on-canvas">{children}</code>,
+  hr: () => <hr className="my-10 border-line-canvas" />,
 };
 
 export function MarkdownContent({ source }) {

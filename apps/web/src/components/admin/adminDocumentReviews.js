@@ -4,6 +4,7 @@ import { DOCUMENT_REVIEW_STATUSES } from '@lexbridge/shared';
 import { useState } from 'react';
 import { useDictionary } from '@/brand/localeContext';
 import { buildAdminQuery } from '@/components/admin/adminRequests';
+import { Select } from '@/components/selectMenu';
 import {
   ADMIN_CONTROL_CLASS,
   ADMIN_LINK_CLASS,
@@ -38,7 +39,7 @@ export function AdminDocumentReviews() {
       <AdminPageHeading title={copy.title} description={copy.description} />
 
       <AdminField id="review-status-filter" label={common.status} className="mb-4 max-w-xs">
-        <select
+        <Select
           id="review-status-filter"
           value={status}
           onChange={(event) => {
@@ -53,7 +54,7 @@ export function AdminDocumentReviews() {
               {labels.documentReviewStatus(statusOption)}
             </option>
           ))}
-        </select>
+        </Select>
       </AdminField>
 
       {isLoading && !data ? (

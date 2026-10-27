@@ -134,8 +134,8 @@ function LawyerReviewPanel({ review, onRequested }) {
           </CheckboxField>
           {isWhatsAppOptInEnabled && <WhatsAppOptInField />}
           {formError && Object.keys(fieldErrors).length === 0 && <InlineAlert tone="error">{formError}</InlineAlert>}
-          <Button type="submit" disabled={isBusy}>
-            {isBusy ? copy.busy : copy.submit}
+          <Button isLoading={isBusy} type="submit" disabled={isBusy}>
+            {copy.submit}
           </Button>
         </form>
       )}

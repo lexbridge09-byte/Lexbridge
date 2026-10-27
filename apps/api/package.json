@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/server.js",
   "scripts": {
-    "dev": "node --watch --env-file=.env src/server.js",
+    "dev": "node --watch-path=./src --watch-path=../../packages/shared/src --env-file=.env src/server.js",
     "start": "node --env-file=.env src/server.js",
     "start:cluster": "node --env-file=.env src/cluster.js",
     "db:sync-indexes": "node --env-file=.env scripts/syncIndexes.js",

@@ -78,8 +78,8 @@ export function ProfileForm() {
             <p className="mt-1 text-xs text-ink-muted">{copy.emailNote}</p>
           </div>
           <FormMessage message={message} />
-          <Button type="submit" disabled={isSaving}>
-            {isSaving ? copy.saving : copy.save}
+          <Button isLoading={isSaving} type="submit" disabled={isSaving}>
+            {copy.save}
           </Button>
         </form>
       </Card>

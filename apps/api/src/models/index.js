@@ -4,6 +4,7 @@ export { InviteModel, INVITE_ROLES, INVITE_STATUSES } from './inviteModel.js';
 export { OtpModel } from './otpModel.js';
 export { ServiceRequestModel, STATUS_HISTORY_LIMIT } from './serviceRequestModel.js';
 export { SlotModel } from './slotModel.js';
+export { AvailabilityModel, BOOKING_PROVIDERS } from './availabilityModel.js';
 export { ConsultationModel } from './consultationModel.js';
 export { ArticleModel } from './articleModel.js';
 export { DocumentModel, DOCUMENT_UPLOAD_KINDS, DOCUMENT_UPLOADER_ROLES } from './documentModel.js';

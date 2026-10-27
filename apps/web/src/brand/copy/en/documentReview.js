@@ -80,6 +80,13 @@ export const documentReview = {
     tooLarge: (maxSizeLabel) => `Files can be up to ${maxSizeLabel}.`,
     aboutTitle: 'About your document',
     missingDetails: 'Please answer the highlighted questions about your document first.',
+    steps: ['Choose PDF', 'About it', 'Review'],
+    remove: 'Remove file',
+    orBrowse: 'Drag it here or choose from your device',
+    replace: 'Choose another',
+    submit: 'Review my document',
+    uploadingPercent: (percent) => `Uploading… ${percent}%`,
+    starting: 'Starting your review…',
   },
 
   report: {
@@ -118,7 +125,7 @@ export const documentReview = {
     languageLabel: 'Preferred language',
     consentBefore: 'I agree to the ',
     consentLink: 'privacy policy',
-    consentAfter: '. LexBridge is not a law firm.',
+    consentAfter: '. LexBridge Consultants is not a law firm.',
     consentRequired: 'Please accept to continue.',
     submit: 'Request review',
     busy: 'Sending…',

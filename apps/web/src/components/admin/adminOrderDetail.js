@@ -109,8 +109,8 @@ function RefundForm({ order, onRefunded }) {
         <div role="group" aria-label={copy.title} className="rounded-xl border border-danger/25 bg-danger-50 p-3">
           <p className="text-sm text-ink">{copy.confirm(format.rupees(pendingRefund.amountPaise))}</p>
           <div className="mt-2 flex flex-wrap gap-3">
-            <Button variant="danger" size="sm" onClick={confirmRefund} disabled={isBusy}>
-              {isBusy ? copy.busy : copy.confirmYes}
+            <Button isLoading={isBusy} variant="danger" size="sm" onClick={confirmRefund} disabled={isBusy}>
+              {copy.confirmYes}
             </Button>
             <Button variant="outline" size="sm" onClick={() => setPendingRefund(null)} disabled={isBusy}>
               {copy.confirmNo}

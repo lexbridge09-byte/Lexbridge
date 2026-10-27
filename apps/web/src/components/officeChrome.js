@@ -22,8 +22,8 @@ export function OfficeHeader() {
     // The back office speaks English regardless of the site language — staff tooling, one voice
     <EnglishLocaleOverride>
       <header className="site-header sticky top-0 z-40 border-b border-line-canvas bg-canvas-alt/95 backdrop-blur-md print:static">
-        <div className="mx-auto flex h-16 w-full max-w-site items-center gap-3 px-4 sm:px-6">
-          <LocaleLink href="/" aria-label="LexBridge home" className="rounded-lg">
+        <div className="flex h-16 w-full items-center gap-3 px-4 sm:px-6">
+          <LocaleLink href="/" aria-label="LexBridge Consultants home" className="rounded-lg">
             <BrandLogo />
           </LocaleLink>
           <div className="ml-auto flex items-center gap-2">

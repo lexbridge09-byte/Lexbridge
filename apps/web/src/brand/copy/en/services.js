@@ -11,6 +11,19 @@ export const services = {
   tabsLabel: 'Legal services',
   notSure: 'Not sure which fits?',
   notSureLink: 'Describe your problem',
+  eyebrow: 'Services',
+  area: {
+    coveredTitle: 'What’s covered',
+    problemsTitle: 'Common situations',
+    stepsTitle: 'How it works',
+    actionNote: 'Fee shown before any paid work starts.',
+    describe: 'Describe your problem instead',
+    relatedTitle: 'Other services',
+    allServices: 'All services',
+    selected: 'Your situation',
+  },
+  showMore: 'Show more',
+  notSureBody: 'Tell us what happened in your own words. We’ll suggest the right service, free.',
 
   items: {
     'legal-consultation': {

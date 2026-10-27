@@ -7,9 +7,16 @@ export const bareActs = {
     title: 'बेयर एक्ट',
     lead: 'भारत के प्रमुख कानूनों का सीधा पाठ — वही कानून जिन पर हर सलाह, नोटिस और ड्राफ्ट टिका होता है।',
   },
-  portalNote: 'LexBridge कानूनों का पाठ होस्ट नहीं करता। हर लिंक सरकारी पोर्टल indiacode.nic.in की खोज खोलता है, जहाँ प्रामाणिक PDF मिलती है।',
+  portalNote: 'LexBridge Consultants कानूनों का पाठ होस्ट नहीं करता। हर लिंक सरकारी पोर्टल indiacode.nic.in की खोज खोलता है, जहाँ प्रामाणिक PDF मिलती है।',
   portalLabel: 'सरकारी पोर्टल: indiacode.nic.in',
   readLabel: 'पूरा पाठ पढ़ें',
+  searchLabel: 'अधिनियम खोजें',
+  searchPlaceholder: 'नाम से खोजें, जैसे “contract” या “consumer”',
+  allGroups: 'सभी',
+  countAll: '{total} अधिनियम',
+  countSome: '{total} में से {shown} अधिनियम',
+  emptyTitle: 'कोई अधिनियम नहीं मिला',
+  clear: 'खोज साफ़ करें',
   disclaimer: 'बेयर एक्ट पढ़ना सामान्य जानकारी है, कानूनी सलाह नहीं। कोई धारा उलझी लगे तो सलाह से पता चलेगा कि वह आपके मामले पर कैसे लागू होती है।',
 
   groups: {

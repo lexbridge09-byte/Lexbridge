@@ -14,6 +14,7 @@ export const catalog = {
   requestStatuses: {
     submitted: 'Submitted',
     'under-review': 'Under review',
+    assigned: 'Assigned',
     'in-progress': 'In progress',
     'awaiting-client': 'Waiting for you',
     completed: 'Completed',

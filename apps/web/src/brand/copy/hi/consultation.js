@@ -17,9 +17,29 @@ export const consultation = {
 
   timeZoneNote: 'समय IST में है।',
 
+  wizard: {
+    steps: ['परामर्श', 'आपका मामला', 'समय', 'आपकी जानकारी'],
+    requestSteps: ['परामर्श', 'आपका मामला', 'आपकी जानकारी'],
+    stepOf: '{current}/{total}',
+    titles: {
+      choice: 'मदद चुनें',
+      matter: 'आपका मामला',
+      time: 'समय चुनें',
+      details: 'आपकी जानकारी',
+    },
+    subtitles: {
+      choice: 'परामर्श और फ़ोन या वीडियो चुनें।',
+      matter: 'वैकल्पिक। सही वकील चुनने में मदद करता है।',
+      time: 'भारतीय समय (IST)।',
+      details: 'सिर्फ़ इसी परामर्श के लिए।',
+    },
+  },
+
   slots: {
     loading: 'समय लोड हो रहे हैं…',
     datesLabel: 'तारीखें',
+    timesCount: '{count} समय',
+    periods: { morning: 'सुबह', afternoon: 'दोपहर', evening: 'शाम' },
     timesLabel: 'खाली समय',
     durationForScreenReaders: (minutes) => `, ${minutes} मिनट`,
     emptyBefore: 'अभी कोई समय खाली नहीं है।',
@@ -35,9 +55,9 @@ export const consultation = {
   fields: {
     phoneLabel: 'फ़ोन',
     phonePlaceholder: '+91',
-    phoneHint: 'फ़ोन पर सलाह के लिए हम इसी नंबर पर कॉल करेंगे।',
-    descriptionLabel: 'आप किस बारे में बात करना चाहते हैं?',
-    descriptionHint: 'कोई डेडलाइन या सुनवाई की तारीख हो तो लिखें।',
+    phoneHint: 'आपकी कॉल के लिए।',
+    descriptionLabel: 'आपका मामला',
+    descriptionHint: 'कोई डेडलाइन या सुनवाई की तारीख लिखें।',
   },
 
   validation: {
@@ -52,13 +72,13 @@ export const consultation = {
   request: {
     steps: ['सलाह', 'संपर्क और ज़रूरत'],
     title: 'सलाह का अनुरोध',
-    noticeTitle: 'अभी बुकिंग के लिए कोई समय उपलब्ध नहीं है',
-    noticeBody: 'आप अपनी ज़रूरत भेज सकते हैं। हमारी टीम समय और फ़ीस तय करने के लिए आपसे संपर्क करेगी। यह केवल अनुरोध है, बुकिंग की पुष्टि नहीं।',
-    checkAgain: 'उपलब्ध समय फिर जाँचें',
+    noticeTitle: 'हम आपके लिए समय निकालेंगे',
+    noticeBody: 'अपना मामला बताएँ, हम कॉल करके आपकी सुविधा का समय तय करेंगे। अभी कोई भुगतान नहीं।',
+    checkAgain: 'खाली समय देखें',
     fullName: 'पूरा नाम',
-    email: 'अपडेट के लिए ईमेल',
-    phoneHint: 'सलाह का समय तय करने के लिए हमारी टीम इस नंबर पर संपर्क करेगी।',
-    descriptionHint: 'अपना मामला और सुविधाजनक दिन या समय बताएँ। कोई ज़रूरी डेडलाइन हो तो लिखें।',
+    email: 'ईमेल',
+    phoneHint: 'समय तय करने के लिए हम कॉल करेंगे।',
+    descriptionHint: 'सुविधाजनक दिन और कोई डेडलाइन लिखें।',
     nameError: 'अपना पूरा नाम डालें।',
     emailError: 'सही ईमेल पता डालें।',
     descriptionError: 'कम से कम 20 अक्षरों में अपनी ज़रूरत बताएँ।',
@@ -73,7 +93,7 @@ export const consultation = {
   consent: {
     before: 'मैं ',
     link: 'प्राइवेसी पॉलिसी',
-    after: ' से सहमत हूँ। LexBridge लॉ फ़र्म नहीं है।',
+    after: ' से सहमत हूँ। LexBridge Consultants लॉ फ़र्म नहीं है।',
   },
 
   summaryTitle: 'आपकी बुकिंग',
@@ -94,7 +114,7 @@ export const consultation = {
     modeLabel: 'माध्यम',
     whenValue: (dayLabel, timeLabel) => `${dayLabel} को ${timeLabel} IST`,
     nextTitle: 'आगे क्या होगा',
-    nextVideo: 'वीडियो लिंक My LexBridge में दिखेगा।',
+    nextVideo: 'वीडियो लिंक My LexBridge Consultants में दिखेगा।',
     nextPhone: (phone) => (phone ? `तय समय पर हम ${phone} पर कॉल करेंगे।` : 'तय समय पर हम आपको कॉल करेंगे।'),
     nextDocuments: 'अपने दस्तावेज़ तैयार रखें।',
     viewCta: 'बुकिंग देखें',
@@ -117,7 +137,7 @@ export const consultation = {
   },
 
   advantages: {
-    title: "LexBridge से सलाह क्यों लें",
+    title: "LexBridge Consultants से सलाह क्यों लें",
     items: [
       { icon: "language", title: "अपनी भाषा में बात करें", description: "हिंदी या अंग्रेज़ी, जो आपको सहज लगे।" },
       { icon: "confidential", title: "निजी और सुरक्षित", description: "आपका मामला सिर्फ़ आपके प्रोफ़ेशनल से साझा होता है।" },

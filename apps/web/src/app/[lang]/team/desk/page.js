@@ -19,6 +19,7 @@ export default async function TeamDeskPage({ params }) {
     <AdminRequests
       basePath="/team/desk/requests"
       detailHrefBase="/team/desk"
+      teamSourcePath="/team/lawyers"
       heading={{ title: copy.title, description: copy.description }}
     />
   );

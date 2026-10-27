@@ -20,12 +20,19 @@ function matchesPrefix(pathname, prefix) {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
 
-// Once someone starts a form, keep navigation/help but remove competing promotions.
+// Minimal header/footer only where any distraction costs a payment or a sign-in. Every other public
+// page keeps the full site header so navigation stays identical from page to page.
 export function isFocusedTaskPath(pathname) {
   if (!pathname) return false;
   const path = stripLocale(pathname);
-  return ['/consultation', '/drafting', '/document-review', '/find-my-solution', '/contact', '/checkout', '/login']
-    .some((prefix) => matchesPrefix(path, prefix));
+  return ['/checkout', '/login'].some((prefix) => matchesPrefix(path, prefix));
+}
+
+// Tool pages (app screens): marketing extras such as the footer call-to-action band are hidden
+export function isToolPath(pathname) {
+  if (!pathname) return false;
+  const path = stripLocale(pathname);
+  return ['/consultation', '/drafting', '/document-review', '/find-my-solution', '/contact'].some((prefix) => matchesPrefix(path, prefix));
 }
 
 export function isAdminPath(pathname) {
@@ -45,8 +52,9 @@ export function isLoginPath(pathname) {
   return Boolean(pathname) && matchesPrefix(stripLocale(pathname), '/login');
 }
 
+// Tool pages pin their own Continue/Back bar at the bottom, so the tab bar would stack on top of it
 export function hasMobileTabBar(pathname) {
-  return !isOfficePath(pathname) && !isFocusedTaskPath(pathname);
+  return !isOfficePath(pathname) && !isFocusedTaskPath(pathname) && !isToolPath(pathname);
 }
 
 // Product pages carry their own sticky buy bar instead of the generic one

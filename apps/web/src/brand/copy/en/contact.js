@@ -1,7 +1,7 @@
 export const contact = {
   metadata: {
     title: 'Contact',
-    description: 'Tell LexBridge what you need help with.',
+    description: 'Tell LexBridge Consultants what you need help with.',
   },
   header: {
     title: 'Contact us',

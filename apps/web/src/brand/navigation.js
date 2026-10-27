@@ -28,17 +28,25 @@ const SERVICE_PAGES = {
   'legal-drafting': { href: '/drafting', feature: 'legalDrafting' },
 };
 
-// Where to send someone for a service key from @lexbridge/shared; disabled pages fall back to the contact form
-export function deriveServiceHref(serviceKey, features = {}) {
+// Where a service's own action lives (booking, drafting form); everything else uses the contact form
+export function deriveServiceActionHref(serviceKey, features = {}) {
   const servicePage = SERVICE_PAGES[serviceKey];
   return servicePage && features[servicePage.feature] ? servicePage.href : `/contact?service=${serviceKey}`;
 }
 
-// A problem opens its product when that product is published, otherwise the finder with the problem prefilled
+// Links to a service always open its service page first (what it covers, fee, how it works);
+// the form is that page's action, never the first thing a menu link opens.
+export function deriveServiceHref(serviceKey) {
+  return SERVICE_DISPLAY_ORDER.includes(serviceKey) ? `/services/area/${serviceKey}` : '/services';
+}
+
+// A problem opens its product when published, otherwise the service page of its area, otherwise the finder
 export function deriveProblemHref(shortcut, dictionary, publishedSlugs, features) {
   if (shortcut.productSlug && features?.serviceCatalog && publishedSlugs.has(shortcut.productSlug)) {
     return `/services/${shortcut.productSlug}`;
   }
+  const situation = BRAND.situations.find((item) => item.problemIds.includes(shortcut.id));
+  if (situation) return `/services/area/${situation.serviceKey}?problem=${shortcut.id}`;
   if (features?.solutionFinder) {
     return `/find-my-solution?concern=${encodeURIComponent(dictionary.ux.problems.items[shortcut.id].concern)}`;
   }
@@ -55,7 +63,6 @@ export function getProblemShortcuts(dictionary, products = [], features = {}) {
   }));
 }
 
-const SITUATION_LINK_LIMIT = 4;
 
 // Life-situation groups for the mega menu and home tiles: published products (with prices) first, then problems
 export function getSituationGroups(dictionary, products = [], features = {}) {
@@ -63,15 +70,16 @@ export function getSituationGroups(dictionary, products = [], features = {}) {
   const publishedSlugs = new Set(productsBySlug.keys());
   const isCatalogueOn = Boolean(features.serviceCatalog);
 
-  return BRAND.situations.map((situation) => {
+  const situationGroups = BRAND.situations.map((situation) => {
     const productLinks = isCatalogueOn
       ? situation.productSlugs
           .map((slug) => productsBySlug.get(slug))
           .filter(Boolean)
-          .map((product) => ({ key: `product-${product.Slug}`, href: `/services/${product.Slug}`, label: product.Title, pricePaise: product.PricePaise }))
+          .map((product) => ({ key: `product-${product.Slug}`, href: `/services/${product.Slug}`, label: product.Title, pricePaise: product.PricePaise, icon: situation.icon }))
       : [];
     const problemLinks = situation.problemIds.map((problemId) => ({
       key: `problem-${problemId}`,
+      icon: BRAND.problemShortcuts.find((shortcut) => shortcut.id === problemId)?.icon ?? situation.icon,
       href: deriveProblemHref(
         BRAND.problemShortcuts.find((shortcut) => shortcut.id === problemId),
         dictionary,
@@ -80,16 +88,39 @@ export function getSituationGroups(dictionary, products = [], features = {}) {
       ),
       label: dictionary.ux.problems.items[problemId].label,
     }));
+    // Everything the area's service covers is listed too, each opening that service's page
+    const serviceItemLinks = (dictionary.services.items[situation.serviceKey]?.items ?? []).map((item, itemIndex) => ({
+      key: `item-${situation.serviceKey}-${itemIndex}`,
+      href: deriveServiceHref(situation.serviceKey),
+      label: item,
+      icon: situation.serviceKey,
+    }));
     const copy = dictionary.common.nav.situations[situation.key];
     return {
       key: situation.key,
       icon: situation.icon,
       label: copy.label,
       description: copy.description,
-      href: isCatalogueOn && productLinks.length > 0 ? `/services?category=${situation.categoryKey}` : deriveServiceHref(situation.serviceKey, features),
-      links: [...productLinks, ...problemLinks].slice(0, SITUATION_LINK_LIMIT),
+      href: isCatalogueOn && productLinks.length > 0 ? `/services?category=${situation.categoryKey}` : deriveServiceHref(situation.serviceKey),
+      // Every service is listed: the menu is for direct access, not a teaser
+      links: [...productLinks, ...problemLinks, ...serviceItemLinks],
     };
   });
+
+  // Service areas no situation points at still get their own menu category
+  const coveredKeys = new Set(BRAND.situations.map((situation) => situation.serviceKey));
+  const areaGroups = SERVICE_DISPLAY_ORDER.filter((serviceKey) => !coveredKeys.has(serviceKey)).map((serviceKey) => {
+    const service = dictionary.services.items[serviceKey];
+    return {
+      key: serviceKey,
+      icon: serviceKey,
+      label: service.title,
+      description: service.intro,
+      href: deriveServiceHref(serviceKey),
+      links: service.items.map((item, itemIndex) => ({ key: `item-${serviceKey}-${itemIndex}`, href: deriveServiceHref(serviceKey), label: item, icon: serviceKey })),
+    };
+  });
+  return [...situationGroups, ...areaGroups];
 }
 
 // Service menu entries for the footer: catalogue categories when the catalogue is on, otherwise service areas
@@ -103,7 +134,7 @@ export function getServiceMenuItems(dictionary, features = {}, limit = SERVICE_D
   }
   return SERVICE_DISPLAY_ORDER.slice(0, limit).map((serviceKey) => ({
     key: serviceKey,
-    href: `/services#${serviceKey}`,
+    href: `/services/area/${serviceKey}`,
     label: dictionary.services.items[serviceKey].title,
   }));
 }

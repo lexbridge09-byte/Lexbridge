@@ -1,4 +1,4 @@
-import { Inter, Noto_Sans_Devanagari, Plus_Jakarta_Sans } from 'next/font/google';
+import { Cormorant_Garamond, Inter, Noto_Sans_Devanagari } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { ViewTransition } from 'react';
 import { getDictionary, getMobileTabs, getPrimaryCta, getServerFeatures, isSupportedLocale, LOCALE_TAGS, SUPPORTED_LOCALES } from '@/brand';
@@ -16,16 +16,17 @@ import { WhatsAppButton } from '@/components/whatsAppButton';
 import { deriveWhatsAppHref } from '@/lib/publicContact';
 import '../globals.css';
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['600', '700', '800'],
-  variable: '--font-jakarta',
-  display: 'swap',
-});
-
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
+  display: 'swap',
+});
+
+// Wordmark serif, matched to the logo lettering
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['600', '700'],
+  variable: '--font-cormorant',
   display: 'swap',
 });
 
@@ -54,14 +55,14 @@ export async function generateMetadata({ params }) {
   const { lang } = await params;
   const brand = getDictionary(lang).common.brand;
   return {
-    title: { default: brand.metaTitle, template: '%s | LexBridge' },
+    title: { default: brand.metaTitle, template: '%s | LexBridge Consultants' },
     description: brand.metaDescription,
     alternates: { languages: Object.fromEntries(SUPPORTED_LOCALES.map((locale) => [LOCALE_TAGS[locale], `/${locale}`])) },
   };
 }
 
 export const viewport = {
-  themeColor: '#14171f',
+  themeColor: '#12141b',
   viewportFit: 'cover',
 };
 
@@ -73,7 +74,7 @@ export default async function RootLayout({ children, params }) {
   const primaryCta = getPrimaryCta(dictionary, features);
 
   return (
-    <html lang={LOCALE_TAGS[lang]} className={`${jakarta.variable} ${inter.variable} ${devanagari.variable} antialiased`}>
+    <html lang={LOCALE_TAGS[lang]} className={`${inter.variable} ${cormorant.variable} ${devanagari.variable} antialiased`}>
       <body className="flex min-h-screen flex-col">
         {/* Each language provider ships only its own dictionary to the browser */}
         <LocaleProvider locale={lang}>

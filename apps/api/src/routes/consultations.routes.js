@@ -3,9 +3,12 @@ import mongoose from 'mongoose';
 import { z } from 'zod';
 import { CANCELLATION_NOTICE_HOURS, CONSULTATION_MODE_KEYS, CONSULTATION_TYPE_KEYS, getIntakeFields, sanitizeIntakeDetails, SERVICE_CATEGORY_KEYS, SUPPORTED_LANGUAGE_KEYS } from '@lexbridge/shared';
 import { createRateLimiter, requireClient } from '../middleware/index.js';
-import { ConsultationModel, SlotModel, UserModel } from '../models/index.js';
+import { AvailabilityModel, ConsultationModel, SlotModel, UserModel } from '../models/index.js';
+import { CALENDLY_TOKEN } from '../config/index.js';
 import {
   CLIENT_CONSULTATION_FIELDS,
+  claimSlotSeat,
+  releaseSlotSeat,
   extractClientConsultation,
   notifyConsultationBooked,
   notifyConsultationCancelled,
@@ -46,6 +49,76 @@ const bookingSchema = z.object({
 
 export const consultationsRouter = Router();
 
+const CALENDLY_API_PREFIX = 'https://api.calendly.com/';
+const calendlyBookingSchema = bookingSchema.omit({ SlotId: true }).extend({
+  EventUri: z.string().startsWith(`${CALENDLY_API_PREFIX}scheduled_events/`).max(300),
+  InviteeUri: z.string().startsWith(`${CALENDLY_API_PREFIX}scheduled_events/`).max(400),
+});
+
+async function loadCalendlyResource(uri) {
+  const response = await fetch(uri, { headers: { Authorization: `Bearer ${CALENDLY_TOKEN}` } });
+  if (!response.ok) return null;
+  return (await response.json()).resource ?? null;
+}
+
+// Which booking flow the consultation page shows (built-in slots or the Calendly widget)
+consultationsRouter.get('/booking-provider', async (req, res) => {
+  const availability = await AvailabilityModel.findOne({ Key: 'default' }).select('Provider CalendlyUrl').lean();
+  const isCalendly = availability?.Provider === 'calendly' && Boolean(availability.CalendlyUrl);
+  res.json({ provider: isCalendly ? 'calendly' : 'builtin', calendlyUrl: isCalendly ? availability.CalendlyUrl : '' });
+});
+
+/*
+  Records a booking made in the embedded Calendly widget. The browser only reports Calendly's event and
+  invitee URIs; the time, status and invitee are read from the Calendly API with our token, so a client
+  can't forge a booking. Each invitee URI is recorded once (unique index).
+*/
+consultationsRouter.post('/calendly', requireClient, bookingLimiter, async (req, res) => {
+  if (!CALENDLY_TOKEN) return res.status(503).json({ error: 'Calendly booking is not configured yet.' });
+  const input = calendlyBookingSchema.parse(req.body);
+  const [event, invitee] = await Promise.all([loadCalendlyResource(input.EventUri), loadCalendlyResource(input.InviteeUri)]);
+  if (!event || !invitee || invitee.event !== input.EventUri || event.status !== 'active' || invitee.status !== 'active') {
+    return res.status(400).json({ error: 'We could not confirm that Calendly booking. Please try again.' });
+  }
+  const startsAt = new Date(event.start_time);
+  const durationMinutes = Math.max(10, Math.round((new Date(event.end_time) - startsAt) / 60000));
+  if (Number.isNaN(startsAt.getTime()) || startsAt.getTime() < Date.now()) {
+    return res.status(400).json({ error: 'That Calendly booking is in the past.' });
+  }
+
+  const existing = await ConsultationModel.findOne({ CalendlyInviteeUri: input.InviteeUri }).lean();
+  if (existing) return res.status(200).json({ consultation: extractClientConsultation(existing) });
+
+  const intakeSubtype = input.IntakeSubtype && getIntakeFields(input.IntakeSubtype) ? input.IntakeSubtype : '';
+  const intake = intakeSubtype ? sanitizeIntakeDetails(intakeSubtype, input.IntakeDetails) : { ok: true, details: {} };
+  if (!intake.ok) return res.status(400).json({ error: 'Some required topic details are missing.', details: intake.missing });
+
+  const now = new Date();
+  const consultation = await createWithUniqueReference('LC', (referenceCode) => ConsultationModel.create({
+    ReferenceCode: referenceCode,
+    Client: req.user.id,
+    CalendlyEventUri: input.EventUri,
+    CalendlyInviteeUri: input.InviteeUri,
+    ConsultationType: input.ConsultationType,
+    Mode: input.Mode,
+    StartsAt: startsAt,
+    DurationMinutes: durationMinutes,
+    Phone: input.Phone,
+    Description: input.Description,
+    IntakeCategory: input.IntakeCategory ?? '',
+    IntakeSubtype: intakeSubtype,
+    IntakeDetails: intake.details,
+    WhatsAppOptIn: input.WhatsAppOptIn,
+    PreferredLanguage: input.PreferredLanguage,
+    ConsentGiven: true,
+    consentedAt: now,
+  }));
+
+  const client = await UserModel.findById(req.user.id).select('FullName Email Phone').lean();
+  await notifyConsultationBooked(consultation, client);
+  res.status(201).json({ consultation: extractClientConsultation(consultation) });
+});
+
 consultationsRouter.get('/slots', async (req, res) => {
   const query = slotsQuerySchema.parse(req.query);
   const now = new Date();
@@ -75,12 +148,8 @@ consultationsRouter.post('/', requireClient, bookingLimiter, async (req, res) =>
   }
   const consultationId = new mongoose.Types.ObjectId();
 
-  // Atomic claim: only one booking can move an open slot to booked
-  const slot = await SlotModel.findOneAndUpdate(
-    { _id: input.SlotId, Status: 'open', StartsAt: { $gt: now } },
-    { $set: { Status: 'booked', Consultation: consultationId } },
-    { returnDocument: 'after' },
-  ).lean();
+  // Atomic seat claim: a time takes as many clients as lawyers are available, never more
+  const slot = await claimSlotSeat(input.SlotId, consultationId, now);
   if (!slot) {
     return res.status(409).json({ error: 'That time is no longer available. Please choose another slot.' });
   }
@@ -107,10 +176,7 @@ consultationsRouter.post('/', requireClient, bookingLimiter, async (req, res) =>
       consentedAt: now,
     }));
   } catch (err) {
-    await SlotModel.updateOne(
-      { _id: slot._id, Consultation: consultationId },
-      { $set: { Status: 'open', Consultation: null } },
-    );
+    await releaseSlotSeat(slot._id, consultationId);
     throw err;
   }
 

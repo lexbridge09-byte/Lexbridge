@@ -7,7 +7,7 @@ import { Container } from '@/components/ui';
 export async function generateMetadata({ params }) {
   const { lang } = await params;
   const title = getDictionary(lang).team.metadataTitle;
-  return { title: { default: title, template: `%s | LexBridge ${title}` }, robots: { index: false, follow: false } };
+  return { title: { default: title, template: `%s | LexBridge Consultants ${title}` }, robots: { index: false, follow: false } };
 }
 
 export default async function TeamLayout({ children, params }) {
@@ -30,7 +30,8 @@ export default async function TeamLayout({ children, params }) {
     <div className="flex min-h-[calc(100dvh-4rem)] flex-col bg-surface-alt md:flex-row">
       <OfficeSidebar label={copy.navLabel} links={links} />
       <div className="min-w-0 flex-1">
-        <Container className="py-4 lg:py-6">{children}</Container>
+        {/* Back office uses the full width: dense data, no centred column with empty sides */}
+        <Container size="full" className="py-4 lg:py-5">{children}</Container>
       </div>
     </div>
   );

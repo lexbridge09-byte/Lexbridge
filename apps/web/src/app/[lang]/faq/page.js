@@ -1,5 +1,6 @@
-import { getDictionary, getFaqItems, getPrimaryCta, getServerFeatures } from '@/brand';
-import { ButtonLink, FaqAccordion, PageHeader, Section } from '@/components/ui';
+import { getDictionary, getFaqItems, getServerFeatures } from '@/brand';
+import { FaqCenter } from '@/components/faqCenter';
+import { Container, PageHero, Reveal } from '@/components/ui';
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -10,24 +11,17 @@ export default async function FaqPage({ params }) {
   const { lang } = await params;
   const dictionary = getDictionary(lang);
   const features = await getServerFeatures();
-  const primaryCta = getPrimaryCta(dictionary, features);
+  const faq = dictionary.faq;
 
   return (
     <>
-      <PageHeader
-        title={dictionary.faq.header.title}
-        lead={dictionary.faq.header.lead}
-        actions={
-          <ButtonLink href={primaryCta.href} variant="onDark">
-            {primaryCta.label}
-          </ButtonLink>
-        }
-      />
-      <Section tone="alt" size="sm">
-        <div className="mx-auto max-w-3xl">
-          <FaqAccordion items={getFaqItems(dictionary, lang, features)} />
-        </div>
-      </Section>
+      <PageHero title={faq.header.title} />
+
+      <Container className="py-8 lg:py-10">
+        <Reveal>
+          <FaqCenter items={getFaqItems(dictionary, lang, features)} copy={faq.center} />
+        </Reveal>
+      </Container>
     </>
   );
 }

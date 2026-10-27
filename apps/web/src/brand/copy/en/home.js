@@ -3,7 +3,7 @@ export const home = {
     eyebrow: 'Legal services for India',
     title: 'Get clear legal help today',
     subtitle: 'Talk to a qualified legal professional by phone or video. See the fee before you pay.',
-    trustLabel: 'Why LexBridge',
+    trustLabel: 'Why LexBridge Consultants',
     trust: {
       qualified: 'Qualified professionals',
       confidential: 'Private & secure',
@@ -67,7 +67,7 @@ export const home = {
   },
 
   trust: {
-    title: 'Why people choose LexBridge',
+    title: 'Why people choose LexBridge Consultants',
     items: [
       { icon: 'qualified', title: 'Qualified professionals', description: 'Your matter goes to a professional who handles this kind of case.' },
       { icon: 'confidential', title: 'Private and secure', description: 'Your details and files are used only for your matter.' },
@@ -86,7 +86,7 @@ export const home = {
   },
 
   stats: {
-    label: 'LexBridge in numbers',
+    label: 'LexBridge Consultants in numbers',
     requestsResolved: 'Requests resolved',
     consultationsCompleted: 'Consultations completed',
     documentsReviewed: 'Documents reviewed',
@@ -99,5 +99,9 @@ export const home = {
   faq: {
     title: 'Common questions',
     viewAll: 'View all questions',
+    description: 'Quick answers before you book.',
+    helpTitle: 'Still have a question?',
+    helpBody: 'Ask us directly. A real person replies.',
+    answerLabel: 'Answer',
   },
 };

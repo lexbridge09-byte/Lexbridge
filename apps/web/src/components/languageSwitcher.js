@@ -13,7 +13,9 @@ function rememberLocale(targetLocale) {
 }
 
 // Two options only, always visible (Hick's law): keeps the current page and remembers the choice
-export function LanguageSwitcher({ label, surface = 'dark', className = '' }) {
+const SHORT_LABELS = { en: 'EN', hi: 'हि' };
+
+export function LanguageSwitcher({ label, surface = 'dark', isCompact = false, className = '' }) {
   const locale = useLocale();
   const pathWithoutLocale = stripLocale(usePathname() ?? '/');
 
@@ -31,9 +33,9 @@ export function LanguageSwitcher({ label, surface = 'dark', className = '' }) {
             onClick={() => rememberLocale(targetLocale)}
             // Stay at the same place on the page when switching language
             scroll={false}
-            className={`inline-flex min-h-9 min-w-14 items-center justify-center rounded-lg px-2.5 py-2 text-center text-xs font-semibold transition-colors duration-(--dur-150) ${isCurrent ? 'bg-card-hover text-ink shadow-sm' : surface === 'light' ? 'text-ink-muted hover:bg-card hover:text-ink' : 'text-on-canvas-muted hover:bg-canvas-alt hover:text-on-canvas'}`}
+            className={`inline-flex min-h-9 ${isCompact ? 'min-w-9 px-2' : 'min-w-14 px-2.5'} items-center justify-center rounded-lg py-2 text-center text-xs font-semibold transition-colors duration-(--dur-150) ${isCurrent ? 'bg-card-hover text-ink shadow-sm' : surface === 'light' ? 'text-ink-muted hover:bg-card hover:text-ink' : 'text-on-canvas-muted hover:bg-canvas-alt hover:text-on-canvas'}`}
           >
-            {LOCALE_LABELS[targetLocale]}
+            {isCompact ? (SHORT_LABELS[targetLocale] ?? LOCALE_LABELS[targetLocale]) : LOCALE_LABELS[targetLocale]}
           </Link>
         );
       })}

@@ -4,6 +4,7 @@ import { ORDER_STATUSES } from '@lexbridge/shared';
 import { useState } from 'react';
 import { useDictionary } from '@/brand/localeContext';
 import { buildAdminQuery } from '@/components/admin/adminRequests';
+import { Select } from '@/components/selectMenu';
 import {
   ADMIN_CONTROL_CLASS,
   ADMIN_LINK_CLASS,
@@ -48,14 +49,14 @@ export function AdminOrders({ initialStatus = '' }) {
 
       <form onSubmit={handleFilterSubmit} className="mb-4 grid gap-3 rounded-card border border-line bg-card p-4 sm:grid-cols-[12rem_1fr_auto] sm:items-end">
         <AdminField id="order-status-filter" label={common.status}>
-          <select id="order-status-filter" name="status" defaultValue={filters.status} className={ADMIN_CONTROL_CLASS}>
+          <Select id="order-status-filter" name="status" defaultValue={filters.status} className={ADMIN_CONTROL_CLASS}>
             <option value="">{common.allStatuses}</option>
             {ORDER_STATUSES.map((status) => (
               <option key={status} value={status}>
                 {labels.orderStatus(status)}
               </option>
             ))}
-          </select>
+          </Select>
         </AdminField>
         <AdminField id="order-q" label={common.search}>
           <input id="order-q" name="q" type="search" defaultValue={filters.q} placeholder={copy.searchPlaceholder} className={ADMIN_CONTROL_CLASS} />

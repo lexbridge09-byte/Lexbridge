@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { getIntakeFields, getIntakeSubtypes } from '@lexbridge/shared';
 import { createElement, useRef, useState } from 'react';
 import { useDictionary, useLocale } from '@/brand/localeContext';
-import { CheckboxField, FieldError, SelectField, TextAreaField, TextField } from '@/components/formFields';
+import { CheckboxField, FieldError, SelectField, TextAreaField, TextField, revealFormTop, STICKY_FORM_ACTIONS_CLASS } from '@/components/formFields';
 import { LocaleLink } from '@/components/localeLink';
 import { Button, InlineAlert, StepIndicator } from '@/components/ui';
 import { WhatsAppOptInField } from '@/components/whatsAppOptInField';
@@ -127,6 +127,7 @@ export function ServiceRequestForm({
   function goToStep(nextStep, fieldToFocus) {
     setStepDirection(nextStep >= step ? 'forward' : 'back');
     setStep(nextStep);
+    revealFormTop(formRef.current);
     // Focus after the step becomes visible: the first invalid field, otherwise the step announcement
     requestAnimationFrame(() => {
       const target = fieldToFocus ? formRef.current?.elements.namedItem(fieldToFocus) : stepStatusRef.current;
@@ -255,7 +256,7 @@ export function ServiceRequestForm({
         {copy.stepStatus(step, stepNames.length, stepNames[step - 1])}
       </p>
 
-      <div hidden={step !== MATTER_STEP} className={`space-y-4 motion-safe:${stepDirection === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}>
+      <div hidden={step !== MATTER_STEP} className={`space-y-4 ${stepDirection === 'back' ? 'motion-safe:animate-slide-in-left' : 'motion-safe:animate-slide-in-right'}`}>
         {!isCategoryLocked && (
           <SelectField
             label={copy.service}
@@ -293,12 +294,14 @@ export function ServiceRequestForm({
           required
           error={fieldErrors.Description}
         />
+        <div className={STICKY_FORM_ACTIONS_CLASS}>
         <Button type="button" onClick={continueToDetails} className="w-full sm:w-auto sm:min-w-40">
           {copy.continue}
         </Button>
+        </div>
       </div>
 
-      <div hidden={step !== DETAILS_STEP} className={`space-y-4 motion-safe:${stepDirection === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}>
+      <div hidden={step !== DETAILS_STEP} className={`space-y-4 ${stepDirection === 'back' ? 'motion-safe:animate-slide-in-left' : 'motion-safe:animate-slide-in-right'}`}>
         <TextField label={copy.fullName} name="FullName" autoComplete="name" required error={fieldErrors.FullName} />
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField label={copy.email} name="Email" type="email" autoComplete="email" required error={fieldErrors.Email} />
@@ -325,13 +328,13 @@ export function ServiceRequestForm({
 
         {formError && Object.keys(fieldErrors).length === 0 && <InlineAlert tone="error">{formError}</InlineAlert>}
 
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
+        <div className={`${STICKY_FORM_ACTIONS_CLASS} flex flex-col-reverse gap-3 sm:flex-row sm:items-center`}>
           <Button type="button" variant="ghost" onClick={() => goToStep(MATTER_STEP)} className="sm:mr-auto">
             <ArrowLeft aria-hidden="true" className="size-4" strokeWidth={2} />
             {copy.back}
           </Button>
-          <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto sm:min-w-40">
-            {isSubmitting ? copy.submitting : (submitLabel ?? copy.submit)}
+          <Button isLoading={isSubmitting} type="submit" disabled={isSubmitting} className="w-full sm:w-auto sm:min-w-40">
+            {(submitLabel ?? copy.submit)}
           </Button>
         </div>
       </div>

@@ -1,44 +1,59 @@
-import { getDictionary, getFaqItems, getServerFeatures, requireFeaturePage } from '@/brand';
+import { ArrowRight, FileText, ListChecks, MessageCircleQuestion, ShieldAlert } from 'lucide-react';
+import { getDictionary, requireFeaturePage } from '@/brand';
 import { DocumentReviewDropzone } from '@/components/documentReview/documentReviewDropzone';
-import { Card, FaqAccordion, TaskHelp, TaskPage } from '@/components/ui';
+import { LocaleLink } from '@/components/localeLink';
+import { RailCard, TaskPage } from '@/components/ui';
+
+// Icon per report section (keys come from documentReview.landing.outputs.items[].icon)
+const OUTPUT_ICONS = { summary: FileText, contract: ListChecks, risk: ShieldAlert, lawyer: MessageCircleQuestion };
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
   return getDictionary(lang).documentReview.landing.metadata;
 }
 
+// Tool page: the upload flow is the page; what you get and help live in the side rail
 export default async function DocumentReviewPage({ params }) {
   await requireFeaturePage('aiDocumentReview');
   const { lang } = await params;
   const dictionary = getDictionary(lang);
-  const features = await getServerFeatures();
   const copy = dictionary.documentReview.landing;
-  const faqItems = getFaqItems(dictionary, lang, features, { ids: copy.faq.ids });
+  const nav = dictionary.common.nav;
+
+  const rail = (
+    <>
+      <RailCard title={copy.outputs.title} tip={copy.outputs.description}>
+        <ul className="space-y-3">
+          {copy.outputs.items.map((item) => {
+            const Icon = OUTPUT_ICONS[item.icon] ?? FileText;
+            return (
+              <li key={item.title} className="flex gap-2.5">
+                <Icon aria-hidden="true" className="mt-1 size-4 shrink-0 text-primary-bright" strokeWidth={1.75} />
+                <span>
+                  <span className="block font-semibold text-on-canvas">{item.title}</span>
+                  <span className="block text-xs leading-5">{item.description}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </RailCard>
+      <RailCard title={copy.documents.title} tip={copy.documents.description}>
+        <p className="text-xs leading-5 text-on-canvas">{copy.documents.items.join(' · ')}</p>
+      </RailCard>
+      <RailCard title={nav.needHelp}>
+        <p className="text-xs leading-5">{copy.disclaimer}</p>
+        <LocaleLink href="/faq" className="group mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary-bright">
+          {nav.faq}
+          <ArrowRight aria-hidden="true" className="size-3.5 transition-transform duration-(--dur-150) group-hover:translate-x-0.5" strokeWidth={2} />
+        </LocaleLink>
+      </RailCard>
+    </>
+  );
 
   return (
-    <TaskPage title={copy.header.title} lead={copy.header.lead}>
-      <p className="mb-4 border-l-2 border-primary pl-3 text-sm text-on-canvas-muted">{copy.disclaimer}</p>
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <DocumentReviewDropzone />
-        <Card as="aside" aria-labelledby="review-outputs-title">
-          <h2 id="review-outputs-title" className="text-h4 text-ink">{copy.outputs.title}</h2>
-          <ul className="mt-3 divide-y divide-line">
-            {copy.outputs.items.map((item) => (
-              <li key={item.title} className="py-3 first:pt-0 last:pb-0">
-                <h3 className="text-sm font-semibold text-ink">{item.title}</h3>
-                <p className="mt-1 text-sm leading-6 text-ink-muted">{item.description}</p>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      </div>
-      <TaskHelp title={copy.documents.title}>
-        <p>{copy.documents.description}</p>
-        <ul className="grid list-inside list-disc gap-2 sm:grid-cols-2">
-          {copy.documents.items.map((name) => <li key={name}>{name}</li>)}
-        </ul>
-      </TaskHelp>
-      {faqItems.length > 0 && <TaskHelp title={copy.faq.title}><FaqAccordion items={faqItems} isFirstOpen={false} /></TaskHelp>}
+    <TaskPage title={copy.metadata.title} rail={rail}>
+      <DocumentReviewDropzone />
     </TaskPage>
   );
 }

@@ -1,9 +1,35 @@
 import { CircleAlert } from 'lucide-react';
+import { InfoTip } from '@/components/infoTip';
+import { SelectMenu } from '@/components/selectMenu';
 
 // Visual states (hover, focus ring, error, disabled, custom select chevron) live in globals.css (.control)
 const CONTROL_CLASS = 'control mt-1.5';
+
+// Multi-step form actions stay pinned at the bottom of the viewport so Continue/Back never need a scroll.
+// Tool pages hide the mobile tab bar, so the bar sits flush at the bottom. On short viewports (zoomed in, small laptops) a pinned bar would cover
+// the fields, so there it sits in the normal flow at the end of the step instead.
+export const STICKY_FORM_ACTIONS_CLASS =
+  'sticky bottom-0 z-10 -mx-5 border-t border-line bg-card px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 sm:-mx-7 sm:px-7 [@media(max-height:640px)]:static [@media(max-height:640px)]:border-t-0';
+
+// Bring the top of a form back into view when its step changes (only if it has scrolled off)
+export function revealFormTop(element) {
+  if (!element) return;
+  const top = element.getBoundingClientRect().top;
+  if (top < 80) element.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+}
 const LABEL_CLASS = 'block text-sm font-semibold text-ink';
-const HINT_CLASS = 'mt-0.5 text-sm text-ink-muted';
+
+// Label with an optional "?" tip: hints stay out of the layout until asked for
+function FieldLabel({ htmlFor, label, hint, hintId }) {
+  return (
+    <span className="flex items-center gap-1.5">
+      <label htmlFor={htmlFor} className={LABEL_CLASS}>
+        {label}
+      </label>
+      {hint && <InfoTip id={hintId}>{hint}</InfoTip>}
+    </span>
+  );
+}
 
 function deriveDescribedBy(hintId, errorId, error) {
   return [hintId, error ? errorId : null].filter(Boolean).join(' ') || undefined;
@@ -36,14 +62,7 @@ export function TextField({ id, label, name, error, hint, prefix, className = ''
   );
   return (
     <div className={`min-w-0 ${className}`}>
-      <label htmlFor={fieldId} className={LABEL_CLASS}>
-        {label}
-      </label>
-      {hint && (
-        <p id={hintId} className={HINT_CLASS}>
-          {hint}
-        </p>
-      )}
+      <FieldLabel htmlFor={fieldId} label={label} hint={hint} hintId={hintId} />
       {prefix ? (
         <div className="relative">
           {input}
@@ -65,14 +84,7 @@ export function TextAreaField({ id, label, name, error, hint, className = '', ..
   const hintId = hint ? `${fieldId}-hint` : undefined;
   return (
     <div className={`min-w-0 ${className}`}>
-      <label htmlFor={fieldId} className={LABEL_CLASS}>
-        {label}
-      </label>
-      {hint && (
-        <p id={hintId} className={HINT_CLASS}>
-          {hint}
-        </p>
-      )}
+      <FieldLabel htmlFor={fieldId} label={label} hint={hint} hintId={hintId} />
       <textarea
         id={fieldId}
         name={name}
@@ -86,29 +98,30 @@ export function TextAreaField({ id, label, name, error, hint, className = '', ..
   );
 }
 
-export function SelectField({ id, label, name, error, options, placeholder, className = '', ...selectProps }) {
+// Styled dropdown (SelectMenu) with the same props as a native <select>
+export function SelectField({ id, label, name, error, options, placeholder, className = '', value, defaultValue, onChange, disabled, required }) {
   const fieldId = id ?? name;
   const errorId = `${fieldId}-error`;
+  const labelId = `${fieldId}-label`;
   return (
     <div className={`min-w-0 ${className}`}>
-      <label htmlFor={fieldId} className={LABEL_CLASS}>
+      <label id={labelId} htmlFor={fieldId} className={LABEL_CLASS}>
         {label}
       </label>
-      <select
+      <SelectMenu
         id={fieldId}
         name={name}
-        aria-invalid={Boolean(error)}
-        aria-describedby={error ? errorId : undefined}
-        className={CONTROL_CLASS}
-        {...selectProps}
-      >
-        {placeholder && <option value="">{placeholder}</option>}
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        labelId={labelId}
+        options={options}
+        placeholder={placeholder}
+        value={value}
+        defaultValue={defaultValue}
+        onChange={onChange}
+        disabled={disabled}
+        required={required}
+        invalid={Boolean(error)}
+        describedBy={error ? errorId : undefined}
+      />
       <FieldError id={errorId} message={error} />
     </div>
   );

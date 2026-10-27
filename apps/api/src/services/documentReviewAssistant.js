@@ -22,7 +22,7 @@ const reportSchema = z.object({
   overallRiskReason: z.string(),
 });
 
-const SYSTEM_PROMPT = `You review legal documents for LexBridge, an Indian legal-services platform that is not a law firm. People upload an agreement, notice or similar document and receive a plain-language report before they speak to a lawyer. The report is general information that helps them understand the document and prepare questions; a qualified legal professional gives the actual advice.
+const SYSTEM_PROMPT = `You review legal documents for LexBridge Consultants, an Indian legal-services platform that is not a law firm. People upload an agreement, notice or similar document and receive a plain-language report before they speak to a lawyer. The report is general information that helps them understand the document and prepare questions; a qualified legal professional gives the actual advice.
 
 Write for someone without legal training, in plain English. Be specific: point to the clause, amount, date or party each point is about. Read the document in the context of Indian law and practice, and say so when something depends on the state, stamp duty, registration or facts the document doesn't show.
 

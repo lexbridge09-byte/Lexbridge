@@ -8,7 +8,12 @@ import { BrandLogo } from '@/components/brandLogo';
 import { useIsFeatureEnabled } from '@/components/featuresProvider';
 import { LanguageSwitcher } from '@/components/languageSwitcher';
 import { LocaleLink } from '@/components/localeLink';
-import { isFocusedTaskPath, isLoginPath } from '@/lib/chromeRoutes';
+import { isFocusedTaskPath, isLoginPath, isToolPath } from '@/lib/chromeRoutes';
+
+// Hides marketing extras (footer call-to-action band, wordmark) on tool pages
+export function HideOnTool({ children }) {
+  return isToolPath(usePathname()) ? null : children;
+}
 
 export function HideOnTask({ children }) {
   return isFocusedTaskPath(usePathname()) ? null : children;
@@ -21,7 +26,7 @@ export function TaskHeader() {
   if (!isFocusedTaskPath(pathname)) return null;
   return (
     <header className="border-b border-line-canvas bg-canvas">
-      <div className="mx-auto flex min-h-16 max-w-5xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 sm:px-6">
+      <div className="flex min-h-16 w-full flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 sm:px-6 lg:px-8">
         <LocaleLink href="/" aria-label={common.homeLinkLabel} className="shrink-0 rounded-control"><BrandLogo isCompact /></LocaleLink>
         <div className="ml-auto flex items-center gap-2">
           <LanguageSwitcher label={common.language.label} />

@@ -16,7 +16,7 @@ const creditGrantSchema = new mongoose.Schema(
   { _id: false },
 );
 
-// One document per WhatsApp number that has messaged LexBridge
+// One document per WhatsApp number that has messaged LexBridge Consultants
 const whatsAppContactSchema = new mongoose.Schema(
   {
     // E.164 digits without '+', exactly as WhatsApp sends them (wa_id)

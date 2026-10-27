@@ -1,17 +1,32 @@
 export const faq = {
   metadata: {
     title: 'सवाल-जवाब',
-    description: 'LexBridge के बारे में आम सवालों के जवाब।',
+    description: 'LexBridge Consultants के बारे में आम सवालों के जवाब।',
   },
   header: {
     title: 'अक्सर पूछे जाने वाले सवाल',
     lead: 'शुरू करने से पहले जल्दी जवाब।',
   },
 
+  center: {
+    searchLabel: 'सवाल खोजें',
+    searchPlaceholder: 'खोजें, जैसे “फ़ीस” या “WhatsApp”',
+    allTopics: 'सभी',
+    topics: { basics: 'शुरुआत', booking: 'बुकिंग और ट्रैकिंग', privacy: 'गोपनीयता' },
+    countAll: '{total} सवाल',
+    countSome: '{total} में से {shown} सवाल',
+    emptyTitle: 'कोई मेल नहीं मिला',
+    emptyBody: 'कोई दूसरा शब्द आज़माएँ, या हमसे सीधे पूछें।',
+    clear: 'खोज साफ़ करें',
+    askTitle: 'जवाब नहीं मिला?',
+    askBody: 'हमें लिखें। असली व्यक्ति जवाब देगा, अक्सर उसी दिन।',
+    askCta: 'संपर्क करें',
+  },
+
   items: [
     {
       id: 'law-firm',
-      question: 'क्या LexBridge एक लॉ फ़र्म है?',
+      question: 'क्या LexBridge Consultants एक लॉ फ़र्म है?',
       answer: 'नहीं। हम एक कानूनी सेवा प्लेटफ़ॉर्म हैं। सलाह और पैरवी योग्य विशेषज्ञ करते हैं।',
     },
     {
@@ -46,7 +61,7 @@ export const faq = {
       id: 'progress',
       feature: 'clientAccounts',
       question: 'अपने अनुरोध की स्थिति कैसे देखूँ?',
-      answer: 'उसी ईमेल से My LexBridge में साइन इन करें और स्थिति व अपडेट देखें।',
+      answer: 'उसी ईमेल से My LexBridge Consultants में साइन इन करें और स्थिति व अपडेट देखें।',
     },
   ],
 };

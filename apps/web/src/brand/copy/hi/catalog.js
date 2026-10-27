@@ -13,6 +13,7 @@ export const catalog = {
   requestStatuses: {
     submitted: 'भेजा गया',
     'under-review': 'जाँच में',
+    assigned: 'सौंपा गया',
     'in-progress': 'काम जारी',
     'awaiting-client': 'आपके जवाब का इंतज़ार',
     completed: 'पूरा हुआ',

@@ -11,6 +11,13 @@ const require = createRequire(import.meta.url);
 const { transformSync } = require('next/dist/build/swc');
 let checkCount = 0;
 
+// motion/react under the hook harness: motion.div → 'div', presence is a passthrough, motion is reduced
+const MOTION_MOCK = {
+  motion: new Proxy({}, { get: (_target, tag) => tag }),
+  AnimatePresence: 'AnimatePresence',
+  useReducedMotion: () => true,
+};
+
 function loadSource(relativePath, mocks = {}, globals = {}) {
   const filename = new URL(`../src/${relativePath}`, import.meta.url);
   const source = process.argv.includes('--baseline')
@@ -346,7 +353,7 @@ pass('service-request step labels use the light-surface text palette');
   const uploads = [];
   const destinations = [];
   const input = { value: 'selected.pdf' };
-  const copy = { hint: () => 'PDF only', trust: () => 'Private', tooLarge: () => 'Too large', wrongType: 'Choose PDF' };
+  const copy = { hint: () => 'PDF only', trust: () => 'Private', tooLarge: () => 'Too large', wrongType: 'Choose PDF', steps: ['Choose PDF', 'About it', 'Review'], uploadingPercent: () => 'Uploading' };
   const { DocumentReviewDropzone } = loadSource('components/documentReview/documentReviewDropzone.js', {
     react: hooks.react,
     '@lexbridge/shared': { DOCUMENT_MAX_BYTES: 1000, getIntakeFields: () => [] },
@@ -365,6 +372,7 @@ pass('service-request step labels use the light-surface text palette');
     '@/lib/safeRedirect': { deriveLoginHref: () => '/en/login' },
     '@/lib/session': { useSession: () => ({ status: 'signedIn' }) },
     '@/lib/uploadClient': { uploadApiFile: (_path, form) => { uploads.push(form.entries); return upload.promise; } },
+    'motion/react': MOTION_MOCK,
   }, { FormData: class { entries = []; append(key, value) { this.entries.push([key, value]); } } });
   const render = () => hooks.render(() => DocumentReviewDropzone({ allowance: { remaining: 3, limit: 3 } }), (tree) => {
     findNode(tree, (node) => node.type === 'input').props.ref.current = input;
@@ -373,19 +381,21 @@ pass('service-request step labels use the light-surface text palette');
   await findNode(tree, (node) => node.type === 'input').props.onChange({ target: { files: [{ name: 'notes.txt', type: 'text/plain', size: 10 }] } });
   assert.equal(input.value, '');
   assert.equal(uploads.length, 0);
+  // A valid PDF is held until the form is submitted; a double submit must upload once
   tree = render();
-  const onChange = findNode(tree, (node) => node.type === 'input').props.onChange;
-  const event = { target: { files: [{ name: 'agreement.pdf', type: 'application/pdf', size: 10 }] } };
-  const firstUpload = onChange(event);
-  await onChange(event);
+  findNode(tree, (node) => node.type === 'input').props.onChange({ target: { files: [{ name: 'agreement.pdf', type: 'application/pdf', size: 10 }] } });
+  assert.equal(uploads.length, 0, 'choosing a file does not upload yet');
+  const onSubmit = findNode(render(), (node) => node.type === 'form').props.onSubmit;
+  const submitEvent = { preventDefault() {} };
+  const firstUpload = onSubmit(submitEvent);
+  await onSubmit(submitEvent);
   assert.equal(uploads.length, 1);
   assert.deepEqual(uploads[0].map(([key]) => key), ['IntakeSubtype', 'IntakeDetails', 'file']);
   upload.resolve({ review: { ReferenceCode: 'REVIEW-TEST' } });
   await firstUpload;
   assert.deepEqual(destinations, ['/en/dashboard/document-reviews/REVIEW-TEST']);
-  assert.equal(findNode(render(), (node) => node.type === 'fieldset').props.disabled, false);
   hooks.unmount();
-  pass('document review allows same-file retries, prevents duplicate uploads and sends intake metadata before file');
+  pass('document review rejects wrong types for retry, uploads once on double submit and sends intake metadata before the file');
 }
 
 // Do not cancel a slow review request by polling again before its response arrives.
@@ -441,12 +451,15 @@ pass('service-request step labels use the light-surface text palette');
 {
   const flowHelpers = loadSource('lib/consultationSlots.js');
   const base = { step: 1, hasChoice: true, selectedSlot: null, isLoaded: true, error: '', slotCount: 0 };
-  assert.equal(flowHelpers.deriveConsultationFlow(base).nextStep, 3);
-  assert.equal(flowHelpers.deriveConsultationFlow({ ...base, step: 3 }).currentStep, 2);
+  // Steps: 1 choice, 2 matter, 3 time, 4 details. The request flow (no open times) skips time.
+  assert.equal(flowHelpers.deriveConsultationFlow(base).nextStep, 2);
+  assert.equal(flowHelpers.deriveConsultationFlow({ ...base, step: 2 }).nextStep, 4);
+  assert.equal(flowHelpers.deriveConsultationFlow({ ...base, step: 4 }).currentStep, 3);
+  assert.equal(flowHelpers.deriveConsultationFlow({ ...base, step: 3 }).activeStep, 4);
   assert.equal(flowHelpers.deriveConsultationFlow({ ...base, isLoaded: false }).isRequestFlow, false);
   assert.equal(flowHelpers.deriveConsultationFlow({ ...base, error: 'Offline' }).isAvailabilityReady, false);
-  assert.equal(flowHelpers.deriveConsultationFlow({ ...base, slotCount: 1 }).nextStep, 2);
-  assert.equal(flowHelpers.deriveConsultationFlow({ ...base, step: 3, slotCount: 1 }).activeStep, 2);
+  assert.equal(flowHelpers.deriveConsultationFlow({ ...base, step: 2, slotCount: 1 }).nextStep, 3);
+  assert.equal(flowHelpers.deriveConsultationFlow({ ...base, step: 4, slotCount: 1 }).activeStep, 3);
 
   const shared = require('@lexbridge/shared');
   const { consultation } = loadSource('brand/copy/en/consultation.js');
@@ -466,9 +479,12 @@ pass('service-request step labels use the light-surface text palette');
     const { ConsultationBooking } = loadSource('components/consultationBooking.js', {
       react: hooks.react,
       '@/brand/localeContext': { useDictionary: () => dictionary, useLocale: () => 'en' },
-      '@/components/formFields': { CheckboxField: 'CheckboxField', FieldError: 'FieldError', SelectField: 'SelectField', TextAreaField: 'TextAreaField', TextField: 'TextField' },
+      '@/components/formFields': { CheckboxField: 'CheckboxField', FieldError: 'FieldError', SelectField: 'SelectField', TextAreaField: 'TextAreaField', TextField: 'TextField', revealFormTop() {}, STICKY_FORM_ACTIONS_CLASS: '' },
       '@/components/localeLink': { LocaleLink: 'LocaleLink' },
-      '@/components/ui': { Button: 'Button', ButtonLink: 'ButtonLink', Card: 'Card', InlineAlert: 'InlineAlert', SkeletonList: 'SkeletonList', StepIndicator: 'StepIndicator' },
+      '@/components/ui': { Button: 'Button', ButtonLink: 'ButtonLink', Card: 'Card', FormSheet: 'FormSheet', InlineAlert: 'InlineAlert', SkeletonList: 'SkeletonList' },
+      'motion/react': MOTION_MOCK,
+      '@/components/infoTip': { InfoTip: 'InfoTip' },
+      '@/components/calendlyEmbed': { CalendlyEmbed: 'CalendlyEmbed' },
       '@/components/whatsAppOptInField': { WhatsAppOptInField: 'WhatsAppOptInField' },
       '@/components/featuresProvider': { useIsFeatureEnabled: () => true },
       '@/lib/apiErrors': { localizeApiError: (error) => error.message, localizeFieldErrors: () => ({}) },
@@ -498,6 +514,7 @@ pass('service-request step labels use the light-surface text palette');
     }, {
       window: { sessionStorage: { getItem: () => null, removeItem() {}, setItem() {} }, scrollTo() {}, matchMedia: () => ({ matches: true }), location: { assign() { throw new Error('Unexpected sign-in redirect'); } } },
       requestAnimationFrame: (callback) => callback(),
+      document: { getElementById: () => null },
     });
     const render = () => hooks.render(() => ConsultationBooking());
     const change = (name, value) => {
@@ -509,19 +526,24 @@ pass('service-request step labels use the light-surface text palette');
     return { hooks, render, change, submit, calls, availability };
   }
 
+  const wizard = consultation.wizard;
+  const stepTitle = (tree) => findNode(tree, (node) => node.type === 'h2' && Object.values(wizard.titles).includes(node.props.children))?.props.children;
+  const hasText = (tree, text) => Boolean(findNode(tree, (node) => [].concat(node.props?.children).includes(text)));
+
   const request = createBookingScenario({ isDeferred: true });
   let tree = request.render();
   assert.equal(findNode(tree, (node) => node.type === 'Button' && node.props.type === 'submit').props.disabled, true);
-  assert.equal(findNode(tree, (node) => node.type === 'StepIndicator'), null);
   request.availability.resolve({ slots: [] });
   await flush();
   tree = request.render();
-  assert.ok(findNode(tree, (node) => node.props?.title === consultation.request.noticeTitle));
-  assert.deepEqual(findNode(tree, (node) => node.type === 'StepIndicator').props.steps, consultation.request.steps);
+  assert.equal(stepTitle(tree), wizard.titles.choice);
+  assert.ok(hasText(tree, consultation.request.noticeTitle), 'no-slot notice is shown on the first step');
   request.change('ConsultationType', shared.CONSULTATION_TYPES[0].key);
   request.change('Mode', shared.CONSULTATION_MODES[0].key);
   await request.submit();
-  assert.equal(findNode(request.render(), (node) => node.type === 'StepIndicator').props.current, 2);
+  assert.equal(stepTitle(request.render()), wizard.titles.matter);
+  await request.submit();
+  assert.equal(stepTitle(request.render()), wizard.titles.details, 'request flow skips the time step');
   await request.submit();
   assert.equal(request.calls.length, 0, 'missing details must not submit');
   request.change('FullName', 'Test Client');
@@ -544,7 +566,7 @@ pass('service-request step labels use the light-surface text palette');
   await flush();
   tree = failed.render();
   assert.ok(findNode(tree, (node) => node.props?.title === consultation.slots.errorTitle));
-  assert.equal(findNode(tree, (node) => node.props?.title === consultation.request.noticeTitle), null);
+  assert.equal(hasText(tree, consultation.request.noticeTitle), false);
   assert.equal(findNode(tree, (node) => node.type === 'Button' && node.props.type === 'submit').props.disabled, true);
   failed.hooks.unmount();
   pass('failed availability checks show retry, not a misleading no-slots request flow');
@@ -554,10 +576,12 @@ pass('service-request step labels use the light-surface text palette');
     booking.render();
     await flush();
     tree = booking.render(); // Also executes actual IST date grouping (previously a missing import).
-    assert.equal(findNode(tree, (node) => node.type === 'StepIndicator').props.steps.length, 3);
+    assert.equal(stepTitle(tree), wizard.titles.choice);
     booking.change('ConsultationType', shared.CONSULTATION_TYPES[0].key);
     booking.change('Mode', shared.CONSULTATION_MODES[0].key);
     await booking.submit();
+    await booking.submit();
+    assert.equal(stepTitle(booking.render()), wizard.titles.time);
     booking.change('SlotId', slot._id);
     await booking.submit();
     booking.change('Description', 'Please discuss my rental agreement next week.');
@@ -569,7 +593,7 @@ pass('service-request step labels use the light-surface text palette');
       booking.render();
       await flush();
       tree = booking.render();
-      assert.equal(findNode(tree, (node) => node.type === 'StepIndicator').props.steps.length, 2);
+      assert.equal(stepTitle(tree), wizard.titles.details, 'a lost slot lands on the request details step');
       assert.equal(findNode(tree, (node) => node.props?.name === 'Description').props.value, 'Please discuss my rental agreement next week.');
       await booking.submit();
       assert.equal(booking.calls[1].path, '/service-requests');
@@ -603,7 +627,15 @@ pass('service-request step labels use the light-surface text palette');
     addEventListener(name, callback) { listeners[name] = callback; },
     removeEventListener(name) { delete listeners[name]; },
   };
-  const createMenu = () => ({ open: true, contains: (target) => target === 'inside', querySelector: () => ({ focus() { focusCount += 1; } }) });
+  // Targets: the visible panel, the empty full-width layer around it (inside <details> but not the panel), and the page
+  const panelTarget = { closest: (selector) => (selector === '[data-nav-panel]' ? {} : null) };
+  const layerTarget = { closest: () => null };
+  const outsideTarget = { closest: () => null };
+  const createMenu = () => ({
+    open: true,
+    contains: (target) => target === panelTarget || target === layerTarget,
+    querySelector: () => ({ focus() { focusCount += 1; }, contains: () => false }),
+  });
   let menu = createMenu();
   const { NavigationDisclosure } = loadSource('components/navigationDisclosure.js', {
     react: hooks.react,
@@ -613,8 +645,11 @@ pass('service-request step labels use the light-surface text palette');
   let tree = render();
   assert.equal(tree.type, 'details');
   assert.equal(tree.props.name, 'primary-navigation');
-  listeners.pointerdown({ target: 'inside' });
+  listeners.pointerdown({ target: panelTarget });
   assert.equal(menu.open, true);
+  listeners.pointerdown({ target: layerTarget });
+  assert.equal(menu.open, false, 'a click beside the panel (on its positioning layer) closes the menu');
+  menu.open = true;
   listeners.keydown({ key: 'Escape' });
   assert.equal(menu.open, false);
   assert.equal(focusCount, 1);
@@ -622,7 +657,7 @@ pass('service-request step labels use the light-surface text palette');
   menu = createMenu();
   tree = render();
   assert.equal(tree.key, pathname);
-  listeners.pointerdown({ target: 'outside' });
+  listeners.pointerdown({ target: outsideTarget });
   assert.equal(menu.open, false);
   menu.open = true;
   const panel = findNode(tree, (node) => node.type === 'div' && node.props.onClick);
@@ -632,16 +667,24 @@ pass('service-request step labels use the light-surface text palette');
   assert.equal(menu.open, false);
   hooks.unmount();
   assert.equal(Object.keys(listeners).length, 0);
-  pass('desktop disclosures dismiss on Escape, outside and link clicks, with current-route listeners');
+  pass('desktop disclosures dismiss on Escape, outside clicks (including beside the panel) and link clicks, with current-route listeners');
 }
 
 {
   const locales = loadSource('brand/locales.js');
   const routes = loadSource('lib/chromeRoutes.js', { '@/brand/locales': locales });
   for (const locale of ['en', 'hi']) {
-    for (const path of ['/consultation', '/contact', '/drafting', '/document-review', '/find-my-solution', '/checkout/rent-agreement', '/login']) {
+    // Checkout and login get the minimal header; tool pages keep the full header but drop competing mobile bars
+    for (const path of ['/checkout/rent-agreement', '/login']) {
       const localized = `/${locale}${path}`;
       assert.equal(routes.isFocusedTaskPath(localized), true, localized);
+      assert.equal(routes.hasMobileTabBar(localized), false, localized);
+      assert.equal(routes.hasStickyActionBar(localized), false, localized);
+    }
+    for (const path of ['/consultation', '/contact', '/drafting', '/document-review', '/find-my-solution']) {
+      const localized = `/${locale}${path}`;
+      assert.equal(routes.isFocusedTaskPath(localized), false, localized);
+      assert.equal(routes.isToolPath(localized), true, localized);
       assert.equal(routes.hasMobileTabBar(localized), false, localized);
       assert.equal(routes.hasStickyActionBar(localized), false, localized);
     }
@@ -651,7 +694,7 @@ pass('service-request step labels use the light-surface text palette');
     assert.equal(routes.hasStickyBuyBar(`/${locale}/services/rent-agreement`), true);
     assert.equal(routes.hasMobileTabBar(`/${locale}/admin/requests`), false);
   }
-  pass('focused task routes suppress competing mobile chrome in English and Hindi without matching unrelated paths');
+  pass('checkout/login get minimal chrome, tool pages keep the header without competing mobile bars, in English and Hindi');
 }
 
 // Exercise the real combobox handlers and viewport listeners with no real navigation.

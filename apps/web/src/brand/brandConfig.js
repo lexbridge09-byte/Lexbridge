@@ -1,8 +1,12 @@
 // Language-neutral brand settings. All wording lives in brand/copy/<locale>/.
 export const BRAND = Object.freeze({
-  name: 'LexBridge',
+  name: 'LexBridge Consultants',
 
-  // Hero promises; labels come from home.hero.trust[key]. Each must be true of how LexBridge works.
+  // Public contact details (env NEXT_PUBLIC_SUPPORT_PHONE / _EMAIL override these per environment)
+  supportPhone: '+91 62038 03449',
+  supportEmail: 'lexbridge09@gmail.com',
+
+  // Hero promises; labels come from home.hero.trust[key]. Each must be true of how LexBridge Consultants works.
   trustClaims: Object.freeze([
     Object.freeze({ key: 'qualified', icon: 'qualified' }),
     Object.freeze({ key: 'confidential', icon: 'confidential' }),

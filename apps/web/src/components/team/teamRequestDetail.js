@@ -5,6 +5,7 @@ import { LAWYER_ALLOWED_STATUSES } from '@lexbridge/shared';
 import { ChevronLeft, PenLine, Upload } from 'lucide-react';
 import { useDictionary } from '@/brand/localeContext';
 import { DocumentList } from '@/components/documentList';
+import { Select } from '@/components/selectMenu';
 import { DocumentUpload } from '@/components/documentUpload';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
 import { LocaleLink } from '@/components/localeLink';
@@ -78,13 +79,13 @@ function StatusUpdateForm({ request, onSaved, isBare = false }) {
           <label htmlFor="team-status" className="block text-sm font-semibold text-ink">
             {dictionary.admin.common.status}
           </label>
-          <select id="team-status" name="Status" defaultValue={request.Status} className="mt-1 control">
+          <Select id="team-status" name="Status" defaultValue={request.Status} className="mt-1 control">
             {LAWYER_ALLOWED_STATUSES.map((status) => (
               <option key={status} value={status}>
                 {labels.requestStatus(status)}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
         <div>
           <label htmlFor="team-note" className="block text-sm font-semibold text-ink">
@@ -94,8 +95,8 @@ function StatusUpdateForm({ request, onSaved, isBare = false }) {
           <p className="mt-1 text-xs text-ink-muted">{copy.noteHint}</p>
         </div>
         <FormMessage message={message} />
-        <Button type="submit" size="sm" disabled={isSaving} className="w-full">
-          {isSaving ? dictionary.admin.common.saving : copy.save}
+        <Button isLoading={isSaving} type="submit" size="sm" disabled={isSaving} className="w-full">
+          {copy.save}
         </Button>
       </div>
   );

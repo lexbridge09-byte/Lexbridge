@@ -1,18 +1,44 @@
 import { ChevronDown } from 'lucide-react';
+import { InfoTip } from '@/components/infoTip';
 import { Container } from '@/components/ui/section';
 
-// Service workspaces are not marketing heroes: one title, one task, optional help.
-export function TaskPage({ title, lead, children, isWide = false }) {
+/*
+  Tool pages are app screens, not marketing pages: the working surface starts right under the site
+  header, with an optional `rail` beside it for help. No heroes, no title bars, no "how it works" sections.
+*/
+// Always the wide container: a narrow centred column leaves the sides of large screens empty
+export function TaskPage({ title, children, rail }) {
+  const hasRail = Boolean(rail);
   return (
-    <section className="bg-canvas-alt pb-10 lg:pb-14">
-      <Container size={isWide ? 'site' : 'task'}>
-        <header className="border-b border-line-canvas py-5 sm:py-7">
-          <h1 className="max-w-3xl text-h3 text-on-canvas sm:text-h2">{title}</h1>
-          {lead && <p className="mt-2 max-w-2xl text-base leading-7 text-on-canvas-muted">{lead}</p>}
-        </header>
-        <div className="min-w-0 pt-5 sm:pt-6">{children}</div>
+    <section className="pb-10 pt-6 sm:pt-8 lg:pb-14">
+      {/* The site header already says where you are; the visible title bar only cost space */}
+      <h1 className="sr-only">{title}</h1>
+      <Container size="wide">
+        {hasRail ? (
+          <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-8">
+            <div className="min-w-0">{children}</div>
+            <aside className="space-y-4 lg:sticky lg:top-24">{rail}</aside>
+          </div>
+        ) : (
+          <div className="min-w-0">{children}</div>
+        )}
       </Container>
     </section>
+  );
+}
+
+// Compact rail card: a short title over a few lines of supporting help; `tip` adds a "?" beside the title
+export function RailCard({ title, tip, children, className = '' }) {
+  return (
+    <div className={`rounded-panel border border-line-canvas bg-canvas-alt p-5 ${className}`}>
+      {title && (
+        <div className="flex items-center gap-1.5">
+          <h2 className="text-sm font-semibold text-on-canvas">{title}</h2>
+          {tip && <InfoTip tone="dark">{tip}</InfoTip>}
+        </div>
+      )}
+      <div className={`text-sm leading-6 text-on-canvas-muted ${title ? 'mt-3' : ''}`}>{children}</div>
+    </div>
   );
 }
 

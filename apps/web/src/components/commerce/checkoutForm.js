@@ -15,7 +15,7 @@ import { useFormatters } from '@/lib/localeTools';
 import { openRazorpayCheckout } from '@/lib/razorpay';
 import { useIsFeatureEnabled } from '@/components/featuresProvider';
 
-const THEME_COLOR = '#7d6130';
+const THEME_COLOR = '#8a5338';
 
 function SummaryRow({ label, value, isStrong = false }) {
   return (
@@ -104,8 +104,8 @@ function CouponField({ items, appliedCoupon, onApplied, onRemoved, isDisabled, o
           aria-describedby={error ? 'checkout-coupon-error' : undefined}
           className="block w-full min-w-0 rounded-xl border border-line-strong bg-card px-3.5 py-2.5 text-[15px] uppercase text-ink focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-100 aria-[invalid=true]:border-danger"
         />
-        <Button variant="secondary" size="sm" onClick={applyCoupon} disabled={isDisabled || isChecking || !code.trim()} className="shrink-0">
-          {isChecking ? copy.applying : copy.apply}
+        <Button isLoading={isChecking} variant="secondary" size="sm" onClick={applyCoupon} disabled={isDisabled || isChecking || !code.trim()} className="shrink-0">
+          {copy.apply}
         </Button>
       </div>
       {error && (

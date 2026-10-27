@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122 100" role="img" aria-label="LexBridge">
+  <defs>
+    <linearGradient id="lbGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3cdb1"/>
+      <stop offset=".45" stop-color="#c88f6c"/>
+      <stop offset=".7" stop-color="#e7b596"/>
+      <stop offset="1" stop-color="#a06b4d"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#lbGold)">
+    <!-- L -->
+    <path d="M6 8h24v4h-5v70h26v-10h4v18H6v-4h5V12H6z"/>
+    <!-- B stem with serifs -->
+    <path d="M42 8h20v4h-4v74h4v4H42v-4h4V12h-4z"/>
+  </g>
+  <g fill="none" stroke="url(#lbGold)">
+    <!-- B bowls -->
+    <path stroke-width="8" d="M56 12.5h17c17 0 17 31 0 31H56"/>
+    <path stroke-width="9.5" d="M56 44h21c21 0 21 41.5 0 41.5H56"/>
+    <!-- bridge deck -->
+    <path stroke-width="4.5" stroke-linecap="round" d="M3 76Q60 34 118 70"/>
+    <!-- suspension cables and hangers -->
+    <path stroke-width="1.6" d="M33 30L9 71M33 30L60 51"/>
+    <path stroke-width="1.4" d="M17 58v9M25 44v17M41 36v18M50 43v9"/>
+  </g>
+  <g fill="url(#lbGold)">
+    <!-- tower -->
+    <path d="M31 28h4v31h-4z"/>
+    <!-- scales of justice -->
+    <circle cx="105" cy="7" r="3"/>
+    <path d="M104 9h2v17h-2zM95 13h20v2H95z"/>
+    <path d="M96.5 15l-5 12h1.8l3.7-9.6 3.7 9.6h1.8l-5-12zM113.5 15l-5 12h1.8l3.7-9.6 3.7 9.6h1.8l-5-12z"/>
+    <path d="M90 27h13a6.5 4.5 0 0 1-13 0zM107 27h13a6.5 4.5 0 0 1-13 0z"/>
+  </g>
+</svg>

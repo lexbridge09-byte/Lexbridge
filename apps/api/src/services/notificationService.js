@@ -18,7 +18,7 @@ export function notifyRequestReceived(request) {
     createEmailJob({
       to: request.Email,
       subject: `We've received your request (${request.ReferenceCode})`,
-      text: `Hello ${request.FullName},\n\nThank you for contacting LexBridge. Your ${serviceLabel} request has been received and will be reviewed by our team.\n\nReference: ${request.ReferenceCode}\n\nYou can follow its progress by signing in to My LexBridge with this email address.${MAIL_FOOTER}`,
+      text: `Hello ${request.FullName},\n\nThank you for contacting LexBridge Consultants. Your ${serviceLabel} request has been received and will be reviewed by our team.\n\nReference: ${request.ReferenceCode}\n\nYou can follow its progress by signing in to My LexBridge Consultants with this email address.${MAIL_FOOTER}`,
     }),
     createWhatsAppJob(request.WhatsAppOptIn, {
       to: request.Phone,
@@ -35,7 +35,7 @@ export function notifyRequestStatusChanged(request, note = '') {
     createEmailJob({
       to: request.Email,
       subject: `Update on your request (${request.ReferenceCode})`,
-      text: `Hello ${request.FullName},\n\nThere's an update on your LexBridge request ${request.ReferenceCode}.\n\nCurrent status: ${statusLabel}${noteText}\n\nSign in to My LexBridge to see the details.${MAIL_FOOTER}`,
+      text: `Hello ${request.FullName},\n\nThere's an update on your LexBridge Consultants request ${request.ReferenceCode}.\n\nCurrent status: ${statusLabel}${noteText}\n\nSign in to My LexBridge Consultants to see the details.${MAIL_FOOTER}`,
     }),
     createWhatsAppJob(request.WhatsAppOptIn, {
       to: request.Phone,
@@ -49,13 +49,13 @@ export function notifyRequestStatusChanged(request, note = '') {
 // Sending inline (not via the outbox) so the inviter sees failures immediately.
 export async function sendInviteEmail(invite, inviter) {
   const roleLabel = invite.Role === 'manager' ? 'a 2nd owner (team lead)' : 'a lawyer / consultant';
-  const inviterName = inviter?.FullName?.trim() || inviter?.Email || 'the LexBridge team';
+  const inviterName = inviter?.FullName?.trim() || inviter?.Email || 'the LexBridge Consultants team';
   await sendMail({
     to: invite.Email,
-    subject: `You're invited to LexBridge as ${invite.Role === 'manager' ? 'a 2nd owner' : 'a lawyer'}`,
+    subject: `You're invited to LexBridge Consultants as ${invite.Role === 'manager' ? 'a 2nd owner' : 'a lawyer'}`,
     text: `Hello,
 
-${inviterName} has invited you to join LexBridge as ${roleLabel}.
+${inviterName} has invited you to join LexBridge Consultants as ${roleLabel}.
 
 Sign in with this email address at ${PUBLIC_SITE_URL}/login — enter your email, and we'll send you a sign-in code. Your team access activates automatically on your first sign-in.
 
@@ -71,11 +71,11 @@ export function notifyDeliverableReady(request, documentName) {
       subject: `Your document is ready (${request.ReferenceCode})`,
       text: `Hello ${request.FullName},
 
-The finished work for your LexBridge request ${request.ReferenceCode} is ready.
+The finished work for your LexBridge Consultants request ${request.ReferenceCode} is ready.
 
 File: ${documentName}
 
-Sign in to My LexBridge to view and download it from your request page.${MAIL_FOOTER}`,
+Sign in to My LexBridge Consultants to view and download it from your request page.${MAIL_FOOTER}`,
     }),
     createWhatsAppJob(request.WhatsAppOptIn, {
       to: request.Phone,
@@ -92,13 +92,13 @@ export function notifyConsultationBooked(consultation, client) {
   const typeLabel = findLabel(CONSULTATION_TYPES, consultation.ConsultationType);
   const modeText = consultation.Mode === 'phone'
     ? `We'll call you on ${consultation.Phone} at the scheduled time.`
-    : "We'll share the video call link before your consultation. You'll find it in My LexBridge and in your email.";
+    : "We'll share the video call link before your consultation. You'll find it in My LexBridge Consultants and in your email.";
 
   return enqueueNotifications('consultation-booked', [
     createEmailJob({
       to: client?.Email,
       subject: `Consultation booked for ${startsAtText} (${consultation.ReferenceCode})`,
-      text: `Hello ${clientName},\n\nYour ${typeLabel.toLowerCase()} is booked.\n\nWhen: ${startsAtText}\nDuration: ${consultation.DurationMinutes} minutes\nMode: ${modeLabel}\nReference: ${consultation.ReferenceCode}\n\n${modeText}\n\nPlease keep relevant documents and information ready. You can cancel from My LexBridge up to ${CANCELLATION_NOTICE_HOURS} hours before the start time.${MAIL_FOOTER}`,
+      text: `Hello ${clientName},\n\nYour ${typeLabel.toLowerCase()} is booked.\n\nWhen: ${startsAtText}\nDuration: ${consultation.DurationMinutes} minutes\nMode: ${modeLabel}\nReference: ${consultation.ReferenceCode}\n\n${modeText}\n\nPlease keep relevant documents and information ready. You can cancel from My LexBridge Consultants up to ${CANCELLATION_NOTICE_HOURS} hours before the start time.${MAIL_FOOTER}`,
     }),
     createWhatsAppJob(consultation.WhatsAppOptIn, {
       to: consultation.Phone,
@@ -119,7 +119,7 @@ export function notifyConsultationCancelled(consultation, client, cancelledBy) {
     createEmailJob({
       to: client?.Email,
       subject: `Consultation cancelled (${consultation.ReferenceCode})`,
-      text: `Hello ${clientName},\n\n${reasonText}\n\nWas scheduled for: ${startsAtText}\nReference: ${consultation.ReferenceCode}\n\nYou can book a new time from the LexBridge website.${MAIL_FOOTER}`,
+      text: `Hello ${clientName},\n\n${reasonText}\n\nWas scheduled for: ${startsAtText}\nReference: ${consultation.ReferenceCode}\n\nYou can book a new time from the LexBridge Consultants website.${MAIL_FOOTER}`,
     }),
     createWhatsAppJob(consultation.WhatsAppOptIn, {
       to: consultation.Phone,

@@ -18,6 +18,15 @@ export const solutionFinder = {
     busyForScreenReaders: 'आपकी समस्या के लिए सही मदद खोज रहे हैं',
     tooShort: 'थोड़ा और विस्तार से बताइए।',
     privacyNote: 'इसका इस्तेमाल सिर्फ़ सेवा सुझाने और आपके कहने पर संपर्क करने के लिए होगा।',
+    moreDetail: 'थोड़ा और विवरण जोड़ें',
+    enoughDetail: 'बढ़िया, शुरू करने के लिए इतना काफ़ी है',
+    shortcut: 'भेजने के लिए Ctrl + Enter',
+    eyebrow: 'मुफ़्त · लगभग 1 मिनट',
+    loadingSteps: ['आपकी स्थिति पढ़ रहे हैं', 'कानून का क्षेत्र पहचान रहे हैं', 'जाँच रहे हैं कि मामला कितना ज़रूरी है', 'सही सेवाएँ चुन रहे हैं'],
+    nextTitle: 'आगे क्या होगा',
+    commonTitle: 'आम समस्याएँ',
+    commonHint: 'सीधे वहाँ जाने के लिए एक चुनें।',
+    nextSteps: ['हम सही सेवाएँ सुझाएँगे', 'भुगतान से पहले फ़ीस दिखेगी', 'फिर विशेषज्ञ आगे संभालेंगे'],
   },
 
   urgency: {
@@ -32,6 +41,7 @@ export const solutionFinder = {
     servicesTitle: 'सुझाई गई सेवाएँ',
     questionsTitle: 'ये जानकारी मदद करेगी',
     fallbackTitle: 'हमारी टीम को भेजें',
+    fallbackNote: 'आपका विवरण नीचे भरा है। अपनी जानकारी जोड़ें, हम सही मदद बताएँगे।',
     edit: 'विवरण बदलें',
     disclaimer: 'सामान्य मार्गदर्शन, कानूनी सलाह नहीं।',
   },
@@ -40,6 +50,6 @@ export const solutionFinder = {
     title: 'इसमें मदद पाएँ',
     description: 'आपका विवरण पहले से भरा है।',
     descriptionLabel: 'आपकी समस्या',
-    submitLabel: 'LexBridge को भेजें',
+    submitLabel: 'LexBridge Consultants को भेजें',
   },
 };

@@ -1,5 +1,5 @@
 export const dashboard = {
-  navLabel: 'My LexBridge',
+  navLabel: 'My LexBridge Consultants',
   nav: {
     overview: 'Overview',
     requests: 'Requests',

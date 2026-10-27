@@ -45,10 +45,14 @@ export const ADMIN_EMAILS = new Set(
 );
 
 export const RESEND_API_KEY = process.env.RESEND_API_KEY ?? '';
-export const MAIL_FROM = process.env.MAIL_FROM ?? 'LexBridge <no-reply@example.com>';
+// Calendly personal access token: verifies bookings made through the embedded Calendly widget
+export const CALENDLY_TOKEN = process.env.CALENDLY_TOKEN ?? '';
+export const MAIL_FROM = process.env.MAIL_FROM ?? 'LexBridge Consultants <no-reply@example.com>';
 if (IS_PRODUCTION && !RESEND_API_KEY) {
   throw new Error('RESEND_API_KEY is required in production');
 }
+// Dev only: MAIL_TRANSPORT=log prints mail to the console instead of sending it (ignored in production)
+export const MAIL_TO_LOG = !IS_PRODUCTION && process.env.MAIL_TRANSPORT === 'log';
 
 export const SESSION_COOKIE_NAME = 'lexbridge_session';
 

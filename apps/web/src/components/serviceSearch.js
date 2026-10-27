@@ -118,7 +118,6 @@ export function ServiceSearch({ items, className = '' }) {
         {copy.label}
       </label>
       <div className="relative">
-        <Search aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-on-canvas-muted" strokeWidth={2} />
         <input
           ref={inputRef}
           id={`${baseId}-input`}
@@ -139,8 +138,10 @@ export function ServiceSearch({ items, className = '' }) {
           onFocus={() => setIsOpen(true)}
           onBlur={() => { setIsOpen(false); setActiveIndex(-1); }}
           onKeyDown={handleKeyDown}
-          className="control-glass block min-h-12 w-full min-w-0 rounded-control py-3 pl-12 pr-4 text-base placeholder:text-on-canvas-muted transition-colors duration-(--dur-150) hover:border-primary/60 focus:border-primary focus:outline-2 focus:outline-offset-2 focus:outline-primary"
+          className="peer control-glass block min-h-12 w-full min-w-0 rounded-control py-3 pl-12 pr-4 text-base placeholder:text-on-canvas-muted transition-[border-color,box-shadow] duration-(--dur-150) hover:border-primary/60 focus:border-primary focus:shadow-glow focus:outline-none focus:ring-2 focus:ring-primary/40"
         />
+        {/* After the input so it can follow the input's focus state */}
+        <Search aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 z-10 size-5 -translate-y-1/2 text-on-canvas-muted transition-colors duration-(--dur-150) peer-focus:text-primary-bright" strokeWidth={2} />
       </div>
 
       {isExpanded && (
@@ -150,7 +151,7 @@ export function ServiceSearch({ items, className = '' }) {
           role="listbox"
           aria-label={trimmedQuery ? copy.results(matches.length) : copy.suggestions}
           style={{ maxHeight: placement.maxHeight }}
-          className={`absolute inset-x-0 z-40 overflow-y-auto overscroll-contain rounded-card border border-line bg-card p-2 text-ink shadow-raised ${placement.isAbove ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'}`}
+          className={`scroll-soft absolute inset-x-0 z-40 overflow-y-auto overscroll-contain rounded-card border border-line bg-card p-1.5 text-ink shadow-raised ring-1 ring-black/5 motion-safe:animate-[pop-in_var(--dur-150)_var(--ease-out-soft)_both] ${placement.isAbove ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'}`}
         >
           {!trimmedQuery && <li role="presentation" className="px-3 pb-1 pt-2 text-xs font-semibold text-ink-muted">{copy.suggestions}</li>}
           {options.map((option, optionIndex) => {
@@ -165,13 +166,13 @@ export function ServiceSearch({ items, className = '' }) {
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => choose(option)}
                 onMouseEnter={() => setActiveIndex(optionIndex)}
-                className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-control px-3 py-3 active:bg-primary-100 ${isActive ? 'bg-primary-50 ring-1 ring-inset ring-primary-100' : ''} ${option.kind === 'describe' ? 'mt-1 border-t border-line text-primary-dark' : ''}`}
+                className={`group/option flex min-h-12 cursor-pointer items-center gap-3 rounded-control px-3 py-2.5 transition-colors duration-(--dur-100) active:bg-primary-100 ${isActive ? 'bg-primary-50 ring-1 ring-inset ring-primary-100' : ''} ${option.kind === 'describe' ? 'mt-1 border-t border-line text-primary-dark' : ''}`}
               >
                 <span className="min-w-0 flex-1">
                   <span className="block break-words text-sm font-semibold leading-5">{option.title}</span>
                   {option.subtitle && <span className="mt-0.5 block break-words text-xs leading-5 text-ink-muted">{option.subtitle}</span>}
                 </span>
-                <ArrowRight aria-hidden="true" className="size-4 shrink-0 text-primary" strokeWidth={2} />
+                <ArrowRight aria-hidden="true" className={`size-4 shrink-0 text-primary transition-[transform,opacity] duration-(--dur-150) ease-(--ease-out-soft) motion-reduce:transition-none ${isActive ? 'translate-x-0 opacity-100' : '-translate-x-1 opacity-40'}`} strokeWidth={2} />
               </li>
             );
           })}

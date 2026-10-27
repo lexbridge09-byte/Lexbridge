@@ -1,7 +1,8 @@
+import { ArrowRight } from 'lucide-react';
 import { ARTICLE_TOPIC_KEYS } from '@lexbridge/shared';
 import { getDictionary, requireFeaturePage } from '@/brand';
 import { LocaleLink } from '@/components/localeLink';
-import { Badge, Container, PageHeader, Section } from '@/components/ui';
+import { Container, PageHero, Section, Stagger, StaggerItem } from '@/components/ui';
 import { createCatalogLabels } from '@/lib/catalogLabels';
 import { formatDate } from '@/lib/formatValues';
 import { loadPublicApi } from '@/lib/serverApi';
@@ -18,10 +19,33 @@ function TopicChip({ href, label, isActive }) {
     <LocaleLink
       href={href}
       aria-current={isActive ? 'page' : undefined}
-      className={`block whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold ${isActive ? 'bg-cta text-canvas' : 'bg-card-dim text-ink-muted hover:bg-primary-50 hover:text-primary-dark'}`}
+      className={`block whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-semibold transition-colors duration-(--dur-150) active:scale-(--press-scale) ${isActive ? 'bg-cta text-canvas' : 'text-on-canvas-muted ring-1 ring-inset ring-line-canvas hover:text-on-canvas hover:ring-primary/50'}`}
     >
       {label}
     </LocaleLink>
+  );
+}
+
+// One guide card. The lead story is wider and taller, with a larger serif title.
+function GuideCard({ article, labels, lang, isLead = false }) {
+  return (
+    <article
+      className={`group relative flex h-full flex-col overflow-hidden rounded-panel border p-6 transition-[transform,border-color,box-shadow] duration-(--dur-300) ease-(--ease-out-soft) hover:-translate-y-1 hover:border-primary/50 hover:shadow-float motion-reduce:hover:translate-y-0 ${isLead ? 'border-primary/25 bg-hero lg:p-8' : 'border-line-canvas bg-canvas-alt'}`}
+    >
+      <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-[radial-gradient(closest-side,rgb(200_143_108/0.2),transparent)] opacity-0 transition-opacity duration-(--dur-300) group-hover:opacity-100" />
+      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary-bright">
+        {labels.articleTopic(article.Topic)}
+        <span aria-hidden="true" className="text-on-canvas-subtle">·</span>
+        <span className="font-medium normal-case tracking-normal text-on-canvas-subtle">{formatDate(article.publishedAt, lang)}</span>
+      </p>
+      <h3 className={`mt-3 font-heading font-bold leading-tight text-on-canvas ${isLead ? 'text-3xl lg:text-4xl' : 'text-xl'}`}>
+        <LocaleLink href={`/insights/${article.Slug}`} className="after:absolute after:inset-0 after:content-['']">
+          {article.Title}
+        </LocaleLink>
+      </h3>
+      {article.Summary && <p className={`mt-3 flex-1 leading-7 text-on-canvas-muted ${isLead ? 'line-clamp-4 text-base' : 'line-clamp-3 text-sm'}`}>{article.Summary}</p>}
+      <ArrowRight aria-hidden="true" className="mt-4 size-5 text-primary-bright transition-transform duration-(--dur-200) group-hover:translate-x-1 motion-reduce:transition-none" strokeWidth={2} />
+    </article>
   );
 }
 
@@ -40,11 +64,12 @@ export default async function InsightsPage({ params, searchParams }) {
 
   return (
     <>
-      <PageHeader title={copy.header.title} lead={copy.header.lead} />
+      <PageHero title={copy.header.title} />
 
-      <nav aria-label={copy.topicsLabel} className="border-b border-line bg-card">
+      {/* Topics stay reachable while scrolling the list */}
+      <nav aria-label={copy.topicsLabel} className="sticky top-16 z-30 border-b border-line-canvas bg-canvas/90 backdrop-blur-md">
         <Container>
-          <ul className="flex gap-2 overflow-x-auto py-3">
+          <ul className="scroll-row flex gap-2 overflow-x-auto py-3">
             <li className="shrink-0">
               <TopicChip href="/insights" label={copy.allTopics} isActive={!activeTopic} />
             </li>
@@ -57,30 +82,22 @@ export default async function InsightsPage({ params, searchParams }) {
         </Container>
       </nav>
 
-      <Section tone="alt" labelledBy="guides-title" size="sm">
-        <h2 id="guides-title" className="text-h2 text-on-canvas">
+      <Section labelledBy="guides-title">
+        <h2 id="guides-title" className="text-section text-on-canvas">
           {listTitle}
         </h2>
 
         {hasArticles ? (
-          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {articles.map((article) => (
-              <li key={article._id}>
-                <article className="relative flex h-full flex-col rounded-card border border-line bg-card p-5 shadow-sm transition-[border-color,box-shadow] duration-(--dur-200) ease-(--ease-out-soft) hover:border-primary-100 hover:shadow-card motion-reduce:transition-none">
-                  <Badge tone="active" className="self-start">
-                    {labels.articleTopic(article.Topic)}
-                  </Badge>
-                  <h3 className="mt-3 text-h4 text-ink">
-                    <LocaleLink href={`/insights/${article.Slug}`} className="after:absolute after:inset-0 after:rounded-card after:content-['']">
-                      {article.Title}
-                    </LocaleLink>
-                  </h3>
-                  {article.Summary && <p className="mt-2 line-clamp-3 flex-1 text-sm leading-6 text-ink-muted">{article.Summary}</p>}
-                  <p className="mt-3 text-xs font-medium text-ink-muted">{formatDate(article.publishedAt, lang)}</p>
-                </article>
-              </li>
-            ))}
-          </ul>
+          <Stagger gap={0.05} className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {articles.map((article, articleIndex) => {
+              const isLead = articleIndex === 0 && !activeTopic && articles.length > 2;
+              return (
+                <StaggerItem key={article._id} className={isLead ? 'sm:col-span-2 lg:row-span-2' : ''}>
+                  <GuideCard article={article} labels={labels} lang={lang} isLead={isLead} />
+                </StaggerItem>
+              );
+            })}
+          </Stagger>
         ) : activeTopic && articles ? (
           <p className="mt-4 text-on-canvas-muted">
             {copy.emptyTopic}{' '}
@@ -91,13 +108,14 @@ export default async function InsightsPage({ params, searchParams }) {
         ) : (
           <>
             <p className="mt-2 text-on-canvas-muted">{copy.preparingNote}</p>
-            <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {copy.popularGuides.map((guide) => (
-                <li key={guide} className="rounded-card border border-line bg-card p-4 font-display font-semibold leading-6 text-ink">
-                  {guide}
-                </li>
+            <Stagger gap={0.05} className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {copy.popularGuides.map((guide, guideIndex) => (
+                <StaggerItem key={guide} className="flex items-start gap-4 rounded-card border border-line-canvas bg-canvas-alt p-5">
+                  <span className="tabular font-brand text-2xl font-bold leading-none text-primary-bright">{String(guideIndex + 1).padStart(2, '0')}</span>
+                  <span className="font-semibold leading-6 text-on-canvas">{guide}</span>
+                </StaggerItem>
               ))}
-            </ul>
+            </Stagger>
           </>
         )}
       </Section>

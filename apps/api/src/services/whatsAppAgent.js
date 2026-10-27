@@ -49,7 +49,7 @@ const HUMAN_COMMANDS = new Set([
 ]);
 
 const COMMAND_HINT = 'Reply HUMAN to reach our team, BALANCE to see how many questions you have left, or STOP to opt out.';
-const STOP_TEXT = "You've opted out. The LexBridge assistant won't reply to your messages. Send START at any time to turn it back on.";
+const STOP_TEXT = "You've opted out. The LexBridge Consultants assistant won't reply to your messages. Send START at any time to turn it back on.";
 const UNSUPPORTED_MESSAGE_TEXT = 'The assistant can only read text messages for now. Please type your question. To share a document, reply HUMAN and our team will contact you.';
 const APOLOGY_TEXT = "Sorry, the assistant couldn't answer just now. This question hasn't been counted. Please try again in a few minutes, or reply HUMAN to reach our team.";
 const REFUSAL_TEXT = "The assistant can't help with that message. This question hasn't been counted. Reply HUMAN if you'd like our team to contact you.";
@@ -80,8 +80,8 @@ function deriveMessageExpiry() {
 
 function createConsentNotice() {
   return [
-    'Welcome to LexBridge on WhatsApp.',
-    'This assistant shares general legal information and helps you find the right LexBridge service. It is not legal advice, and LexBridge is not a law firm.',
+    'Welcome to LexBridge Consultants on WhatsApp.',
+    'This assistant shares general legal information and helps you find the right LexBridge Consultants service. It is not legal advice, and LexBridge Consultants is not a law firm.',
     `We store your messages to reply to you and to pass your matter to our team if you ask. Privacy policy: ${PUBLIC_SITE_URL}/legal/privacy`,
     `Your first ${formatQuestionCount(WHATSAPP_AI_FREE_MESSAGES)} are free. After that, ${formatRupees(WHATSAPP_AI_PACK_PRICE_PAISE)} gets you ${WHATSAPP_AI_PACK_MESSAGES} more.`,
     COMMAND_HINT,
@@ -111,8 +111,8 @@ function createPaymentLinkText(payment) {
 
 function createHandoffText({ reference, isExisting }) {
   return isExisting
-    ? `Your matter is already with the LexBridge team (reference ${reference}). They'll contact you on this number.`
-    : `We've passed your matter to the LexBridge team. They'll contact you on this number. Your reference is ${reference}.`;
+    ? `Your matter is already with the LexBridge Consultants team (reference ${reference}). They'll contact you on this number.`
+    : `We've passed your matter to the LexBridge Consultants team. They'll contact you on this number. Your reference is ${reference}.`;
 }
 
 export function createPaymentConfirmationText(messagesGranted, contact) {
@@ -303,7 +303,7 @@ async function createPaymentLinkReply(contact) {
     const link = await createRazorpayPaymentLink({
       amountPaise: WHATSAPP_AI_PACK_PRICE_PAISE,
       referenceId,
-      description: `LexBridge WhatsApp assistant: ${WHATSAPP_AI_PACK_MESSAGES} questions`,
+      description: `LexBridge Consultants WhatsApp assistant: ${WHATSAPP_AI_PACK_MESSAGES} questions`,
       expiresAt: linkExpiresAt,
       notes: { purpose: 'whatsapp-ai-pack', contactId: String(contact._id) },
     });
@@ -327,10 +327,10 @@ async function deriveRecentConversationSummary(contactId) {
     .limit(HANDOFF_CONTEXT_MESSAGES)
     .lean();
   if (messages.length === 0) {
-    return 'The person asked on WhatsApp to speak with the LexBridge team. They had not asked any questions yet.';
+    return 'The person asked on WhatsApp to speak with the LexBridge Consultants team. They had not asked any questions yet.';
   }
   const lines = messages.reverse().map((message) => `- ${message.Body}`).join('\n');
-  return `The person asked on WhatsApp to speak with the LexBridge team. Their recent questions, oldest first:\n${lines}`;
+  return `The person asked on WhatsApp to speak with the LexBridge Consultants team. Their recent questions, oldest first:\n${lines}`;
 }
 
 // Creates a ServiceRequest for the team, or points to one already open from the last 24 hours
@@ -401,7 +401,7 @@ export async function prepareInboundReplies(job) {
     await WhatsAppContactModel.updateOne({ _id: contact._id }, { $set: { IsOptedOut: false, optedOutAt: null } });
     const replies = [];
     if (await claimConsentNotice(contact._id)) replies.push({ Kind: 'notice', Body: createConsentNotice() });
-    replies.push({ Kind: 'system', Body: `The LexBridge assistant is on again. ${createBalanceText(contact)}` });
+    replies.push({ Kind: 'system', Body: `The LexBridge Consultants assistant is on again. ${createBalanceText(contact)}` });
     return replies;
   }
 

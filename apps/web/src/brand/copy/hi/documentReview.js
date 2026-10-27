@@ -80,6 +80,13 @@ export const documentReview = {
     tooLarge: (maxSizeLabel) => `फ़ाइल ${maxSizeLabel} तक हो सकती है।`,
     aboutTitle: 'आपके दस्तावेज़ के बारे में',
     missingDetails: 'पहले हाइलाइट किए गए प्रश्नों के जवाब दें।',
+    steps: ['PDF चुनें', 'जानकारी', 'समीक्षा'],
+    remove: 'फ़ाइल हटाएँ',
+    orBrowse: 'यहाँ खींचकर लाएँ या डिवाइस से चुनें',
+    replace: 'दूसरी चुनें',
+    submit: 'मेरे दस्तावेज़ की समीक्षा करें',
+    uploadingPercent: (percent) => `अपलोड हो रहा है… ${percent}%`,
+    starting: 'आपकी समीक्षा शुरू हो रही है…',
   },
 
   report: {
@@ -118,7 +125,7 @@ export const documentReview = {
     languageLabel: 'पसंदीदा भाषा',
     consentBefore: 'मैं ',
     consentLink: 'प्राइवेसी पॉलिसी',
-    consentAfter: ' से सहमत हूं। LexBridge लॉ फ़र्म नहीं है।',
+    consentAfter: ' से सहमत हूं। LexBridge Consultants लॉ फ़र्म नहीं है।',
     consentRequired: 'आगे बढ़ने के लिए सहमति दें।',
     submit: 'समीक्षा का अनुरोध करें',
     busy: 'भेजा जा रहा है…',

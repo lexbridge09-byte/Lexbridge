@@ -12,6 +12,7 @@ import { adminOverviewRouter } from './overview.routes.js';
 import { adminProductsRouter } from './products.routes.js';
 import { adminServiceRequestsRouter } from './serviceRequests.routes.js';
 import { adminSlotsRouter } from './slots.routes.js';
+import { adminAvailabilityRouter } from './availability.routes.js';
 import { adminUsersRouter } from './users.routes.js';
 import { adminWhatsAppRouter } from './whatsapp.routes.js';
 
@@ -25,6 +26,7 @@ adminRouter.use('/feature-flags', adminFeatureFlagsRouter);
 adminRouter.use('/overview', requireOwner, adminOverviewRouter);
 adminRouter.use('/consultations', requireOwner, requireFeature('consultationBooking'), adminConsultationsRouter);
 adminRouter.use('/slots', requireOwner, requireFeature('consultationBooking'), adminSlotsRouter);
+adminRouter.use('/availability', requireOwner, requireFeature('consultationBooking'), adminAvailabilityRouter);
 adminRouter.use('/articles', requireOwner, requireFeature('legalInsights'), adminArticlesRouter);
 adminRouter.use('/users', requireOwner, adminUsersRouter);
 adminRouter.use('/whatsapp', requireOwner, requireFeature('whatsAppAiAssistant'), adminWhatsAppRouter);

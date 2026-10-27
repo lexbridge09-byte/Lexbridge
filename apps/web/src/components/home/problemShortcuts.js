@@ -1,6 +1,6 @@
 import { ChevronRight } from 'lucide-react';
 import { LocaleLink } from '@/components/localeLink';
-import { Container } from '@/components/ui';
+import { Container, Stagger, StaggerItem } from '@/components/ui';
 import { getIcon } from '@/lib/icons';
 
 // One-line problem cards right under the hero: recognise your situation instead of naming a legal service
@@ -12,11 +12,11 @@ export function ProblemShortcuts({ title, problems }) {
           {title}
         </h2>
         {/* Phones: one swipeable row with edge fades; desktop: a 3-column grid */}
-        <ul className="scroll-row -mx-4 mt-3 flex gap-2.5 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0">
+        <Stagger gap={0.04} className="scroll-row -mx-4 mt-3 flex gap-2.5 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0">
           {problems.map((problem) => {
             const Icon = getIcon(problem.icon);
             return (
-              <li key={problem.id} className="w-60 shrink-0 snap-start lg:w-auto">
+              <StaggerItem key={problem.id} className="w-60 shrink-0 snap-start lg:w-auto">
                 <LocaleLink
                   href={problem.href}
                   className="group flex h-full min-h-12 items-center gap-3 rounded-control border border-line-canvas bg-canvas-raised px-3.5 py-3 text-sm font-semibold text-on-canvas transition-[transform,border-color,background-color,box-shadow] duration-(--dur-200) ease-(--ease-out-soft) hover:-translate-y-0.5 hover:border-primary/50 hover:bg-canvas-alt hover:shadow-glow motion-reduce:transition-none motion-reduce:hover:translate-y-0"
@@ -31,10 +31,10 @@ export function ProblemShortcuts({ title, problems }) {
                     strokeWidth={2}
                   />
                 </LocaleLink>
-              </li>
+              </StaggerItem>
             );
           })}
-        </ul>
+        </Stagger>
       </Container>
     </section>
   );

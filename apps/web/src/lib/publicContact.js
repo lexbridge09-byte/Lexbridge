@@ -1,10 +1,12 @@
+import { BRAND } from '@/brand/brandConfig';
+
 // Public contact details. NEXT_PUBLIC_* values are inlined at build time, so they must be read literally.
 function normalizeValue(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-export const SUPPORT_PHONE = normalizeValue(process.env.NEXT_PUBLIC_SUPPORT_PHONE);
-export const SUPPORT_EMAIL = normalizeValue(process.env.NEXT_PUBLIC_SUPPORT_EMAIL);
+export const SUPPORT_PHONE = normalizeValue(process.env.NEXT_PUBLIC_SUPPORT_PHONE) || BRAND.supportPhone;
+export const SUPPORT_EMAIL = normalizeValue(process.env.NEXT_PUBLIC_SUPPORT_EMAIL) || BRAND.supportEmail;
 export const WHATSAPP_NUMBER = normalizeValue(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER);
 export const INSTAGRAM_URL = normalizeValue(process.env.NEXT_PUBLIC_INSTAGRAM_URL);
 

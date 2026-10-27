@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useDictionary, useLocalizedHref } from '@/brand/localeContext';
 import { ADMIN_CONTROL_CLASS, ADMIN_LABEL_CLASS, AdminBackLink, AdminField, AdminPanel } from '@/components/admin/adminStyles';
+import { Select } from '@/components/selectMenu';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
 import { Button } from '@/components/ui';
 import { requestApi } from '@/lib/apiClient';
@@ -124,13 +125,13 @@ function CouponForm({ coupon }) {
             <input id="coupon-code" name="Code" required maxLength={40} defaultValue={coupon?.Code ?? ''} className={`font-mono uppercase ${ADMIN_CONTROL_CLASS}`} />
           </AdminField>
           <AdminField id="coupon-type" label={copy.type} error={fieldErrors.Type}>
-            <select id="coupon-type" value={type} onChange={(event) => setType(event.target.value)} className={ADMIN_CONTROL_CLASS}>
+            <Select id="coupon-type" value={type} onChange={(event) => setType(event.target.value)} className={ADMIN_CONTROL_CLASS}>
               {COUPON_TYPES.map((couponType) => (
                 <option key={couponType} value={couponType}>
                   {labels.couponType(couponType)}
                 </option>
               ))}
-            </select>
+            </Select>
           </AdminField>
           <AdminField id="coupon-value" label={copy.value} hint={type === 'percent' ? copy.valueHintPercent : copy.valueHintFlat} error={fieldErrors.Value}>
             <input

@@ -1,6 +1,6 @@
 import { getDictionary, requireFeaturePage } from '@/brand';
 import { ServiceRequestForm } from '@/components/serviceRequestForm';
-import { Card, TaskPage } from '@/components/ui';
+import { FormSheet, RailCard, TaskPage } from '@/components/ui';
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -23,42 +23,40 @@ export default async function DraftingPage({ params }) {
     icon: documentType.icon,
   }));
 
-  return (
-    <TaskPage title={header.title} lead={header.lead}>
-        <div className="grid items-start gap-6 lg:grid-cols-[1.6fr_1fr] lg:gap-8">
-          <Card padding="lg" id="request">
-            <h2 className="text-h3 text-ink">{request.title}</h2>
-            <p className="mb-4 mt-1 text-sm text-ink-muted">{request.note}</p>
-            <ServiceRequestForm
-              source="drafting-form"
-              defaultCategory="legal-drafting"
-              isCategoryLocked
-              subtypeLabel={request.subtypeLabel}
-              subtypeOptions={subtypeOptions}
-              descriptionLabel={request.descriptionLabel}
-              submitLabel={request.submitLabel}
-            />
-          </Card>
+  const rail = (
+    <>
+      <RailCard title={steps.title}>
+        <ol className="space-y-3.5">
+          {steps.items.map((step, stepIndex) => (
+            <li key={step.title} className="flex gap-3">
+              <span className="tabular font-brand text-xl font-bold leading-6 text-primary-bright">{String(stepIndex + 1).padStart(2, '0')}</span>
+              <span>
+                <span className="block font-semibold text-on-canvas">{step.title}</span>
+                <span className="block text-xs leading-5">{step.description}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </RailCard>
+      <RailCard title={documentTypes.title}>
+        <p className="text-xs leading-5 text-on-canvas">{documentTypes.items.map((documentType) => documentType.title).join(' · ')}</p>
+      </RailCard>
+    </>
+  );
 
-          <Card as="aside" padding="md" aria-labelledby="drafting-steps-title" className="lg:sticky lg:top-24">
-            <h2 id="drafting-steps-title" className="text-h4 text-ink">
-              {steps.title}
-            </h2>
-            <ol className="mt-4 space-y-4">
-              {steps.items.map((step, stepIndex) => (
-                <li key={step.title} className="flex gap-3">
-                  <span className="tabular flex size-7 shrink-0 items-center justify-center rounded-full bg-primary-50 text-xs font-bold text-primary-dark">
-                    {stepIndex + 1}
-                  </span>
-                  <span>
-                    <span className="block text-sm font-semibold text-ink">{step.title}</span>
-                    <span className="block text-sm leading-5 text-ink-muted">{step.description}</span>
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </Card>
-        </div>
+  return (
+    <TaskPage title={header.title} rail={rail}>
+      <FormSheet id="request" title={request.title} note={request.note}>
+        <ServiceRequestForm
+          source="drafting-form"
+          defaultCategory="legal-drafting"
+          isCategoryLocked
+          subtypeLabel={request.subtypeLabel}
+          subtypeOptions={subtypeOptions}
+          descriptionLabel={request.descriptionLabel}
+          submitLabel={request.submitLabel}
+        />
+      </FormSheet>
     </TaskPage>
   );
 }

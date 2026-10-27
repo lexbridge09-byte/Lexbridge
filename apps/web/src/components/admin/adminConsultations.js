@@ -4,6 +4,7 @@ import { CONSULTATION_STATUSES, getDisplayableIntakeDetails } from '@lexbridge/s
 import { useState } from 'react';
 import { useDictionary } from '@/brand/localeContext';
 import { ADMIN_CONTROL_CLASS, ADMIN_LABEL_CLASS, AdminPageHeading, AdminTable, ADMIN_TD_CLASS, ADMIN_TH_CLASS } from '@/components/admin/adminStyles';
+import { Select } from '@/components/selectMenu';
 import { ReferenceCodeTag } from '@/components/copyButton';
 import { IntakeDetailsPanel } from '@/components/intakeDetailsPanel';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
@@ -74,13 +75,13 @@ function ConsultationEditor({ consultation, onSaved }) {
         <label htmlFor={`${idPrefix}-status`} className={ADMIN_LABEL_CLASS}>
           {common.status}
         </label>
-        <select id={`${idPrefix}-status`} name="Status" defaultValue={consultation.Status} className={`mt-1 ${ADMIN_CONTROL_CLASS}`}>
+        <Select id={`${idPrefix}-status`} name="Status" defaultValue={consultation.Status} className={`mt-1 ${ADMIN_CONTROL_CLASS}`}>
           {CONSULTATION_STATUSES.map((status) => (
             <option key={status} value={status}>
               {labels.consultationStatus(status)}
             </option>
           ))}
-        </select>
+        </Select>
         <p className="mt-1 text-xs text-ink-muted">{copy.statusHint}</p>
       </div>
       <div>
@@ -110,8 +111,8 @@ function ConsultationEditor({ consultation, onSaved }) {
         />
       </div>
       <FormMessage message={message} />
-      <Button type="submit" size="sm" disabled={isSaving} className="w-full">
-        {isSaving ? common.saving : copy.save}
+      <Button isLoading={isSaving} type="submit" size="sm" disabled={isSaving} className="w-full">
+        {copy.save}
       </Button>
     </form>
   );
@@ -196,7 +197,7 @@ export function AdminConsultations() {
         <label htmlFor="consultation-status-filter" className={ADMIN_LABEL_CLASS}>
           {common.status}
         </label>
-        <select
+        <Select
           id="consultation-status-filter"
           value={status}
           onChange={(event) => {
@@ -211,7 +212,7 @@ export function AdminConsultations() {
               {labels.consultationStatus(statusOption)}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       {isLoading && !data ? (

@@ -1,18 +1,34 @@
 export const faq = {
   metadata: {
     title: 'FAQ',
-    description: 'Answers to common questions about LexBridge.',
+    description: 'Answers to common questions about LexBridge Consultants.',
   },
   header: {
     title: 'Frequently asked questions',
     lead: 'Quick answers before you get started.',
   },
 
+  center: {
+    searchLabel: 'Search questions',
+    searchPlaceholder: 'Search, e.g. “fee” or “WhatsApp”',
+    allTopics: 'All',
+    topics: { basics: 'Getting started', booking: 'Booking & tracking', privacy: 'Privacy' },
+    // Plain templates (not functions): this copy is passed to a client component
+    countAll: '{total} questions',
+    countSome: '{shown} of {total} questions',
+    emptyTitle: 'No match for that',
+    emptyBody: 'Try another word, or ask us directly.',
+    clear: 'Clear search',
+    askTitle: 'Can’t find your answer?',
+    askBody: 'Write to us. A real person replies, usually the same day.',
+    askCta: 'Contact us',
+  },
+
   // `feature` hides an answer while that feature flag is off. Values fill the {placeholders}.
   items: [
     {
       id: 'law-firm',
-      question: 'Is LexBridge a law firm?',
+      question: 'Is LexBridge Consultants a law firm?',
       answer: 'No. We’re a legal-services platform. Qualified professionals handle advice and representation.',
     },
     {
@@ -47,7 +63,7 @@ export const faq = {
       id: 'progress',
       feature: 'clientAccounts',
       question: 'How do I track my request?',
-      answer: 'Sign in to My LexBridge with the same email to see status and updates.',
+      answer: 'Sign in to My LexBridge Consultants with the same email to see status and updates.',
     },
   ],
 };

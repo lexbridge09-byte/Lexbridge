@@ -109,7 +109,7 @@ export async function requestLawyerReview({ referenceCode, user, input }) {
   const request = await createWithUniqueReference('LB', (requestReference) => ServiceRequestModel.create({
     ReferenceCode: requestReference,
     Client: user.id,
-    FullName: input.FullName || account?.FullName || 'LexBridge client',
+    FullName: input.FullName || account?.FullName || 'LexBridge Consultants client',
     Email: account?.Email ?? user.email,
     Phone: input.Phone,
     ServiceCategory: 'contract-review',

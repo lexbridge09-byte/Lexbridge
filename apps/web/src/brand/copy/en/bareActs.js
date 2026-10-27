@@ -7,9 +7,17 @@ export const bareActs = {
     title: 'Bare Acts',
     lead: "The exact text of India's core laws — the statutes behind every consultation, notice and draft we work with.",
   },
-  portalNote: 'LexBridge does not host act texts. Every link opens a search of the official government portal, indiacode.nic.in, where the authoritative PDF lives.',
+  portalNote: 'LexBridge Consultants does not host act texts. Every link opens a search of the official government portal, indiacode.nic.in, where the authoritative PDF lives.',
   portalLabel: 'Official portal: indiacode.nic.in',
   readLabel: 'Read the full text',
+  // Plain strings: the library is a client component
+  searchLabel: 'Search acts',
+  searchPlaceholder: 'Search by name, e.g. “contract” or “consumer”',
+  allGroups: 'All',
+  countAll: '{total} acts',
+  countSome: '{shown} of {total} acts',
+  emptyTitle: 'No act matches that',
+  clear: 'Clear search',
   disclaimer: 'Reading a bare act is general information, not legal advice. If a section feels ambiguous, a consultation can tell you how it applies to your facts.',
 
   groups: {

@@ -96,8 +96,8 @@ function GrantQuestionsForm({ contactId, onGranted }) {
           <FieldError id="grant-reason-error" message={fieldErrors.Reason} />
         </div>
         <FormMessage message={message} />
-        <Button type="submit" size="sm" disabled={isSaving}>
-          {isSaving ? copy.adding : copy.submit}
+        <Button isLoading={isSaving} type="submit" size="sm" disabled={isSaving}>
+          {copy.submit}
         </Button>
       </div>
     </AdminPanel>

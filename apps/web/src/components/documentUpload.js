@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { DOCUMENT_ACCEPT_ATTRIBUTE, DOCUMENT_ALLOWED_TYPES, DOCUMENT_MAX_BYTES } from '@lexbridge/shared';
 import { useDictionary } from '@/brand/localeContext';
 import { FormMessage } from '@/components/loadState';
+import { Select } from '@/components/selectMenu';
 import { Button, Card } from '@/components/ui';
 import { localizeApiError } from '@/lib/apiErrors';
 import { useFormatters } from '@/lib/localeTools';
@@ -122,7 +123,7 @@ export function DocumentUpload({
             <label htmlFor={`${inputId}-reference`} className="block text-sm font-semibold text-ink">
               {copy.relatedRequest}
             </label>
-            <select
+            <Select
               id={`${inputId}-reference`}
               name="RequestReference"
               defaultValue={requestReference}
@@ -134,7 +135,7 @@ export function DocumentUpload({
                   {option.label}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         )}
 

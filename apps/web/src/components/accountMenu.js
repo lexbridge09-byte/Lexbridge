@@ -155,7 +155,7 @@ export function AccountMenu({ signInHref, signInLabel }) {
         <span aria-hidden="true" className="flex size-8 items-center justify-center rounded-full bg-cta text-xs font-bold text-white">
           {deriveInitials(user)}
         </span>
-        <span className="hidden max-w-[6rem] truncate sm:inline">{deriveFirstName(user)}</span>
+        <span className="hidden max-w-[11rem] truncate sm:inline" title={user.Email}>{deriveFirstName(user)}</span>
         <ChevronDown aria-hidden="true" className="hidden size-4 text-on-canvas-muted sm:block" strokeWidth={2} />
       </button>
 
@@ -168,7 +168,7 @@ export function AccountMenu({ signInHref, signInLabel }) {
           onKeyDown={handleMenuKeyDown}
           className="absolute right-0 top-full z-50 mt-2 max-h-[calc(100dvh-6rem)] w-64 max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain rounded-card border border-line bg-card p-2 shadow-raised"
         >
-          <p className="truncate px-3 py-2 text-xs text-ink-muted">{user.Email}</p>
+          <p className="break-all px-3 py-2 text-xs text-ink-muted">{user.Email}</p>
           {items.map((item) => (
             <LocaleLink key={item.key} href={item.href} role="menuitem" tabIndex={-1} onClick={() => setIsOpen(false)} className={ITEM_CLASS}>
               {item.label}

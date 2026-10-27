@@ -6,6 +6,7 @@ import { useCatalogLabels } from '@/lib/localeTools';
 const REQUEST_TONES = {
   submitted: 'active',
   'under-review': 'active',
+  assigned: 'active',
   'in-progress': 'active',
   'awaiting-client': 'attention',
   completed: 'done',

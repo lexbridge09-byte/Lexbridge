@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation';
 import { getDictionary, getPrimaryCta, getSecondaryCta, getServerFeatures, requireFeaturePage } from '@/brand';
 import { LocaleLink } from '@/components/localeLink';
 import { MarkdownContent } from '@/components/markdownContent';
-import { ButtonLink, Card, PageHeader, Section } from '@/components/ui';
+import { ReadingProgress } from '@/components/readingProgress';
+import { ButtonLink, Container, Section } from '@/components/ui';
 import { createCatalogLabels } from '@/lib/catalogLabels';
 import { formatDate } from '@/lib/formatValues';
 import { loadPublicApi } from '@/lib/serverApi';
@@ -38,7 +39,7 @@ export default async function InsightArticlePage({ params }) {
         <div className="mx-auto max-w-xl text-center">
           <h1 className="text-h2 text-on-canvas">{copy.loadErrorTitle}</h1>
           <p className="mt-3 text-on-canvas-muted">{copy.loadErrorBody}</p>
-          <ButtonLink href="/insights" variant="secondary" className="mt-6">
+          <ButtonLink href="/insights" variant="onDarkBronze" className="mt-6">
             {copy.backToInsights}
           </ButtonLink>
         </div>
@@ -55,54 +56,58 @@ export default async function InsightArticlePage({ params }) {
 
   return (
     <>
-      <PageHeader
-        title={article.Title}
-        lead={article.Summary}
-        eyebrow={
-          <nav aria-label={copy.breadcrumbLabel}>
-            <ol className="flex flex-wrap items-center gap-1.5">
-              <li>
-                <LocaleLink href="/insights" className="font-semibold text-white hover:underline">
-                  {copy.insightsLink}
-                </LocaleLink>
-              </li>
-              <li aria-hidden="true">
-                <ChevronRight className="size-4 text-white/60" strokeWidth={2} />
-              </li>
-              <li>
-                <LocaleLink href={`/insights?topic=${article.Topic}`} className="font-semibold text-white hover:underline">
-                  {labels.articleTopic(article.Topic)}
-                </LocaleLink>
-              </li>
-            </ol>
-          </nav>
-        }
-      >
-        <p className="text-sm">
-          {copy.published(publishedLabel)}
-          {updatedLabel && updatedLabel !== publishedLabel ? ` · ${copy.updated(updatedLabel)}` : ''}
-        </p>
-      </PageHeader>
+      <ReadingProgress />
+      <article>
+        <header className="relative isolate border-b border-line-canvas bg-hero">
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-grid-lines [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
+          <Container className="max-w-4xl py-10 lg:py-16">
+            <nav aria-label={copy.breadcrumbLabel}>
+              <ol className="flex flex-wrap items-center gap-1 text-xs font-semibold uppercase tracking-[0.14em]">
+                <li>
+                  <LocaleLink href="/insights" className="text-on-canvas-subtle transition-colors duration-(--dur-150) hover:text-primary-bright">
+                    {copy.insightsLink}
+                  </LocaleLink>
+                </li>
+                <li aria-hidden="true">
+                  <ChevronRight className="size-3.5 text-on-canvas-subtle" strokeWidth={2} />
+                </li>
+                <li>
+                  <LocaleLink href={`/insights?topic=${article.Topic}`} className="text-primary-bright hover:underline">
+                    {labels.articleTopic(article.Topic)}
+                  </LocaleLink>
+                </li>
+              </ol>
+            </nav>
+            <h1 className="mt-4 font-heading text-4xl font-bold leading-[1.1] text-on-canvas sm:text-5xl">{article.Title}</h1>
+            {article.Summary && <p className="mt-4 max-w-2xl text-lg leading-8 text-on-canvas-muted">{article.Summary}</p>}
+            <p className="mt-5 text-sm text-on-canvas-subtle">
+              {copy.published(publishedLabel)}
+              {updatedLabel && updatedLabel !== publishedLabel ? ` · ${copy.updated(updatedLabel)}` : ''}
+            </p>
+          </Container>
+        </header>
 
-      <Section size="sm">
-        <div className="grid items-start gap-10 lg:grid-cols-[1fr_20rem] lg:gap-14">
-          <MarkdownContent source={article.Body} />
-          <Card as="aside" padding="md" aria-labelledby="article-help-title" className="lg:sticky lg:top-24">
-            <h2 id="article-help-title" className="text-h4 text-ink">
-              {copy.asideTitle}
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-ink-muted">{copy.asideBody}</p>
-            <ButtonLink href={primaryAction.href} isFullWidth className="mt-4">
-              {primaryAction.label}
-            </ButtonLink>
-            {secondaryAction && (
-              <ButtonLink href={secondaryAction.href} variant="link" className="mt-3 w-full">
-                {secondaryAction.label}
+        <Container className="max-w-6xl py-10 lg:py-14">
+          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-16">
+            <MarkdownContent source={article.Body} />
+            <aside aria-labelledby="article-help-title" className="relative overflow-hidden rounded-panel border border-primary/25 bg-hero p-5 lg:sticky lg:top-24">
+              <div aria-hidden="true" className="absolute -right-10 -top-10 size-36 rounded-full bg-[radial-gradient(closest-side,rgb(200_143_108/0.28),transparent)]" />
+              <h2 id="article-help-title" className="relative font-heading text-2xl font-bold text-on-canvas">
+                {copy.asideTitle}
+              </h2>
+              <p className="relative mt-1 text-sm leading-6 text-on-canvas-muted">{copy.asideBody}</p>
+              <ButtonLink href={primaryAction.href} isFullWidth className="relative mt-4">
+                {primaryAction.label}
               </ButtonLink>
-            )}
-          </Card>
-        </div>
-      </Section>
+              {secondaryAction && (
+                <ButtonLink href={secondaryAction.href} variant="linkOnDark" className="relative mt-3 w-full">
+                  {secondaryAction.label}
+                </ButtonLink>
+              )}
+            </aside>
+          </div>
+        </Container>
+      </article>
     </>
   );
 }

@@ -5,6 +5,7 @@ import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useDictionary } from '@/brand/localeContext';
 import { buildAdminQuery } from '@/components/admin/adminRequests';
+import { Select } from '@/components/selectMenu';
 import { ADMIN_CONTROL_CLASS, ADMIN_LINK_CLASS, AdminField, AdminPageHeading } from '@/components/admin/adminStyles';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
 import { Pagination } from '@/components/pagination';
@@ -56,20 +57,20 @@ function CallbackUpdateForm({ callback, onSaved }) {
   return (
     <form onSubmit={handleSubmit} className="grid gap-3 sm:grid-cols-[12rem_1fr]">
       <AdminField id={`${idPrefix}-status`} label={dictionary.admin.common.status}>
-        <select id={`${idPrefix}-status`} name="Status" defaultValue={callback.Status} className={ADMIN_CONTROL_CLASS}>
+        <Select id={`${idPrefix}-status`} name="Status" defaultValue={callback.Status} className={ADMIN_CONTROL_CLASS}>
           {CALLBACK_STATUSES.map((status) => (
             <option key={status} value={status}>
               {labels.callbackStatus(status)}
             </option>
           ))}
-        </select>
+        </Select>
       </AdminField>
       <AdminField id={`${idPrefix}-note`} label={copy.note}>
         <textarea id={`${idPrefix}-note`} name="Note" rows={2} maxLength={1000} placeholder={copy.notePlaceholder} className={ADMIN_CONTROL_CLASS} />
       </AdminField>
       <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
-        <Button type="submit" size="sm" disabled={isSaving}>
-          {isSaving ? dictionary.admin.common.saving : copy.save}
+        <Button isLoading={isSaving} type="submit" size="sm" disabled={isSaving}>
+          {copy.save}
         </Button>
         <FormMessage message={message} />
       </div>
@@ -101,14 +102,14 @@ export function AdminCallbacks() {
 
       <form onSubmit={handleFilterSubmit} className="mb-4 grid gap-3 rounded-card border border-line bg-card p-4 sm:grid-cols-[12rem_1fr_auto] sm:items-end">
         <AdminField id="callback-status-filter" label={common.status}>
-          <select id="callback-status-filter" name="status" defaultValue={filters.status} className={ADMIN_CONTROL_CLASS}>
+          <Select id="callback-status-filter" name="status" defaultValue={filters.status} className={ADMIN_CONTROL_CLASS}>
             <option value="">{common.allStatuses}</option>
             {CALLBACK_STATUSES.map((status) => (
               <option key={status} value={status}>
                 {labels.callbackStatus(status)}
               </option>
             ))}
-          </select>
+          </Select>
         </AdminField>
         <AdminField id="callback-q" label={common.search}>
           <input id="callback-q" name="q" type="search" defaultValue={filters.q} placeholder={copy.searchPlaceholder} className={ADMIN_CONTROL_CLASS} />

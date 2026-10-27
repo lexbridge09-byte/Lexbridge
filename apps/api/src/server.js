@@ -33,7 +33,7 @@ server.requestTimeout = UPLOAD_TIMEOUT_MS + 10_000;
 
 // A larger accept backlog absorbs connection bursts instead of resetting them
 server.listen({ port: PORT, backlog: 2048 }, () => {
-  logger.info(`[server] LexBridge API listening on http://localhost:${PORT}`);
+  logger.info(`[server] LexBridge Consultants API listening on http://localhost:${PORT}`);
 });
 
 // Workers only start for features that are switched on right now; the runtime flag cache picks up

@@ -11,7 +11,7 @@ export async function applyRequestUpdate(request, input, actor) {
     if (input.AssignedTo !== null) {
       const assignee = await UserModel.exists({ _id: input.AssignedTo, Role: { $in: STAFF_ROLES } });
       if (!assignee) {
-        return { error: 400, message: 'Work can only be assigned to a LexBridge team member.' };
+        return { error: 400, message: 'Work can only be assigned to a LexBridge Consultants team member.' };
       }
       if (String(request.AssignedTo ?? '') !== String(input.AssignedTo)) hasAssignmentChanged = true;
     } else if (request.AssignedTo) {

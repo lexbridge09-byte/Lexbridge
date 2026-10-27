@@ -74,8 +74,8 @@ authRouter.post('/request-otp', requestOtpLimiter, async (req, res) => {
 
   const message = {
     to: email,
-    subject: 'Your LexBridge sign-in code',
-    text: `Your LexBridge sign-in code is ${code}.\n\nIt expires in ${OTP_TTL_MINUTES} minutes. If you did not request this code, you can ignore this email.`,
+    subject: 'Your LexBridge Consultants sign-in code',
+    text: `Your LexBridge Consultants sign-in code is ${code}.\n\nIt expires in ${OTP_TTL_MINUTES} minutes. If you did not request this code, you can ignore this email.`,
   };
   // Sent inline so the code arrives quickly; if the mail server is struggling, the outbox retries it
   try {

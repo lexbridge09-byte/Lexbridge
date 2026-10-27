@@ -3,7 +3,7 @@
 import { useDictionary } from '@/brand/localeContext';
 import { useCatalogLabels, useFormatters } from '@/lib/localeTools';
 
-// Newest first. Notes are written by the LexBridge team and are visible to the client.
+// Newest first. Notes are written by the LexBridge Consultants team and are visible to the client.
 // `getLabel` lets other record types (orders) reuse the same timeline.
 export function StatusTimeline({ entries, getLabel }) {
   const emptyText = useDictionary().forms.timeline.empty;

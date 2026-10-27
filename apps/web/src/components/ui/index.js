@@ -13,4 +13,7 @@ export { TestimonialCarousel } from './testimonialCarousel.js';
 export { ValueStrip } from './valueStrip.js';
 export { StepIndicator } from './stepIndicator.js';
 export { ProcessSteps } from './processSteps.js';
-export { TaskPage, TaskHelp } from './taskPage.js';
+export { RailCard, TaskHelp, TaskPage } from './taskPage.js';
+export { Reveal, Stagger, StaggerItem } from './motion.js';
+export { FormSheet, PageHero } from './pageHero.js';
+export { SideSheet } from './sideSheet.js';

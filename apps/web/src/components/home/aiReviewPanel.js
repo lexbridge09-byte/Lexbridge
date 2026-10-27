@@ -1,5 +1,5 @@
 import { Check, FileText, TriangleAlert } from 'lucide-react';
-import { Badge, ButtonLink, Section } from '@/components/ui';
+import { Badge, ButtonLink, Reveal, Section, Stagger, StaggerItem } from '@/components/ui';
 
 // AI document review promo with a static sample report (decorative, hidden from assistive technology)
 export function AiReviewPanel({ copy, href }) {
@@ -8,7 +8,7 @@ export function AiReviewPanel({ copy, href }) {
 
   return (
     <Section labelledBy="ai-review-title" size="sm">
-      <div className="reveal grid items-center gap-8 overflow-hidden rounded-panel border border-primary-100/60 bg-assistant p-6 shadow-soft ring-1 ring-primary-100/40 sm:p-8 lg:grid-cols-2 lg:gap-12 lg:p-10">
+      <Reveal className="grid items-center gap-8 overflow-hidden rounded-panel border border-primary-100/60 bg-assistant p-6 shadow-soft ring-1 ring-primary-100/40 sm:p-8 lg:grid-cols-2 lg:gap-12 lg:p-10">
         <div>
           <span className="inline-flex items-center rounded-full bg-card px-3 py-1 text-xs font-semibold text-primary-dark ring-1 ring-primary-100">
             {copy.pill}
@@ -33,7 +33,9 @@ export function AiReviewPanel({ copy, href }) {
           <p className="mt-2.5 text-xs text-ink-muted">{copy.note}</p>
         </div>
 
-        <div aria-hidden="true" className="rounded-panel bg-card p-5 shadow-raised ring-1 ring-line sm:p-6">
+        <div aria-hidden="true" className="relative overflow-hidden rounded-panel bg-card p-5 shadow-raised ring-1 ring-line transition-transform duration-(--dur-300) ease-(--ease-out-soft) hover:-translate-y-1 hover:rotate-[-0.5deg] motion-reduce:transition-none sm:p-6">
+          {/* A soft scan sweep that reads as "being reviewed" */}
+          <span className="scan-sweep pointer-events-none absolute inset-x-0 top-0 h-16" />
           <div className="flex items-center gap-3 border-b border-line pb-4">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-control bg-primary-50 text-primary">
               <FileText className="size-5" strokeWidth={1.75} />
@@ -41,11 +43,11 @@ export function AiReviewPanel({ copy, href }) {
             <p className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">{mockup.fileName}</p>
             <Badge tone="done">{mockup.status}</Badge>
           </div>
-          <ul className="mt-4 space-y-3">
+          <Stagger gap={0.18} className="mt-4 space-y-3">
             {mockup.rows.map((row, rowIndex) => {
               const needsAttention = rowIndex === lastRowIndex;
               return (
-                <li
+                <StaggerItem
                   key={row}
                   className={`flex items-center gap-3 rounded-control px-3 py-2.5 text-sm ${needsAttention ? 'bg-warning-50 text-ink' : 'bg-card-dim text-ink-muted'}`}
                 >
@@ -56,12 +58,12 @@ export function AiReviewPanel({ copy, href }) {
                   )}
                   <span className="min-w-0 flex-1">{row}</span>
                   {needsAttention && <span className="shrink-0 text-xs font-semibold text-warning">{mockup.riskLabel}</span>}
-                </li>
+                </StaggerItem>
               );
             })}
-          </ul>
+          </Stagger>
         </div>
-      </div>
+      </Reveal>
     </Section>
   );
 }

@@ -21,17 +21,17 @@ export const legal = {
     terms: {
       title: 'Terms of use',
       sections: [
-        ['About LexBridge', 'A legal-services platform, not a law firm.'],
+        ['About LexBridge Consultants', 'A legal-services platform, not a law firm.'],
         ['Using the platform', 'Account rules, acceptable use and accurate information.'],
         ['Services and scope', 'Scope, fee and delivery are agreed before work begins.'],
-        ['Liability', 'The limits of LexBridge’s responsibility.'],
+        ['Liability', 'The limits of LexBridge Consultants’s responsibility.'],
         ['Governing law', 'The law and courts that govern these terms.'],
       ],
     },
     disclaimer: {
       title: 'Disclaimer',
       sections: [
-        ['Not a law firm', 'LexBridge does not itself give legal advice or representation.'],
+        ['Not a law firm', 'LexBridge Consultants does not itself give legal advice or representation.'],
         ['General information', 'Site content and automated suggestions are not legal advice.'],
         ['No solicitation', 'Nothing here advertises or solicits work for any advocate.'],
       ],

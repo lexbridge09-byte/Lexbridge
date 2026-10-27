@@ -12,6 +12,7 @@ import {
   AdminTable,
 } from '@/components/admin/adminStyles';
 import { buildAdminQuery } from '@/components/admin/adminRequests';
+import { Select } from '@/components/selectMenu';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
 import { Pagination } from '@/components/pagination';
 import { Badge, Button } from '@/components/ui';
@@ -180,14 +181,14 @@ export function AdminUsers() {
           <label htmlFor="user-role" className={ADMIN_LABEL_CLASS}>
             {copy.role}
           </label>
-          <select id="user-role" name="role" defaultValue={filters.role} className={`mt-1 ${ADMIN_CONTROL_CLASS}`}>
+          <Select id="user-role" name="role" defaultValue={filters.role} className={`mt-1 ${ADMIN_CONTROL_CLASS}`}>
             <option value="">{copy.allRoles}</option>
             {FILTER_ROLES.map((roleKey) => (
               <option key={roleKey} value={roleKey}>
                 {labels.role(roleKey)}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
         <div>
           <label htmlFor="user-q" className={ADMIN_LABEL_CLASS}>

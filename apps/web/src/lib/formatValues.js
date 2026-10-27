@@ -83,3 +83,9 @@ export function createFormatters(locale) {
     rupees: (paise) => formatRupees(paise, locale),
   };
 }
+
+// Short human name for a person: their name, else the part of the email before "@" (full email goes in a title)
+export function derivePersonLabel(person) {
+  if (!person) return '';
+  return person.FullName?.trim() || String(person.Email ?? '').split('@')[0];
+}

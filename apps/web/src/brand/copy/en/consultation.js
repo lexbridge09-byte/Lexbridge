@@ -17,9 +17,31 @@ export const consultation = {
 
   timeZoneNote: 'Times are in IST.',
 
+  // Booking wizard: one short screen per step
+  wizard: {
+    steps: ['Consultation', 'Your matter', 'Time', 'Your details'],
+    requestSteps: ['Consultation', 'Your matter', 'Your details'],
+    stepOf: '{current}/{total}',
+    titles: {
+      choice: 'Choose help',
+      matter: 'Your matter',
+      time: 'Pick a time',
+      details: 'Your details',
+    },
+    subtitles: {
+      choice: 'Pick a consultation and phone or video.',
+      matter: 'Optional. Helps us match the right lawyer.',
+      time: 'India time (IST).',
+      details: 'Used only for this consultation.',
+    },
+  },
+
   slots: {
     loading: 'Loading times…',
     datesLabel: 'Dates',
+    // Plain templates: rendered in a client component
+    timesCount: '{count} times',
+    periods: { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' },
     timesLabel: 'Available times',
     durationForScreenReaders: (minutes) => `, ${minutes} minutes`,
     emptyBefore: 'No times open right now.',
@@ -35,9 +57,9 @@ export const consultation = {
   fields: {
     phoneLabel: 'Phone',
     phonePlaceholder: '+91',
-    phoneHint: 'We’ll call this number for phone consultations.',
-    descriptionLabel: 'What do you want to discuss?',
-    descriptionHint: 'Mention any deadline or hearing date.',
+    phoneHint: 'For your call.',
+    descriptionLabel: 'Your matter',
+    descriptionHint: 'Add any deadline or hearing date.',
   },
 
   validation: {
@@ -52,13 +74,13 @@ export const consultation = {
   request: {
     steps: ['Consultation', 'Contact & requirement'],
     title: 'Consultation request',
-    noticeTitle: 'No appointment times are available right now',
-    noticeBody: 'You can still send your requirement. Our team will contact you to agree a time and fee. This sends a request; it does not confirm a booking.',
-    checkAgain: 'Check availability again',
+    noticeTitle: 'We’ll fit you in',
+    noticeBody: 'Tell us your matter and we’ll call to set a time that suits you. Nothing to pay yet.',
+    checkAgain: 'Check for open times',
     fullName: 'Full name',
-    email: 'Email for updates',
-    phoneHint: 'Our team will use this number to arrange your consultation.',
-    descriptionHint: 'Tell us about your matter and preferred days or times. Include any urgent deadline.',
+    email: 'Email',
+    phoneHint: 'We call to fix a time.',
+    descriptionHint: 'Add preferred days and any deadline.',
     nameError: 'Enter your full name.',
     emailError: 'Enter a valid email address.',
     descriptionError: 'Describe your requirement in at least 20 characters.',
@@ -73,7 +95,7 @@ export const consultation = {
   consent: {
     before: 'I agree to the ',
     link: 'privacy policy',
-    after: '. LexBridge is not a law firm.',
+    after: '. LexBridge Consultants is not a law firm.',
   },
 
   summaryTitle: 'Your booking',
@@ -94,7 +116,7 @@ export const consultation = {
     modeLabel: 'Mode',
     whenValue: (dayLabel, timeLabel) => `${dayLabel} at ${timeLabel} IST`,
     nextTitle: 'Next steps',
-    nextVideo: 'Your video link will appear in My LexBridge.',
+    nextVideo: 'Your video link will appear in My LexBridge Consultants.',
     nextPhone: (phone) => (phone ? `We’ll call ${phone} at the scheduled time.` : 'We’ll call you at the scheduled time.'),
     nextDocuments: 'Keep your documents ready.',
     viewCta: 'View booking',
@@ -117,7 +139,7 @@ export const consultation = {
   },
 
   advantages: {
-    title: "Why consult with LexBridge",
+    title: "Why consult with LexBridge Consultants",
     items: [
       { icon: "language", title: "Talk in your language", description: "Hindi or English, whichever you prefer." },
       { icon: "confidential", title: "Private and secure", description: "Your matter is shared only with your professional." },

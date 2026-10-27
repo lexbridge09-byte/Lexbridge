@@ -97,8 +97,8 @@ function ConsultationItem({ consultation, nowMs, onChanged }) {
         <div role="group" aria-label={copy.confirmLabel} className="mt-3 rounded-xl border border-danger/25 bg-danger-50 p-3">
           <p className="text-sm text-ink">{copy.confirmBody}</p>
           <div className="mt-2 flex flex-wrap gap-3">
-            <Button variant="danger" size="sm" onClick={handleCancel} disabled={isCancelling}>
-              {isCancelling ? copy.confirmBusy : copy.confirmYes}
+            <Button isLoading={isCancelling} variant="danger" size="sm" onClick={handleCancel} disabled={isCancelling}>
+              {copy.confirmYes}
             </Button>
             <Button variant="outline" size="sm" onClick={() => setIsConfirming(false)} disabled={isCancelling}>
               {copy.confirmNo}

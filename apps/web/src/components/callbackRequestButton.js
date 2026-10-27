@@ -126,8 +126,8 @@ function CallbackForm({ idPrefix, onDone }) {
         {copy.consentAfter}
       </CheckboxField>
       {formError && Object.keys(fieldErrors).length === 0 && <InlineAlert tone="error">{formError}</InlineAlert>}
-      <Button type="submit" disabled={isBusy} isFullWidth>
-        {isBusy ? copy.busy : copy.submit}
+      <Button isLoading={isBusy} type="submit" disabled={isBusy} isFullWidth>
+        {copy.submit}
       </Button>
     </form>
   );

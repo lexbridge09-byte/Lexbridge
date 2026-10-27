@@ -116,8 +116,8 @@ export function LoginForm({ nextPath = '' }) {
           error={fieldErrors.Code}
           className="max-w-xs"
         />
-        <Button type="submit" size="lg" disabled={isBusy} isFullWidth>
-          {isBusy ? copy.code.busy : copy.code.submit}
+        <Button isLoading={isBusy} type="submit" size="lg" disabled={isBusy} isFullWidth>
+          {copy.code.submit}
         </Button>
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
           <Button type="button" variant="link" disabled={isBusy || secondsUntilResend > 0} onClick={() => sendCode(email)} className="disabled:text-ink-muted">
@@ -151,13 +151,12 @@ export function LoginForm({ nextPath = '' }) {
         type="email"
         autoComplete="email"
         defaultValue={email}
-        hint={copy.email.hint}
         required
         autoFocus
         error={fieldErrors.Email}
       />
-      <Button type="submit" size="lg" disabled={isBusy} isFullWidth>
-        {isBusy ? copy.email.busy : copy.email.submit}
+      <Button isLoading={isBusy} type="submit" size="lg" disabled={isBusy} isFullWidth>
+        {copy.email.submit}
       </Button>
     </form>
   );

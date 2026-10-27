@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { PenLine, Upload } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { REQUEST_STATUSES, getDisplayableIntakeDetails } from '@lexbridge/shared';
 import { useDictionary } from '@/brand/localeContext';
-import { ADMIN_CONTROL_CLASS, ADMIN_LABEL_CLASS, ADMIN_LINK_CLASS, AdminBackLink, AdminPanel } from '@/components/admin/adminStyles';
-import { DocumentList } from '@/components/documentList';
+import { ADMIN_CONTROL_CLASS, ADMIN_LINK_CLASS, AdminBackLink, AdminPanel } from '@/components/admin/adminStyles';
+import { DocumentPreview } from '@/components/documentPreview';
+import { SelectField } from '@/components/formFields';
+import { InfoTip } from '@/components/infoTip';
 import { DocumentUpload } from '@/components/documentUpload';
 import { ErrorNote, FormMessage, LoadingNote } from '@/components/loadState';
 import { IntakeDetailsPanel } from '@/components/intakeDetailsPanel';
@@ -17,6 +19,7 @@ import { Modal } from '@/components/ui/modal';
 import { requestApi } from '@/lib/apiClient';
 import { localizeApiError } from '@/lib/apiErrors';
 import { useCatalogLabels, useFormatters } from '@/lib/localeTools';
+import { derivePersonLabel } from '@/lib/formatValues';
 import { redirectToLogin, useApiData } from '@/lib/useApiData';
 
 function deriveClientWhatsAppHref(phone) {
@@ -69,22 +72,33 @@ function RequestUpdateForm({ request, team, basePath, onSaved, isBare = false })
 
   const content = (
       <div className="space-y-3">
+        <SelectField
+          id="update-assigned"
+          name="AssignedTo"
+          label={copy.assignedTo}
+          defaultValue={String(request.AssignedTo?._id ?? request.AssignedTo ?? '')}
+          options={[
+            { value: '', label: dictionary.admin.requests.unassigned },
+            ...team.map((member) => ({
+              value: String(member._id),
+              label: `${derivePersonLabel(member)}${member.Role === 'lawyer' ? '' : ` (${labels.role(member.Role)})`}`,
+            })),
+          ]}
+        />
+        <SelectField
+          id="update-status"
+          name="Status"
+          label={common.status}
+          defaultValue={request.Status}
+          options={REQUEST_STATUSES.map((status) => ({ value: status, label: labels.requestStatus(status) }))}
+        />
         <div>
-          <label htmlFor="update-status" className={ADMIN_LABEL_CLASS}>
-            {common.status}
-          </label>
-          <select id="update-status" name="Status" defaultValue={request.Status} className={`mt-1 ${ADMIN_CONTROL_CLASS}`}>
-            {REQUEST_STATUSES.map((status) => (
-              <option key={status} value={status}>
-                {labels.requestStatus(status)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="update-note" className={ADMIN_LABEL_CLASS}>
-            {copy.note}
-          </label>
+          <span className="flex items-center gap-1.5">
+            <label htmlFor="update-note" className="block text-sm font-semibold text-ink">
+              {copy.note}
+            </label>
+            <InfoTip>{copy.noteHint}</InfoTip>
+          </span>
           <textarea
             id="update-note"
             name="Note"
@@ -92,34 +106,11 @@ function RequestUpdateForm({ request, team, basePath, onSaved, isBare = false })
             maxLength={1000}
             className={`mt-1 resize-none ${ADMIN_CONTROL_CLASS}`}
           />
-          {!isBare && (
-            <p className="mt-1 text-xs text-ink-muted">
-              {copy.noteHint}
-            </p>
-          )}
-        </div>
-        <div>
-          <label htmlFor="update-assigned" className={ADMIN_LABEL_CLASS}>
-            {copy.assignedTo}
-          </label>
-          <select
-            id="update-assigned"
-            name="AssignedTo"
-            defaultValue={request.AssignedTo?._id ?? request.AssignedTo ?? ''}
-            className={`mt-1 ${ADMIN_CONTROL_CLASS}`}
-          >
-            <option value="">{dictionary.admin.requests.unassigned}</option>
-            {team.map((member) => (
-              <option key={member._id} value={member._id}>
-                {member.FullName || member.Email}
-                {member.Role === 'lawyer' ? '' : ` (${labels.role(member.Role)})`}
-              </option>
-            ))}
-          </select>
+
         </div>
         <FormMessage message={message} />
-        <Button type="submit" size="sm" disabled={isSaving} className="w-full">
-          {isSaving ? common.saving : copy.save}
+        <Button isLoading={isSaving} type="submit" size="sm" disabled={isSaving} className="w-full">
+          {copy.save}
         </Button>
       </div>
   );
@@ -156,6 +147,7 @@ export function AdminRequestDetail({
   const teamData = useApiData(teamSourcePath);
   const [savedMessage, setSavedMessage] = useState('');
   const [activeModal, setActiveModal] = useState(null);
+  const [activeTab, setActiveTab] = useState(null);
 
   if (requestData.isLoading && !requestData.data) return <LoadingNote />;
   if (requestData.error?.status === 404) {
@@ -182,30 +174,83 @@ export function AdminRequestDetail({
     requestData.reload();
   }
 
+  const hasIntake = getDisplayableIntakeDetails(request.Subtype, request.IntakeDetails).length > 0;
+  const centerTab = activeTab ?? (documents.length > 0 ? 'documents' : 'matter');
+  const panelLabelClass = 'text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-muted';
+
+  /*
+    Record workspace (Zendesk agent workspace / legal review tools): the page itself never scrolls on
+    desktop. Centre = the work (document viewer at full height, or the matter); right = properties and
+    actions, scrolling on their own. Phones stack everything in one natural scroll.
+  */
   return (
-    <div>
-      <AdminBackLink href={backHref}>{copy.breadcrumb}</AdminBackLink>
-      <div className="mt-2">
+    <div className="flex flex-col gap-3 lg:h-[calc(100dvh-6.5rem)]">
+      {/* Header strip */}
+      <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2">
+        <AdminBackLink href={backHref}>{copy.breadcrumb}</AdminBackLink>
         <h1 className="sr-only">{request.ReferenceCode}</h1>
-        <div className="flex flex-wrap items-center gap-3">
-          <ReferenceCodeTag code={request.ReferenceCode} size="lg" />
-          <RequestStatusBadge status={request.Status} />
-        </div>
-        <p className="mt-1.5 text-sm text-on-canvas-muted">
+        <ReferenceCodeTag code={request.ReferenceCode} />
+        <RequestStatusBadge status={request.Status} />
+        <p className="min-w-0 truncate text-sm text-on-canvas-muted">
           {copy.meta(serviceLabel, format.dateTime(request.createdAt), labels.requestSource(request.Source))}
         </p>
+        <Button size="sm" variant="secondary" className="ml-auto" onClick={() => setActiveModal('upload')}>
+          <Upload aria-hidden="true" className="size-4" strokeWidth={1.75} />
+          {copy.uploadCta}
+        </Button>
       </div>
 
       {savedMessage && (
-        <div className="mt-3">
+        <div className="shrink-0">
           <FormMessage message={{ tone: 'success', text: savedMessage }} />
         </div>
       )}
 
-      <div className="mt-4">
-        <div className="space-y-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0 lg:pr-[21.5rem]">
+      <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        {/* Centre: the work */}
+        <section className="flex min-h-[70vh] flex-col rounded-card border border-line bg-card p-3 lg:min-h-0">
+          <div role="tablist" className="mb-3 flex shrink-0 gap-1 border-b border-line">
+            {[
+              ['documents', `${copy.documents} (${documents.length})`],
+              ['matter', copy.requirement],
+            ].map(([tabKey, label]) => (
+              <button
+                key={tabKey}
+                type="button"
+                role="tab"
+                aria-selected={centerTab === tabKey}
+                onClick={() => setActiveTab(tabKey)}
+                className={`-mb-px border-b-2 px-3 py-2 text-sm font-semibold transition-colors duration-(--dur-150) ${centerTab === tabKey ? 'border-primary text-ink' : 'border-transparent text-ink-muted hover:text-ink'}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="min-h-0 flex-1">
+            {centerTab === 'documents' ? (
+              <DocumentPreview layout="viewer" documents={documents} copy={{ noDocuments: copy.noDocuments, download: dictionary.admin.requests.sheet.download }} />
+            ) : (
+              <div className="scroll-soft h-full space-y-5 overflow-y-auto pr-1">
+                <p className="max-w-[75ch] whitespace-pre-line text-[15px] leading-7 text-ink">{request.Description}</p>
+                {hasIntake && (
+                  <div>
+                    <h2 className={panelLabelClass}>{dictionary.intake.detailsTitle}</h2>
+                    <div className="mt-2">
+                      <IntakeDetailsPanel subtype={request.Subtype} details={request.IntakeDetails} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Right: properties and actions (scrolls on its own) */}
+        <aside className="scroll-soft min-h-0 space-y-3 overflow-y-auto lg:pr-1">
+          <RequestUpdateForm key={request.updatedAt} request={request} team={team} basePath={basePath} onSaved={handleSaved} />
+
           <AdminPanel as="section" title={copy.clientTitle}>
-            <dl className="grid gap-x-6 gap-y-2.5 sm:grid-cols-[9.5rem_minmax(0,1fr)]">
+            <dl className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-3 gap-y-2">
               <DetailItem label={copy.name}>{request.FullName}</DetailItem>
               <DetailItem label={copy.email}>
                 <a href={`mailto:${request.Email}`} className={`break-all ${ADMIN_LINK_CLASS}`}>
@@ -224,7 +269,7 @@ export function AdminRequestDetail({
                     href={`${clientWhatsAppHref}?text=${encodeURIComponent(copy.chatGreeting(request.FullName, request.ReferenceCode))}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`ml-3 ${ADMIN_LINK_CLASS}`}
+                    className={`ml-2 ${ADMIN_LINK_CLASS}`}
                   >
                     {copy.openChat}
                   </a>
@@ -235,58 +280,12 @@ export function AdminRequestDetail({
             </dl>
           </AdminPanel>
 
-          {/* What the client answered for the subtype — the context that informs assignment */}
-          {getDisplayableIntakeDetails(request.Subtype, request.IntakeDetails).length > 0 && (
-            <AdminPanel as="section" title={dictionary.intake.detailsTitle}>
-              <IntakeDetailsPanel subtype={request.Subtype} details={request.IntakeDetails} />
-            </AdminPanel>
-          )}
-
-          <AdminPanel as="section" title={copy.requirement}>
-            <p className="max-w-[70ch] whitespace-pre-line text-sm leading-6 text-ink">{request.Description}</p>
+          <AdminPanel as="section" title={copy.history}>
+            <StatusTimeline entries={request.StatusHistory} />
           </AdminPanel>
+        </aside>
+      </div>
 
-          <AdminPanel as="section" title={copy.documents}>
-            <DocumentList documents={documents} emptyText={copy.noDocuments} />
-          </AdminPanel>
-
-        </div>
-
-        {/* Pinned right edge, mirroring the left sidebar: two action buttons open popups so the
-            forms never crowd the rail, and the history timeline fills the remaining height. */}
-        <div className="mt-4 flex flex-col gap-3 lg:fixed lg:bottom-0 lg:right-0 lg:top-16 lg:mt-0 lg:w-[20rem] lg:border-l lg:border-line-canvas lg:bg-surface-alt lg:p-4">
-          <div className="grid grid-cols-2 gap-2">
-            <Button size="sm" variant="secondary" className="w-full" onClick={() => setActiveModal('update')}>
-              <PenLine aria-hidden="true" className="size-4" strokeWidth={1.75} />
-              {copy.updateCta}
-            </Button>
-            <Button size="sm" variant="secondary" className="w-full" onClick={() => setActiveModal('upload')}>
-              <Upload aria-hidden="true" className="size-4" strokeWidth={1.75} />
-              {copy.uploadCta}
-            </Button>
-          </div>
-          <AdminPanel as="section" title={copy.history} className="flex min-h-0 flex-1 flex-col">
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <StatusTimeline entries={request.StatusHistory} />
-            </div>
-          </AdminPanel>
-        </div>
-
-        {activeModal === 'update' && (
-          <Modal title={copy.update.title} onClose={() => setActiveModal(null)}>
-            <RequestUpdateForm
-              key={request.updatedAt}
-              request={request}
-              team={team}
-              basePath={basePath}
-              isBare
-              onSaved={() => {
-                handleSaved();
-                setActiveModal(null);
-              }}
-            />
-          </Modal>
-        )}
         {activeModal === 'upload' && (
           <Modal title={dictionary.forms.upload.title} onClose={() => setActiveModal(null)}>
             <DocumentUpload
@@ -303,7 +302,6 @@ export function AdminRequestDetail({
             />
           </Modal>
         )}
-      </div>
     </div>
   );
 }

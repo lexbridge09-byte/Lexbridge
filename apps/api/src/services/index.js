@@ -36,6 +36,7 @@ export {
   extractClientConsultation,
   releaseConsultationSlot,
 } from './consultationService.js';
+export { claimSlotSeat, releaseSlotSeat } from './slotSeats.js';
 export { MongoRateLimitStore } from './mongoRateLimitStore.js';
 export { isValidHmacSignature, isSameSecret } from './webhookSignature.js';
 export { createRazorpayPaymentLink } from './razorpayService.js';
