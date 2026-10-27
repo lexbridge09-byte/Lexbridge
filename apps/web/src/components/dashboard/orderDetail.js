@@ -72,12 +72,12 @@ export function OrderDetail({ referenceCode }) {
           {copy.breadcrumb}
         </LocaleLink>
         <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="text-h3 text-ink">{deriveOrderTitle(order, commerceCopy.orders)}</h1>
+          <h1 className="text-h3 text-on-canvas">{deriveOrderTitle(order, commerceCopy.orders)}</h1>
           <OrderStatusBadge status={order.Status} />
         </div>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">
           <ReferenceCodeTag code={order.ReferenceCode} />
-          <span className="text-sm text-ink-muted">{format.dateTime(order.createdAt)}</span>
+          <span className="text-sm text-on-canvas-muted">{format.dateTime(order.createdAt)}</span>
         </div>
       </div>
 

@@ -35,7 +35,7 @@ export default async function DashboardLayout({ children, params }) {
   ].filter((link) => !link.feature || features[link.feature]);
 
   return (
-    <div className="bg-surface-alt flex">
+    <div className="flex min-h-[calc(100dvh-4rem)] flex-col bg-surface-alt md:flex-row">
       <OfficeSidebar label={copy.navLabel} links={links} />
       <div className="min-w-0 flex-1">
         <Container className="py-4 lg:py-6">{children}</Container>

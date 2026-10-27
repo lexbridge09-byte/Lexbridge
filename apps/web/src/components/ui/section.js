@@ -1,5 +1,5 @@
-export function Container({ className = '', children }) {
-  return <div className={`mx-auto w-full max-w-site px-4 sm:px-6 ${className}`}>{children}</div>;
+export function Container({ className = '', size = 'site', children }) {
+  return <div className={`mx-auto w-full min-w-0 ${size === 'task' ? 'max-w-5xl' : 'max-w-site'} px-4 sm:px-6 ${className}`}>{children}</div>;
 }
 
 const TONE_CLASSES = {

@@ -11,6 +11,7 @@ import { ScrollChrome } from '@/components/scrollChrome';
 import { SiteFooter } from '@/components/siteFooter';
 import { SiteHeader } from '@/components/siteHeader';
 import { StickyActionBar } from '@/components/stickyActionBar';
+import { HideOnTask, TaskFooter, TaskHeader } from '@/components/taskChrome';
 import { WhatsAppButton } from '@/components/whatsAppButton';
 import { deriveWhatsAppHref } from '@/lib/publicContact';
 import '../globals.css';
@@ -83,9 +84,10 @@ export default async function RootLayout({ children, params }) {
             >
               {dictionary.common.skipToContent}
             </a>
-            <HideOnOffice><PromoStrip promo={dictionary.common.promo} /></HideOnOffice>
+            <HideOnOffice><HideOnTask><PromoStrip promo={dictionary.common.promo} /></HideOnTask></HideOnOffice>
             <ScrollChrome label={dictionary.common.scrollTop} />
-            <HideOnOffice><SiteHeader dictionary={dictionary} locale={lang} /></HideOnOffice>
+            <HideOnOffice><HideOnTask><SiteHeader dictionary={dictionary} locale={lang} /></HideOnTask></HideOnOffice>
+            <TaskHeader />
             <OfficeHeader />
             {/* Quiet cross-fade between pages (Next View Transitions; RM-disabled in globals.css) */}
             <ViewTransition>
@@ -93,7 +95,8 @@ export default async function RootLayout({ children, params }) {
                 {children}
               </main>
             </ViewTransition>
-            <HideOnOffice><SiteFooter dictionary={dictionary} /></HideOnOffice>
+            <HideOnOffice><HideOnTask><SiteFooter dictionary={dictionary} /></HideOnTask></HideOnOffice>
+            <TaskFooter />
             <HideOnOffice><StickyActionBar
               cta={primaryCta}
               label={dictionary.common.stickyBar.label}
@@ -102,7 +105,7 @@ export default async function RootLayout({ children, params }) {
               hasCallback={Boolean(features.callbackRequests)}
             /></HideOnOffice>
             <HideOnOffice><MobileTabBar tabs={getMobileTabs(dictionary, features)} label={dictionary.common.tabs.label} /></HideOnOffice>
-            <HideOnOffice>
+            <HideOnOffice><HideOnTask>
             {features.whatsAppChatButton && (
               <WhatsAppButton
                 href={deriveWhatsAppHref(dictionary.whatsapp.greeting)}
@@ -110,7 +113,7 @@ export default async function RootLayout({ children, params }) {
                 text={dictionary.whatsapp.button.text}
               />
             )}
-            </HideOnOffice>
+            </HideOnTask></HideOnOffice>
           </FeaturesProvider>
         </LocaleProvider>
       </body>

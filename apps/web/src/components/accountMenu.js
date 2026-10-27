@@ -12,7 +12,7 @@ import { clearSession, useSession } from '@/lib/session';
 
 const TRIGGER_CLASS =
   'flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full px-1 text-on-canvas hover:bg-canvas-raised sm:rounded-xl sm:px-2.5 sm:text-[15px] sm:font-medium';
-const ITEM_CLASS = 'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-ink hover:bg-primary-50 focus:bg-primary-50 focus:outline-none';
+const ITEM_CLASS = 'flex min-h-11 w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-ink hover:bg-primary-50 focus:bg-primary-50 active:bg-primary-100';
 
 function deriveInitials(user) {
   const words = (user.FullName ?? '').trim().split(/\s+/).filter(Boolean);
@@ -166,7 +166,7 @@ export function AccountMenu({ signInHref, signInLabel }) {
           role="menu"
           aria-label={copy.menuLabel}
           onKeyDown={handleMenuKeyDown}
-          className="absolute right-0 top-full z-50 mt-2 w-56 rounded-card border border-line bg-card p-1.5 shadow-card"
+          className="absolute right-0 top-full z-50 mt-2 max-h-[calc(100dvh-6rem)] w-64 max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain rounded-card border border-line bg-card p-2 shadow-raised"
         >
           <p className="truncate px-3 py-2 text-xs text-ink-muted">{user.Email}</p>
           {items.map((item) => (

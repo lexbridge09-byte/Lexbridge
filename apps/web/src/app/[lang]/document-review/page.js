@@ -1,96 +1,44 @@
-import { Check } from 'lucide-react';
 import { getDictionary, getFaqItems, getServerFeatures, requireFeaturePage } from '@/brand';
 import { DocumentReviewDropzone } from '@/components/documentReview/documentReviewDropzone';
-import { ButtonLink, FaqAccordion, ProcessSteps, Section, SectionHeader } from '@/components/ui';
-import { getIcon } from '@/lib/icons';
+import { Card, FaqAccordion, TaskHelp, TaskPage } from '@/components/ui';
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
   return getDictionary(lang).documentReview.landing.metadata;
 }
 
-// Upload first: the drop zone sits above the fold; what you get, how it works and FAQ follow
-export default async function DocumentReviewLandingPage({ params }) {
+export default async function DocumentReviewPage({ params }) {
   await requireFeaturePage('aiDocumentReview');
   const { lang } = await params;
-  const [dictionary, features] = await Promise.all([getDictionary(lang), getServerFeatures()]);
+  const dictionary = getDictionary(lang);
+  const features = await getServerFeatures();
   const copy = dictionary.documentReview.landing;
   const faqItems = getFaqItems(dictionary, lang, features, { ids: copy.faq.ids });
 
   return (
-    <>
-      <Section tone="alt" size="sm">
-        <div className="grid items-center gap-5 lg:grid-cols-[1fr_1.15fr] lg:gap-x-12">
-          <div className="lg:col-start-1 lg:row-start-1 lg:self-end">
-            <h1 className="text-h2 text-on-canvas">{copy.header.title}</h1>
-            <p className="mt-2 text-base leading-7 text-on-canvas-muted lg:text-lg">{copy.header.lead}</p>
-          </div>
-          <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
-            <DocumentReviewDropzone />
-          </div>
-          <div className="lg:col-start-1 lg:row-start-2 lg:self-start">
-            <ul className="flex flex-wrap gap-x-5 gap-y-2">
-              {copy.checks.map((check) => (
-                <li key={check} className="flex items-center gap-1.5 text-sm font-medium text-on-canvas">
-                  <Check aria-hidden="true" className="size-4 text-success" strokeWidth={2.5} />
-                  {check}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-3 text-xs text-on-canvas-muted">{copy.disclaimer}</p>
-          </div>
-        </div>
-      </Section>
-
-      <Section labelledBy="review-outputs-title">
-        <SectionHeader id="review-outputs-title" title={copy.outputs.title} description={copy.outputs.description} />
-        <ul className="reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {copy.outputs.items.map((item) => {
-            const Icon = getIcon(item.icon);
-            return (
-              <li key={item.title} className="rounded-card border border-line bg-card p-5">
-                <span className="flex size-10 items-center justify-center rounded-control bg-primary-50 text-primary">
-                  <Icon aria-hidden="true" className="size-5" strokeWidth={1.75} />
-                </span>
-                <h3 className="mt-3 font-display text-[15px] font-semibold text-ink">{item.title}</h3>
+    <TaskPage title={copy.header.title} lead={copy.header.lead}>
+      <p className="mb-4 border-l-2 border-primary pl-3 text-sm text-on-canvas-muted">{copy.disclaimer}</p>
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
+        <DocumentReviewDropzone />
+        <Card as="aside" aria-labelledby="review-outputs-title">
+          <h2 id="review-outputs-title" className="text-h4 text-ink">{copy.outputs.title}</h2>
+          <ul className="mt-3 divide-y divide-line">
+            {copy.outputs.items.map((item) => (
+              <li key={item.title} className="py-3 first:pt-0 last:pb-0">
+                <h3 className="text-sm font-semibold text-ink">{item.title}</h3>
                 <p className="mt-1 text-sm leading-6 text-ink-muted">{item.description}</p>
               </li>
-            );
-          })}
+            ))}
+          </ul>
+        </Card>
+      </div>
+      <TaskHelp title={copy.documents.title}>
+        <p>{copy.documents.description}</p>
+        <ul className="grid list-inside list-disc gap-2 sm:grid-cols-2">
+          {copy.documents.items.map((name) => <li key={name}>{name}</li>)}
         </ul>
-      </Section>
-
-      <Section tone="alt" labelledBy="review-steps-title">
-        <SectionHeader id="review-steps-title" title={copy.steps.title} />
-        <ProcessSteps steps={copy.steps.items} />
-      </Section>
-
-      <Section labelledBy="review-documents-title" size="sm">
-        <SectionHeader id="review-documents-title" title={copy.documents.title} description={copy.documents.description} />
-        <ul className="flex flex-wrap gap-2">
-          {copy.documents.items.map((documentName) => (
-            <li key={documentName} className="rounded-full border border-line bg-card px-3.5 py-1.5 text-sm font-medium text-ink">
-              {documentName}
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      {faqItems.length > 0 && (
-        <Section tone="alt" labelledBy="review-faq-title" size="sm">
-          <div className="grid gap-5 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
-            <div>
-              <h2 id="review-faq-title" className="text-section text-on-canvas">
-                {copy.faq.title}
-              </h2>
-              <ButtonLink href="/faq" variant="linkOnDark" className="mt-2">
-                {dictionary.home.faq.viewAll}
-              </ButtonLink>
-            </div>
-            <FaqAccordion items={faqItems} />
-          </div>
-        </Section>
-      )}
-    </>
+      </TaskHelp>
+      {faqItems.length > 0 && <TaskHelp title={copy.faq.title}><FaqAccordion items={faqItems} isFirstOpen={false} /></TaskHelp>}
+    </TaskPage>
   );
 }

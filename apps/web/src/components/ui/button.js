@@ -2,9 +2,9 @@ import { LoaderCircle } from 'lucide-react';
 import { LocaleLink } from '@/components/localeLink';
 
 const VARIANT_CLASSES = {
-  // The only gradient in the system: one per view, for the action people should take next.
+  // A solid, quiet action colour; reserve decorative gradients for the landing page.
   // Charcoal text on bronze: bronze + white fails AA at button sizes.
-  primary: 'bg-cta font-bold text-canvas shadow-glow hover:brightness-110 active:brightness-95',
+  primary: 'border border-primary bg-primary text-canvas shadow-hairline hover:border-primary-bright hover:bg-primary-bright active:bg-primary',
   secondary: 'border border-primary-dark bg-card text-primary-dark hover:bg-primary-50',
   outline: 'border border-line-strong bg-card text-ink hover:border-ink hover:bg-card-hover',
   ghost: 'text-ink hover:bg-card-hover',
@@ -24,14 +24,15 @@ const SIZE_CLASSES = {
 };
 
 export function buttonClassName({ variant = 'primary', size = 'md', isFullWidth = false, className = '' } = {}) {
+  const isLink = variant === 'link' || variant === 'linkOnDark';
   return [
-    'inline-flex select-none items-center justify-center gap-2 text-center font-semibold',
+    'inline-flex max-w-full min-w-0 select-none items-center justify-center gap-2 whitespace-normal break-words text-center font-semibold [&>svg]:shrink-0',
     'transition-[background-color,border-color,color,box-shadow,filter,transform] duration-(--dur-150) ease-(--ease-standard)',
-    variant === 'link' ? '' : 'active:scale-(--press-scale)',
+    isLink ? 'min-h-9 rounded-md py-1 text-sm' : 'active:scale-(--press-scale)',
     'disabled:pointer-events-none disabled:opacity-55 aria-disabled:pointer-events-none aria-disabled:opacity-55',
     'motion-reduce:transition-none motion-reduce:active:scale-100',
     VARIANT_CLASSES[variant] ?? VARIANT_CLASSES.primary,
-    variant === 'link' ? '' : SIZE_CLASSES[size] ?? SIZE_CLASSES.md,
+    isLink ? '' : SIZE_CLASSES[size] ?? SIZE_CLASSES.md,
     isFullWidth ? 'w-full' : '',
     className,
   ]

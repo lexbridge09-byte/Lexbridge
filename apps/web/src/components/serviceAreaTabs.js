@@ -27,23 +27,30 @@ export function ServiceAreaTabs({ serviceKeys, serviceHrefs }) {
 
   function handleKeyDown(event) {
     const offset = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
-    if (!offset) return;
+    if (!offset && event.key !== 'Home' && event.key !== 'End') return;
     event.preventDefault();
-    const nextIndex = (serviceKeys.indexOf(activeKey) + offset + serviceKeys.length) % serviceKeys.length;
+    const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? serviceKeys.length - 1 : (serviceKeys.indexOf(activeKey) + offset + serviceKeys.length) % serviceKeys.length;
     selectTab(serviceKeys[nextIndex]);
     document.getElementById(`service-tab-${serviceKeys[nextIndex]}`)?.focus();
   }
 
   const service = copy.items[activeKey];
+  if (!service) return null;
 
   return (
-    <div className="grid items-start gap-5 lg:grid-cols-[17rem_1fr] lg:gap-8">
+    <div className="grid min-w-0 items-start gap-5 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-6">
+      <div className="min-w-0 lg:hidden">
+        <label htmlFor="service-area" className="block text-sm font-semibold text-on-canvas">{copy.tabsLabel}</label>
+        <select id="service-area" value={activeKey} onChange={(event) => selectTab(event.target.value)} className="control mt-2 pr-10">
+          {serviceKeys.map((key) => <option key={key} value={key}>{copy.items[key].title}</option>)}
+        </select>
+      </div>
       <div
         role="tablist"
         aria-label={copy.tabsLabel}
         aria-orientation="vertical"
         onKeyDown={handleKeyDown}
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:sticky lg:top-24 lg:mx-0 lg:flex-col lg:gap-1 lg:rounded-card lg:border lg:border-line lg:bg-card lg:p-2 lg:shadow-sm"
+        className="hidden min-w-0 flex-col gap-1 rounded-card border border-line bg-card p-2 lg:sticky lg:top-24 lg:flex"
       >
         {serviceKeys.map((serviceKey) => {
           const isActive = serviceKey === activeKey;
@@ -57,10 +64,10 @@ export function ServiceAreaTabs({ serviceKeys, serviceHrefs }) {
               aria-controls="service-panel"
               tabIndex={isActive ? 0 : -1}
               onClick={() => selectTab(serviceKey)}
-              className={`flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold lg:rounded-xl lg:px-3 lg:py-2.5 lg:text-left ${isActive ? 'bg-cta text-canvas lg:bg-primary-50 lg:text-primary-dark' : 'bg-canvas-raised text-on-canvas-muted hover:text-on-canvas lg:bg-transparent lg:text-ink-muted lg:hover:bg-card-hover lg:hover:text-ink'}`}
+              className={`flex min-h-12 min-w-0 items-center gap-2.5 rounded-control px-3 py-3 text-left text-sm font-semibold ${isActive ? 'bg-primary-50 text-primary-dark ring-1 ring-inset ring-primary-100' : 'text-ink-muted hover:bg-card-hover hover:text-ink'}`}
             >
-              {createElement(getServiceIcon(serviceKey), { 'aria-hidden': true, className: 'hidden size-5 lg:block', strokeWidth: 1.75 })}
-              {copy.items[serviceKey].title}
+              {createElement(getServiceIcon(serviceKey), { 'aria-hidden': true, className: 'size-5 shrink-0', strokeWidth: 1.75 })}
+              <span className="min-w-0 break-words">{copy.items[serviceKey].title}</span>
             </button>
           );
         })}
@@ -69,15 +76,16 @@ export function ServiceAreaTabs({ serviceKeys, serviceHrefs }) {
       <section
         id="service-panel"
         role="tabpanel"
-        aria-labelledby={`service-tab-${activeKey}`}
-        className="rounded-panel border border-line bg-card p-5 shadow-sm sm:p-8"
+        aria-labelledby="service-panel-title"
+        tabIndex={0}
+        className="min-w-0 rounded-panel border border-line bg-card p-5 shadow-sm sm:p-6"
       >
         <div className="flex items-start gap-4">
           <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary">
             {createElement(getServiceIcon(activeKey), { 'aria-hidden': true, className: 'size-6', strokeWidth: 1.75 })}
           </span>
-          <div>
-            <h2 className="text-h3 text-ink">{service.title}</h2>
+          <div className="min-w-0">
+            <h2 id="service-panel-title" className="break-words text-h3 text-ink">{service.title}</h2>
             <p className="mt-1 leading-7 text-ink-muted">{service.intro}</p>
           </div>
         </div>

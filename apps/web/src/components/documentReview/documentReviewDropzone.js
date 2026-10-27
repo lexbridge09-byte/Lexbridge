@@ -34,6 +34,7 @@ export function DocumentReviewDropzone({ allowance: knownAllowance }) {
   const format = useFormatters();
   const { status } = useSession();
   const fileInputRef = useRef(null);
+  const isUploadingRef = useRef(false);
   const [fetchedAllowance, setFetchedAllowance] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -64,7 +65,9 @@ export function DocumentReviewDropzone({ allowance: knownAllowance }) {
   }
 
   async function handleFile(file) {
-    if (!file) return;
+    if (!file || isUploadingRef.current || isLimitReached || status === 'loading') return;
+    // Clear even on early validation failures so choosing the same file retries.
+    if (fileInputRef.current) fileInputRef.current.value = '';
     if (!isSignedIn) {
       goToSignIn();
       return;
@@ -93,9 +96,10 @@ export function DocumentReviewDropzone({ allowance: knownAllowance }) {
     setIntakeErrors({});
 
     const formData = new FormData();
-    formData.append('file', file);
     formData.append('IntakeSubtype', 'document-review');
     formData.append('IntakeDetails', JSON.stringify(intakeDetails));
+    formData.append('file', file);
+    isUploadingRef.current = true;
     setIsUploading(true);
     setMessage(null);
     try {
@@ -107,9 +111,10 @@ export function DocumentReviewDropzone({ allowance: knownAllowance }) {
         return;
       }
       setMessage({ tone: 'error', text: error.status === 429 ? listCopy.limitReached : localizeApiError(error, dictionary) });
-      setIsUploading(false);
     } finally {
+      isUploadingRef.current = false;
       if (fileInputRef.current) fileInputRef.current.value = '';
+      setIsUploading(false);
     }
   }
 
@@ -118,7 +123,7 @@ export function DocumentReviewDropzone({ allowance: knownAllowance }) {
   return (
     <div className="rounded-panel border border-line bg-card p-3 shadow-soft sm:p-4">
       {/* Context for the reviewer: which document it is and how urgent — feeds the assignment desk */}
-      <fieldset className="mb-4 motion-safe:animate-rise rounded-xl border border-line bg-card-dim/60 p-4">
+      <fieldset disabled={isUploading} className="mb-4 motion-safe:animate-rise rounded-xl border border-line bg-card-dim/60 p-4">
         <legend className="px-1 text-xs font-semibold text-ink-muted">{copy.aboutTitle}</legend>
         <div className="stagger grid gap-3 sm:grid-cols-2">
           {reviewFields.map((field) => {

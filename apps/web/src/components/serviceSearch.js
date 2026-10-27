@@ -2,9 +2,10 @@
 
 import { ArrowRight, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useDictionary, useLocalizedHref } from '@/brand/localeContext';
 import { useIsFeatureEnabled } from '@/components/featuresProvider';
+import { deriveOverlayPlacement } from '@/lib/overlayPosition';
 
 const RESULT_LIMIT = 6;
 
@@ -39,6 +40,9 @@ export function ServiceSearch({ items, className = '' }) {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [placement, setPlacement] = useState({ isAbove: false, maxHeight: 320 });
+  const inputRef = useRef(null);
+  const listboxRef = useRef(null);
   const baseId = useId().replace(/:/g, '');
   const listboxId = `${baseId}-listbox`;
 
@@ -57,6 +61,32 @@ export function ServiceSearch({ items, className = '' }) {
     : matches;
   const isExpanded = isOpen && options.length > 0;
 
+  useEffect(() => {
+    if (!isExpanded) return undefined;
+    function updatePlacement() {
+      if (!inputRef.current) return;
+      const { top, bottom } = inputRef.current.getBoundingClientRect();
+      const viewport = window.visualViewport;
+      const next = deriveOverlayPlacement({ top, bottom, viewportTop: viewport?.offsetTop ?? 0, viewportHeight: viewport?.height ?? window.innerHeight });
+      setPlacement((current) => current.isAbove === next.isAbove && current.maxHeight === next.maxHeight ? current : next);
+    }
+    updatePlacement();
+    window.addEventListener('resize', updatePlacement);
+    window.addEventListener('scroll', updatePlacement, true);
+    window.visualViewport?.addEventListener('resize', updatePlacement);
+    window.visualViewport?.addEventListener('scroll', updatePlacement);
+    return () => {
+      window.removeEventListener('resize', updatePlacement);
+      window.removeEventListener('scroll', updatePlacement, true);
+      window.visualViewport?.removeEventListener('resize', updatePlacement);
+      window.visualViewport?.removeEventListener('scroll', updatePlacement);
+    };
+  }, [isExpanded]);
+
+  useEffect(() => {
+    if (isExpanded && activeIndex >= 0) listboxRef.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });
+  }, [activeIndex, isExpanded]);
+
   function choose(option) {
     setIsOpen(false);
     router.push(toLocalized(option.href));
@@ -67,7 +97,10 @@ export function ServiceSearch({ items, className = '' }) {
       event.preventDefault();
       setIsOpen(true);
       const step = event.key === 'ArrowDown' ? 1 : -1;
-      setActiveIndex((index) => (options.length ? (index + step + options.length) % options.length : -1));
+      setActiveIndex((index) => options.length ? index < 0 ? (step > 0 ? 0 : options.length - 1) : (index + step + options.length) % options.length : -1);
+    } else if (isExpanded && (event.key === 'Home' || event.key === 'End')) {
+      event.preventDefault();
+      setActiveIndex(event.key === 'Home' ? 0 : options.length - 1);
     } else if (event.key === 'Enter') {
       event.preventDefault();
       const option = options[activeIndex] ?? (trimmedQuery ? options[0] : null);
@@ -80,13 +113,14 @@ export function ServiceSearch({ items, className = '' }) {
   }
 
   return (
-    <div role="search" className={`relative ${className}`}>
+    <div role="search" className={`relative min-w-0 ${isExpanded ? 'z-30' : ''} ${className}`}>
       <label htmlFor={`${baseId}-input`} className="sr-only">
         {copy.label}
       </label>
       <div className="relative">
         <Search aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-on-canvas-muted" strokeWidth={2} />
         <input
+          ref={inputRef}
           id={`${baseId}-input`}
           type="text"
           role="combobox"
@@ -103,18 +137,20 @@ export function ServiceSearch({ items, className = '' }) {
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
-          onBlur={() => setIsOpen(false)}
+          onBlur={() => { setIsOpen(false); setActiveIndex(-1); }}
           onKeyDown={handleKeyDown}
-          className="control-glass block h-12 w-full rounded-card pl-12 pr-4 text-[15px] shadow-hairline placeholder:text-on-canvas-subtle transition-colors duration-(--dur-150) focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/25"
+          className="control-glass block min-h-12 w-full min-w-0 rounded-control py-3 pl-12 pr-4 text-base placeholder:text-on-canvas-muted transition-colors duration-(--dur-150) hover:border-primary/60 focus:border-primary focus:outline-2 focus:outline-offset-2 focus:outline-primary"
         />
       </div>
 
       {isExpanded && (
         <ul
+          ref={listboxRef}
           id={listboxId}
           role="listbox"
           aria-label={trimmedQuery ? copy.results(matches.length) : copy.suggestions}
-          className="absolute inset-x-0 top-full z-40 mt-2 max-h-96 overflow-y-auto rounded-card border border-line bg-card p-1.5 text-ink shadow-float"
+          style={{ maxHeight: placement.maxHeight }}
+          className={`absolute inset-x-0 z-40 overflow-y-auto overscroll-contain rounded-card border border-line bg-card p-2 text-ink shadow-raised ${placement.isAbove ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'}`}
         >
           {!trimmedQuery && <li role="presentation" className="px-3 pb-1 pt-2 text-xs font-semibold text-ink-muted">{copy.suggestions}</li>}
           {options.map((option, optionIndex) => {
@@ -129,11 +165,11 @@ export function ServiceSearch({ items, className = '' }) {
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => choose(option)}
                 onMouseEnter={() => setActiveIndex(optionIndex)}
-                className={`flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 ${isActive ? 'bg-primary-50' : ''} ${option.kind === 'describe' ? 'mt-1 border-t border-line text-primary-dark' : ''}`}
+                className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-control px-3 py-3 active:bg-primary-100 ${isActive ? 'bg-primary-50 ring-1 ring-inset ring-primary-100' : ''} ${option.kind === 'describe' ? 'mt-1 border-t border-line text-primary-dark' : ''}`}
               >
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold">{option.title}</span>
-                  {option.subtitle && <span className="block truncate text-xs text-ink-muted">{option.subtitle}</span>}
+                  <span className="block break-words text-sm font-semibold leading-5">{option.title}</span>
+                  {option.subtitle && <span className="mt-0.5 block break-words text-xs leading-5 text-ink-muted">{option.subtitle}</span>}
                 </span>
                 <ArrowRight aria-hidden="true" className="size-4 shrink-0 text-primary" strokeWidth={2} />
               </li>

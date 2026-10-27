@@ -50,6 +50,7 @@ export function SolutionFinder({ initialConcern = '' }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (outcome.phase === 'loading') return;
     if (concern.trim().length < MIN_CONCERN_LENGTH) {
       setOutcome({ phase: 'describe', error: copy.form.tooShort });
       return;
@@ -174,7 +175,7 @@ export function SolutionFinder({ initialConcern = '' }) {
           </>
         )}
 
-        <Button variant="link" onClick={() => setOutcome({ phase: 'describe' })} className="mt-5">
+        <Button type="button" variant="link" onClick={() => setOutcome({ phase: 'describe' })} className="mt-5">
           {copy.result.edit}
         </Button>
         <p className="mt-5 border-t border-line pt-4 text-xs leading-5 text-ink-muted">{copy.result.disclaimer}</p>

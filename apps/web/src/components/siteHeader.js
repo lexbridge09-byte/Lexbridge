@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { getAccountLink, getPrimaryCta, getPrimaryNav, getServerFeatures } from '@/brand';
 import { AccountMenu } from '@/components/accountMenu';
 import { BrandLogo } from '@/components/brandLogo';
@@ -6,25 +6,22 @@ import { CallbackRequestButton } from '@/components/callbackRequestButton';
 import { LanguageSwitcher } from '@/components/languageSwitcher';
 import { LocaleLink } from '@/components/localeLink';
 import { MobileMenu } from '@/components/mobileMenu';
+import { NavigationDisclosure } from '@/components/navigationDisclosure';
 import { ButtonLink } from '@/components/ui';
 import { formatRupees } from '@/lib/formatValues';
 import { getIcon } from '@/lib/icons';
 
-// Fixed minimum widths keep the header from shifting when the language (and label length) changes
+// Natural widths avoid clipping the right-hand actions at intermediate desktop sizes.
 const NAV_LINK_CLASS =
-  'flex min-w-34 items-center justify-center gap-1 whitespace-nowrap rounded-control px-3 py-2 text-[15px] font-medium text-on-canvas/85 transition-colors duration-(--dur-150) hover:bg-canvas-raised hover:text-on-canvas';
+  'flex min-h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-control px-3 py-2 text-sm font-medium text-on-canvas/85 transition-colors duration-(--dur-150) hover:bg-canvas-raised hover:text-on-canvas active:bg-canvas-raised';
 
 // Services: a full-width panel grouped by life situation (opens on hover or keyboard focus)
 function MegaMenu({ item, common, locale }) {
   return (
-    <li className="menu-trigger">
-      <LocaleLink href={item.href} aria-haspopup="true" className={NAV_LINK_CLASS}>
-        {item.label}
-        <ChevronDown aria-hidden="true" className="menu-chevron size-4" strokeWidth={2} />
-      </LocaleLink>
-      <div className="menu-panel absolute inset-x-0 top-full z-50 pt-2">
+    <li>
+      <NavigationDisclosure label={item.label} triggerClassName={NAV_LINK_CLASS} isWide>
         <div className="mx-auto max-w-site px-6">
-          <div className="rounded-panel border border-line bg-card p-6 shadow-raised">
+          <div className="max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain rounded-panel border border-line bg-card p-6 shadow-raised">
             <p className="text-xs font-semibold text-ink-muted">{common.nav.megaTitle}</p>
             <ul aria-label={common.nav.servicesMenuLabel} className="mt-4 grid grid-cols-5 gap-6">
               {item.mega.map((group) => {
@@ -46,7 +43,7 @@ function MegaMenu({ item, common, locale }) {
                             href={link.href}
                             className="-mx-2 flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm text-ink/85 transition-colors duration-(--dur-150) hover:bg-primary-50 hover:text-primary-dark"
                           >
-                            <span className="truncate">{link.label}</span>
+                             <span className="min-w-0 break-words">{link.label}</span>
                             {Number.isFinite(link.pricePaise) && (
                               <span className="tabular shrink-0 text-xs text-ink-muted">{formatRupees(link.pricePaise, locale)}</span>
                             )}
@@ -73,7 +70,7 @@ function MegaMenu({ item, common, locale }) {
             </div>
           </div>
         </div>
-      </div>
+      </NavigationDisclosure>
     </li>
   );
 }
@@ -81,25 +78,21 @@ function MegaMenu({ item, common, locale }) {
 // Help: a small dropdown anchored to its trigger
 function Dropdown({ item, common }) {
   return (
-    <li className="menu-trigger relative">
-      <LocaleLink href={item.href} aria-haspopup="true" className={NAV_LINK_CLASS}>
-        {item.label}
-        <ChevronDown aria-hidden="true" className="menu-chevron size-4" strokeWidth={2} />
-      </LocaleLink>
-      <div className="menu-panel absolute left-0 top-full z-50 w-60 pt-2">
-        <ul aria-label={common.nav.helpMenuLabel} className="rounded-card border border-line bg-card p-1.5 shadow-raised">
+    <li>
+      <NavigationDisclosure label={item.label} triggerClassName={NAV_LINK_CLASS}>
+        <ul aria-label={common.nav.helpMenuLabel} className="max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain rounded-card border border-line bg-card p-2 shadow-raised">
           {item.children.map((child) => (
             <li key={child.key}>
               <LocaleLink
                 href={child.href}
-                className="block rounded-control px-3 py-2.5 text-sm font-medium text-ink transition-colors duration-(--dur-150) hover:bg-primary-50 hover:text-primary-dark"
+                className="flex min-h-11 items-center rounded-control px-3 py-2.5 text-sm font-medium text-ink transition-colors duration-(--dur-150) hover:bg-primary-50 hover:text-primary-dark focus-visible:bg-primary-50 active:bg-primary-100"
               >
                 {child.label}
               </LocaleLink>
             </li>
           ))}
         </ul>
-      </div>
+      </NavigationDisclosure>
     </li>
   );
 }
@@ -147,7 +140,7 @@ export async function SiteHeader({ dictionary, locale }) {
           </div>
           {features.callbackRequests && <CallbackRequestButton variant="header" />}
           {accountLink && <AccountMenu signInHref={accountLink.href} signInLabel={accountLink.label} />}
-          <div className="hidden lg:block">
+          <div className="hidden 2xl:block">
             <ButtonLink href={primaryCta.href} size="sm" className="min-w-46 whitespace-nowrap">
               {primaryCta.label}
             </ButtonLink>

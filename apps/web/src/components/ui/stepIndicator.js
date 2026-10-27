@@ -1,7 +1,8 @@
 import { Check } from 'lucide-react';
 
 // Compact "1 Details · 2 Pay · 3 Done" progress; `current` is 1-based
-export function StepIndicator({ label, steps, current, className = '' }) {
+export function StepIndicator({ label, steps, current, surface = 'dark', className = '' }) {
+  const isLight = surface === 'light';
   return (
     <ol aria-label={label} className={`flex flex-wrap items-center gap-2 text-xs font-semibold sm:text-sm ${className}`}>
       {steps.map((step, stepIndex) => {
@@ -14,8 +15,8 @@ export function StepIndicator({ label, steps, current, className = '' }) {
             >
               {state === 'done' ? <Check aria-hidden="true" className="size-3.5" strokeWidth={3} /> : stepNumber}
             </span>
-            <span className={state === 'todo' ? 'text-on-canvas-muted' : 'text-on-canvas'}>{step}</span>
-            {stepNumber < steps.length && <span aria-hidden="true" className="h-px w-5 bg-line-canvas sm:w-8" />}
+            <span className={isLight ? (state === 'todo' ? 'text-ink-muted' : 'text-ink') : (state === 'todo' ? 'text-on-canvas-muted' : 'text-on-canvas')}>{step}</span>
+            {stepNumber < steps.length && <span aria-hidden="true" className={`h-px w-5 sm:w-8 ${isLight ? 'bg-line-strong' : 'bg-line-canvas'}`} />}
           </li>
         );
       })}

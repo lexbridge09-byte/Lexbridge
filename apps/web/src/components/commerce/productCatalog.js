@@ -6,7 +6,7 @@ import { useDictionary } from '@/brand/localeContext';
 import { ProductCard } from '@/components/commerce/productCard';
 import { useCatalogLabels } from '@/lib/localeTools';
 
-const TAB_CLASS = 'shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold';
+const TAB_CLASS = 'min-h-11 min-w-0 max-w-full whitespace-normal break-words rounded-control px-4 py-2 text-sm font-semibold';
 
 // Category tabs over the full published list; the choice is mirrored into ?category= so it can be shared
 export function ProductCatalog({ products, initialCategory = '' }) {
@@ -28,7 +28,7 @@ export function ProductCatalog({ products, initialCategory = '' }) {
 
   return (
     <div>
-      <div role="group" aria-label={copy.tabsLabel} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6">
+      <div role="group" aria-label={copy.tabsLabel} className="flex flex-wrap gap-2">
         {tabs.map((tab) => {
           const isActive = tab.key === activeCategory;
           return (
@@ -37,7 +37,7 @@ export function ProductCatalog({ products, initialCategory = '' }) {
               type="button"
               aria-pressed={isActive}
               onClick={() => selectCategory(tab.key)}
-              className={`${TAB_CLASS} ${isActive ? 'bg-primary text-white' : 'bg-card text-ink-muted ring-1 ring-line hover:text-ink'}`}
+              className={`${TAB_CLASS} ${isActive ? 'bg-primary text-canvas' : 'bg-card text-ink-muted ring-1 ring-line hover:text-ink'}`}
             >
               {tab.label}
             </button>

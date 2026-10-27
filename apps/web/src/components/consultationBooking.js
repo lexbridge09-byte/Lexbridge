@@ -2,7 +2,7 @@
 
 import { ArrowLeft, Check, CircleCheck } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { CONSULTATION_MODES, CONSULTATION_TYPES , getIntakeFields, getIntakeSubtypes, sanitizeIntakeDetails } from '@lexbridge/shared';
+import { CONSULTATION_MODES, CONSULTATION_TYPES, getIntakeFields, getIntakeSubtypes } from '@lexbridge/shared';
 import { useDictionary, useLocale } from '@/brand/localeContext';
 import { CheckboxField, FieldError, SelectField, TextAreaField, TextField } from '@/components/formFields';
 import { LocaleLink } from '@/components/localeLink';
@@ -12,12 +12,13 @@ import { requestApi } from '@/lib/apiClient';
 import { localizeApiError, localizeFieldErrors } from '@/lib/apiErrors';
 import { useCatalogLabels, useFormatters } from '@/lib/localeTools';
 import { deriveLoginHref } from '@/lib/safeRedirect';
-import { deriveSlotSelection } from '@/lib/consultationSlots';
+import { deriveConsultationFlow, deriveSlotSelection } from '@/lib/consultationSlots';
+import { formatDateKey } from '@/lib/formatValues';
 import { useIsFeatureEnabled } from '@/components/featuresProvider';
 
 const FORM_ID = 'consultation-form';
 const DRAFT_STORAGE_KEY = 'lexbridge.consultationDraft';
-const EMPTY_DRAFT = { ConsultationType: '', Mode: '', SlotId: '', Phone: '', Description: '', WhatsAppOptIn: false, IntakeCategory: '', IntakeSubtype: '', IntakeDetails: {} };
+const EMPTY_DRAFT = { ConsultationType: '', Mode: '', SlotId: '', FullName: '', Email: '', Phone: '', Description: '', WhatsAppOptIn: false, IntakeCategory: '', IntakeSubtype: '', IntakeDetails: {} };
 const INTAKE_CHIP_CLASS =
   'inline-flex min-h-11 cursor-pointer items-center rounded-control border border-line bg-card px-3.5 py-2 text-sm font-semibold text-ink transition-colors duration-(--dur-150) hover:border-primary-100 has-[:checked]:border-primary has-[:checked]:bg-primary-50 has-[:checked]:text-primary-dark';
 const CHOICE_STEP = 1;
@@ -74,8 +75,8 @@ function SummaryRow({ label, value, isMissing }) {
 }
 
 /*
-  Three short steps (consultation, date and time, details) so each screen fits without scrolling.
-  All steps stay mounted: choices survive Back, and the desktop summary follows along.
+  Available times: consultation -> date/time -> details. No available times:
+  consultation -> request details. Choices survive both paths and slot conflicts.
 */
 export function ConsultationBooking() {
   const dictionary = useDictionary();
@@ -84,11 +85,11 @@ export function ConsultationBooking() {
   const copy = dictionary.consultation;
   const stepCopy = dictionary.forms.serviceRequest;
   const summaryCopy = dictionary.ux.bookingSummary;
-  const stepNames = dictionary.ux.steps.booking;
   const locale = useLocale();
   const labels = useCatalogLabels();
   const format = useFormatters();
   const stepStatusRef = useRef(null);
+  const isSubmittingRef = useRef(false);
   const [session, setSession] = useState({ isChecked: false, user: null });
   const intakeCopy = dictionary.intake;
   const [slotsState, setSlotsState] = useState({ isLoaded: false, slots: [], error: '' });
@@ -103,6 +104,7 @@ export function ConsultationBooking() {
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [booking, setBooking] = useState(null);
+  const [requestReference, setRequestReference] = useState('');
 
   // Session check, then restore choices saved before the visitor went to sign in and resume where they left off
   useEffect(() => {
@@ -116,7 +118,12 @@ export function ConsultationBooking() {
         setSession({ isChecked: true, user });
         setDraft((current) => {
           const restored = savedDraft ? { ...current, ...savedDraft } : current;
-          return { ...restored, Phone: restored.Phone || user?.Phone || '' };
+          return {
+            ...restored,
+            FullName: restored.FullName || user?.FullName || '',
+            Email: restored.Email || user?.Email || '',
+            Phone: restored.Phone || user?.Phone || '',
+          };
         });
         if (savedDraft?.ConsultationType && savedDraft?.Mode) setStep(savedDraft.SlotId ? DETAILS_STEP : TIME_STEP);
         if (savedDraft && user) clearDraft();
@@ -143,9 +150,10 @@ export function ConsultationBooking() {
   const slotGroups = useMemo(() => groupSlotsByDate(slotsState.slots), [slotsState.slots]);
   const { selectedSlot, activeGroup } = deriveSlotSelection(slotGroups, draft.SlotId, selectedDateKey, slotsState.isLoaded);
   const hasChoice = Boolean(draft.ConsultationType && draft.Mode);
-  const hasSelections = Boolean(hasChoice && selectedSlot);
-  // Never show a step whose earlier choices are missing, e.g. a restored time that has since been booked
-  const activeStep = !hasChoice ? CHOICE_STEP : step === DETAILS_STEP && !selectedSlot ? TIME_STEP : step;
+  const flow = deriveConsultationFlow({ step, hasChoice, selectedSlot, isLoaded: slotsState.isLoaded, error: slotsState.error, slotCount: slotsState.slots.length });
+  const { activeStep, isRequestFlow, isAvailabilityReady } = flow;
+  const stepNames = isRequestFlow ? copy.request.steps : dictionary.ux.steps.booking;
+  const hasSelections = Boolean(hasChoice && (isRequestFlow || selectedSlot));
 
   function reloadSlots() {
     setSlotsState({ isLoaded: false, slots: [], error: '' });
@@ -193,27 +201,57 @@ export function ConsultationBooking() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (isSubmittingRef.current || !isAvailabilityReady) return;
     setFormError('');
 
     if (activeStep !== DETAILS_STEP) {
       const errors = validateStep();
       setFieldErrors(errors);
-      if (Object.keys(errors).length === 0) goToStep(activeStep + 1);
+      if (Object.keys(errors).length === 0) goToStep(flow.nextStep);
       return;
     }
     if (!hasSelections) return;
-    if (!session.user) {
+    if (!isRequestFlow && !session.user) {
       goToSignIn();
       return;
     }
-    if (!hasConsented) {
-      setFieldErrors({ ConsentGiven: copy.validation.consent });
+    const errors = {
+      ...(!hasConsented && { ConsentGiven: copy.validation.consent }),
+      ...(!/^\+?[\d\s-]{8,18}$/.test(draft.Phone.trim()) && { Phone: copy.validation.phone }),
+      ...(draft.Description.trim().length < (isRequestFlow ? 20 : 10) && { Description: isRequestFlow ? copy.request.descriptionError : copy.validation.description }),
+      ...(isRequestFlow && draft.FullName.trim().length < 2 && { FullName: copy.request.nameError }),
+      ...(isRequestFlow && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.Email.trim()) && { Email: copy.request.emailError }),
+    };
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
 
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     setFieldErrors({});
     try {
+      if (isRequestFlow) {
+        const data = await requestApi('/service-requests', {
+          method: 'POST',
+          body: {
+            FullName: draft.FullName.trim(),
+            Email: draft.Email.trim(),
+            Phone: draft.Phone.trim(),
+            ServiceCategory: 'legal-consultation',
+            Subtype: draft.IntakeSubtype,
+            IntakeDetails: draft.IntakeDetails,
+            Description: `Consultation request (no available slot).\nType: ${draft.ConsultationType}\nPreferred mode: ${draft.Mode}\nMatter category: ${draft.IntakeCategory || 'Not specified'}\n\n${draft.Description.trim()}`,
+            Source: 'contact-form',
+            PreferredLanguage: locale,
+            ConsentGiven: hasConsented,
+            WhatsAppOptIn: draft.WhatsAppOptIn,
+          },
+        });
+        clearDraft();
+        setRequestReference(data.ReferenceCode);
+        return;
+      }
       const data = await requestApi('/consultations', {
         method: 'POST',
         body: {
@@ -225,14 +263,14 @@ export function ConsultationBooking() {
           PreferredLanguage: locale,
           ConsentGiven: hasConsented,
           WhatsAppOptIn: draft.WhatsAppOptIn,
-          IntakeCategory: draft.IntakeCategory,
+          IntakeCategory: draft.IntakeCategory || undefined,
           IntakeSubtype: draft.IntakeSubtype,
           IntakeDetails: draft.IntakeDetails,
         },
       });
       clearDraft();
       setBooking(data.consultation);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     } catch (error) {
       if (error.status === 401) {
         goToSignIn();
@@ -248,14 +286,32 @@ export function ConsultationBooking() {
         setFormError(localizeApiError(error, dictionary));
       }
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   }
 
   const stepIndicator = (
-    <StepIndicator label={dictionary.ux.steps.label} steps={stepNames} current={booking ? stepNames.length + 1 : activeStep} className="mb-4" />
+    isAvailabilityReady && <StepIndicator label={dictionary.ux.steps.label} steps={stepNames} current={booking || requestReference ? stepNames.length + 1 : flow.currentStep} className="mb-4" />
   );
   const whenLabel = selectedSlot ? copy.success.whenValue(format.shortDay(selectedSlot.StartsAt), format.time(selectedSlot.StartsAt)) : '';
+
+  if (requestReference) {
+    return (
+      <Card padding="lg" role="status" className="mx-auto max-w-2xl">
+        <CircleCheck aria-hidden="true" className="size-10 text-success" />
+        <h2 className="mt-4 text-h3 text-ink">{copy.request.successTitle}</h2>
+        <p className="mt-2 leading-7 text-ink-muted">{copy.request.successBody}</p>
+        <dl className="mt-5 rounded-control bg-card-dim p-4">
+          <dt className="text-sm text-ink-muted">{copy.success.referenceLabel}</dt>
+          <dd className="mt-1 break-all font-mono font-semibold text-ink">{requestReference}</dd>
+        </dl>
+        <ButtonLink href={session.user ? `/dashboard/requests/${requestReference}` : deriveLoginHref(`/dashboard/requests/${requestReference}`, locale)} className="mt-5">
+          {copy.request.viewRequest}
+        </ButtonLink>
+      </Card>
+    );
+  }
 
   if (booking) {
     return (
@@ -307,10 +363,26 @@ export function ConsultationBooking() {
       <div className="grid items-start gap-5 lg:grid-cols-[1.7fr_1fr] lg:gap-8">
         <Card padding="lg" className="min-w-0">
           <p ref={stepStatusRef} tabIndex={-1} aria-live="polite" className="sr-only">
-            {stepCopy.stepStatus(activeStep, stepNames.length, stepNames[activeStep - 1])}
+            {isAvailabilityReady ? stepCopy.stepStatus(flow.currentStep, stepNames.length, stepNames[flow.currentStep - 1]) : copy.slots.loading}
           </p>
           <form id={FORM_ID} onSubmit={handleSubmit} noValidate>
+            <fieldset disabled={isSubmitting} className="min-w-0">
             <div hidden={activeStep !== CHOICE_STEP} className={`space-y-6 motion-safe:${stepDirection === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}>
+              {!slotsState.isLoaded ? (
+                <InlineAlert role="status">{copy.slots.loading}</InlineAlert>
+              ) : slotsState.error ? (
+                <InlineAlert tone="error" title={copy.slots.errorTitle}>
+                  <p>{copy.slots.errorBody}</p>
+                  <Button variant="link" onClick={reloadSlots} className="mt-2">{copy.slots.retry}</Button>
+                </InlineAlert>
+              ) : isRequestFlow ? (
+                <InlineAlert title={copy.request.noticeTitle} role="status">
+                  <p>{copy.request.noticeBody}</p>
+                  <Button variant="link" onClick={reloadSlots} className="mt-2">{copy.request.checkAgain}</Button>
+                </InlineAlert>
+              ) : (
+                <p className="rounded-control border border-success/20 bg-success-50 px-4 py-3 text-sm text-success" role="status">{copy.slots.available}</p>
+              )}
               <fieldset>
                 <legend className="text-h4 text-ink">{copy.sections.type}</legend>
                 <div className="mt-3 grid gap-3 md:grid-cols-3">
@@ -418,7 +490,7 @@ export function ConsultationBooking() {
               </fieldset>
             </div>
 
-            <fieldset hidden={activeStep !== TIME_STEP} aria-busy={!slotsState.isLoaded} className={`min-w-0 motion-safe:${stepDirection === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}>
+            <fieldset hidden={isRequestFlow || activeStep !== TIME_STEP} aria-busy={!slotsState.isLoaded} className={`min-w-0 motion-safe:${stepDirection === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}>
               <legend className="text-h4 text-ink">{copy.sections.slot}</legend>
               <p className="mt-1 text-sm text-ink-muted">{copy.timeZoneNote}</p>
 
@@ -433,14 +505,6 @@ export function ConsultationBooking() {
                   <Button variant="link" onClick={reloadSlots} className="mt-1">
                     {copy.slots.retry}
                   </Button>
-                </InlineAlert>
-              ) : slotGroups.length === 0 ? (
-                <InlineAlert tone="info" className="mt-3">
-                  {copy.slots.emptyBefore}{' '}
-                  <LocaleLink href="/contact?service=legal-consultation" className="font-semibold text-primary underline underline-offset-4">
-                    {copy.slots.emptyLink}
-                  </LocaleLink>{' '}
-                  {copy.slots.emptyAfter}
                 </InlineAlert>
               ) : (
                 <>
@@ -494,7 +558,16 @@ export function ConsultationBooking() {
 
             <fieldset hidden={activeStep !== DETAILS_STEP} className={`space-y-4 motion-safe:${stepDirection === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}>
               <legend className="text-h4 text-ink">{copy.sections.details}</legend>
-              {hasSelections && (
+              {isRequestFlow && (
+                <>
+                  <InlineAlert title={copy.request.title}>{copy.request.noticeBody}</InlineAlert>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <TextField name="FullName" label={copy.request.fullName} autoComplete="name" required maxLength={120} value={draft.FullName} onChange={(event) => updateDraft('FullName', event.target.value)} error={fieldErrors.FullName} />
+                    <TextField name="Email" label={copy.request.email} type="email" autoComplete="email" required maxLength={254} value={draft.Email} onChange={(event) => updateDraft('Email', event.target.value)} error={fieldErrors.Email} />
+                  </div>
+                </>
+              )}
+              {selectedSlot && (
                 <p className="rounded-xl bg-card-dim px-3.5 py-2.5 text-sm text-ink lg:hidden">
                   {copy.summary(labels.consultationType(draft.ConsultationType), labels.consultationMode(draft.Mode), format.shortDay(selectedSlot.StartsAt), format.time(selectedSlot.StartsAt))}
                 </p>
@@ -507,7 +580,8 @@ export function ConsultationBooking() {
                 placeholder={copy.fields.phonePlaceholder}
                 value={draft.Phone}
                 onChange={(event) => updateDraft('Phone', event.target.value)}
-                hint={copy.fields.phoneHint}
+                hint={isRequestFlow ? copy.request.phoneHint : copy.fields.phoneHint}
+                required
                 error={fieldErrors.Phone}
                 className="max-w-md"
               />
@@ -515,14 +589,15 @@ export function ConsultationBooking() {
                 label={copy.fields.descriptionLabel}
                 name="Description"
                 rows={3}
-                maxLength={5000}
+                maxLength={3000}
+                required
                 value={draft.Description}
                 onChange={(event) => updateDraft('Description', event.target.value)}
-                hint={copy.fields.descriptionHint}
+                hint={isRequestFlow ? copy.request.descriptionHint : copy.fields.descriptionHint}
                 error={fieldErrors.Description}
               />
 
-              {session.user && (
+              {(session.user || isRequestFlow) && (
                 <CheckboxField
                   name="ConsentGiven"
                   checked={hasConsented}
@@ -530,7 +605,7 @@ export function ConsultationBooking() {
                   error={fieldErrors.ConsentGiven}
                 >
                   {copy.consent.before}
-                  <LocaleLink href="/legal/privacy" className="font-semibold text-primary underline underline-offset-4">
+                  <LocaleLink href="/legal/privacy" className="font-semibold text-primary-dark underline underline-offset-4">
                     {copy.consent.link}
                   </LocaleLink>
                   {copy.consent.after}
@@ -550,25 +625,26 @@ export function ConsultationBooking() {
 
             <div className="mt-6 flex flex-col-reverse gap-3 border-t border-line pt-5 sm:flex-row sm:items-center">
               {activeStep > CHOICE_STEP && (
-                <Button variant="ghost" onClick={() => goToStep(activeStep - 1)}>
+                <Button type="button" variant="ghost" disabled={isSubmitting} onClick={() => goToStep(flow.previousStep)}>
                   <ArrowLeft aria-hidden="true" className="size-4" strokeWidth={2} />
                   {stepCopy.back}
                 </Button>
               )}
               <div className="flex flex-col gap-2 sm:ml-auto sm:flex-row sm:items-center sm:gap-4">
-                {activeStep === DETAILS_STEP && session.isChecked && !session.user && (
+                {activeStep === DETAILS_STEP && !isRequestFlow && session.isChecked && !session.user && (
                   <p className="text-center text-xs text-ink-muted sm:text-right">{copy.signInNote}</p>
                 )}
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={isSubmitting || (activeStep === TIME_STEP && (!slotsState.isLoaded || !selectedSlot)) || (activeStep === DETAILS_STEP && (!hasSelections || !session.isChecked))}
+                  disabled={isSubmitting || !isAvailabilityReady || (activeStep === TIME_STEP && !selectedSlot) || (activeStep === DETAILS_STEP && (!hasSelections || !session.isChecked))}
                   className="w-full sm:w-auto sm:min-w-44"
                 >
-                  {activeStep !== DETAILS_STEP ? stepCopy.continue : isSubmitting ? copy.submit.busy : session.user ? copy.submit.idle : copy.submit.signIn}
+                  {activeStep !== DETAILS_STEP ? stepCopy.continue : isSubmitting ? (isRequestFlow ? copy.request.busy : copy.submit.busy) : isRequestFlow ? copy.request.submit : session.user ? copy.submit.idle : copy.submit.signIn}
                 </Button>
               </div>
             </div>
+            </fieldset>
           </form>
         </Card>
 
@@ -576,7 +652,7 @@ export function ConsultationBooking() {
         <aside aria-labelledby="booking-summary-title" className="hidden lg:sticky lg:top-24 lg:block">
           <Card padding="md">
             <h2 id="booking-summary-title" className="text-h4 text-ink">
-              {summaryCopy.title}
+              {isRequestFlow ? copy.request.title : summaryCopy.title}
             </h2>
             <dl className="mt-3 space-y-2 text-sm">
               <SummaryRow
@@ -585,7 +661,7 @@ export function ConsultationBooking() {
                 isMissing={!draft.ConsultationType}
               />
               <SummaryRow label={summaryCopy.mode} value={draft.Mode ? labels.consultationMode(draft.Mode) : summaryCopy.notSelected} isMissing={!draft.Mode} />
-              <SummaryRow label={summaryCopy.when} value={whenLabel || summaryCopy.notSelected} isMissing={!selectedSlot} />
+              <SummaryRow label={summaryCopy.when} value={isRequestFlow ? copy.request.timePending : whenLabel || summaryCopy.notSelected} isMissing={!isRequestFlow && !selectedSlot} />
               <div className="border-t border-line pt-2">
                 <SummaryRow label={summaryCopy.fee} value={summaryCopy.feeValue} />
               </div>
@@ -600,7 +676,7 @@ export function ConsultationBooking() {
                 </li>
               ))}
             </ul>
-            <LocaleLink href="/faq" className="mt-4 block text-sm font-semibold text-primary hover:underline">
+            <LocaleLink href="/faq" className="mt-4 block text-sm font-semibold text-primary-dark hover:underline">
               {summaryCopy.faqLink}
             </LocaleLink>
           </Card>

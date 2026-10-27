@@ -122,6 +122,8 @@ export const commerce = {
     notSetUp: 'अभी ऑनलाइन भुगतान उपलब्ध नहीं है। कृपया हमसे संपर्क करें।',
     scriptFailed: 'भुगतान विंडो नहीं खुली। अपना इंटरनेट जांचें।',
     retry: 'फिर से कोशिश करें',
+    verifyPayment: 'भुगतान की स्थिति देखें',
+    editDetails: 'ऑर्डर की जानकारी बदलें',
     orderReference: (referenceCode) => `ऑर्डर ${referenceCode}`,
   },
 

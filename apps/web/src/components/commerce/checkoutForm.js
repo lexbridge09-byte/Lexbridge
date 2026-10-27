@@ -2,7 +2,7 @@
 
 import { Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDictionary, useLocalizedHref } from '@/brand/localeContext';
 import { CheckboxField, TextAreaField, TextField } from '@/components/formFields';
 import { LanguageSelectField } from '@/components/languageSelectField';
@@ -15,7 +15,7 @@ import { useFormatters } from '@/lib/localeTools';
 import { openRazorpayCheckout } from '@/lib/razorpay';
 import { useIsFeatureEnabled } from '@/components/featuresProvider';
 
-const THEME_COLOR = '#a3163f';
+const THEME_COLOR = '#7d6130';
 
 function SummaryRow({ label, value, isStrong = false }) {
   return (
@@ -28,17 +28,20 @@ function SummaryRow({ label, value, isStrong = false }) {
   );
 }
 
-function CouponField({ items, appliedCoupon, onApplied, onRemoved }) {
+function CouponField({ items, appliedCoupon, onApplied, onRemoved, isDisabled, onChecking }) {
   const dictionary = useDictionary();
   const copy = dictionary.commerce.checkout.coupon;
   const [code, setCode] = useState('');
   const [isChecking, setIsChecking] = useState(false);
   const [error, setError] = useState('');
+  const isCheckingRef = useRef(false);
 
   async function applyCoupon() {
     const couponCode = code.trim().toUpperCase();
-    if (!couponCode) return;
+    if (!couponCode || isDisabled || isCheckingRef.current) return;
+    isCheckingRef.current = true;
     setIsChecking(true);
+    onChecking(true);
     setError('');
     try {
       const emailInput = document.getElementById('checkout-email');
@@ -54,7 +57,9 @@ function CouponField({ items, appliedCoupon, onApplied, onRemoved }) {
     } catch (couponError) {
       setError(localizeApiError(couponError, dictionary));
     } finally {
+      isCheckingRef.current = false;
       setIsChecking(false);
+      onChecking(false);
     }
   }
 
@@ -64,6 +69,7 @@ function CouponField({ items, appliedCoupon, onApplied, onRemoved }) {
         <span className="font-semibold text-success">{copy.applied(appliedCoupon.CouponCode)}</span>
         <button
           type="button"
+          disabled={isDisabled}
           onClick={() => {
             setCode('');
             onRemoved();
@@ -84,6 +90,7 @@ function CouponField({ items, appliedCoupon, onApplied, onRemoved }) {
       <div className="mt-1.5 flex gap-2">
         <input
           id="checkout-coupon"
+          disabled={isDisabled || isChecking}
           value={code}
           onChange={(event) => setCode(event.target.value)}
           onKeyDown={(event) => {
@@ -97,7 +104,7 @@ function CouponField({ items, appliedCoupon, onApplied, onRemoved }) {
           aria-describedby={error ? 'checkout-coupon-error' : undefined}
           className="block w-full min-w-0 rounded-xl border border-line-strong bg-card px-3.5 py-2.5 text-[15px] uppercase text-ink focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-100 aria-[invalid=true]:border-danger"
         />
-        <Button variant="secondary" size="sm" onClick={applyCoupon} disabled={isChecking || !code.trim()} className="shrink-0">
+        <Button variant="secondary" size="sm" onClick={applyCoupon} disabled={isDisabled || isChecking || !code.trim()} className="shrink-0">
           {isChecking ? copy.applying : copy.apply}
         </Button>
       </div>
@@ -119,19 +126,26 @@ export function CheckoutForm({ product }) {
   const copy = dictionary.commerce.checkout;
   const format = useFormatters();
   const items = [{ Slug: product.Slug }];
-  const [user, setUser] = useState(null);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [message, setMessage] = useState('');
   const [isBusy, setIsBusy] = useState(false);
   const [pendingPayment, setPendingPayment] = useState(null);
+  const [isCouponChecking, setIsCouponChecking] = useState(false);
+  const [details, setDetails] = useState({ FullName: '', Email: '', Phone: '' });
+  const editedFieldsRef = useRef(new Set());
+  const isBusyRef = useRef(false);
 
   // Signed-in clients get their details filled in; guests can check out too
   useEffect(() => {
     let isCancelled = false;
     requestApi('/auth/me')
       .then(({ user: signedInUser }) => {
-        if (!isCancelled) setUser(signedInUser);
+        if (!isCancelled) {
+          setDetails((current) => Object.fromEntries(Object.entries(current).map(([field, value]) => [
+            field, editedFieldsRef.current.has(field) ? value : signedInUser?.[field] ?? value,
+          ])));
+        }
       })
       .catch(() => {});
     return () => {
@@ -150,43 +164,58 @@ export function CheckoutForm({ product }) {
   }
 
   async function payOrder(payment) {
+    if (isBusyRef.current) return;
+    isBusyRef.current = true;
     setPendingPayment(payment);
     setMessage('');
     setIsBusy(true);
     try {
-      let result;
-      try {
-        result = await openRazorpayCheckout(payment.checkout, THEME_COLOR);
-      } catch {
-        setMessage(copy.scriptFailed);
-        return;
-      }
-      if (result.outcome !== 'paid') {
-        setMessage(result.outcome === 'failed' ? copy.failed : copy.dismissed);
-        return;
+      let response = payment.response;
+      if (!response) {
+        let result;
+        try {
+          result = await openRazorpayCheckout(payment.checkout, THEME_COLOR);
+        } catch {
+          setMessage(copy.scriptFailed);
+          return;
+        }
+        if (result.outcome !== 'paid') {
+          setMessage(result.outcome === 'failed' ? copy.failed : copy.dismissed);
+          return;
+        }
+        response = result.response;
+        // A verification retry must not reopen checkout or charge the customer again.
+        setPendingPayment({ ...payment, response });
       }
       try {
         const { order } = await requestApi('/checkout/verify', {
           method: 'POST',
-          body: result.response,
+          body: response,
         });
         goToSuccess(order);
       } catch {
         setMessage(`${copy.verifyFailed} ${copy.orderReference(payment.order.ReferenceCode)}`);
       }
     } finally {
+      isBusyRef.current = false;
       setIsBusy(false);
     }
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (isBusyRef.current || isCouponChecking) return;
+    if (pendingPayment) {
+      await payOrder(pendingPayment);
+      return;
+    }
     const formData = new FormData(event.currentTarget);
     if (formData.get('ConsentGiven') !== 'on') {
       setFieldErrors({ ConsentGiven: copy.consentRequired });
       return;
     }
 
+    isBusyRef.current = true;
     setIsBusy(true);
     setFieldErrors({});
     setMessage('');
@@ -210,6 +239,7 @@ export function CheckoutForm({ product }) {
     } catch (error) {
       setFieldErrors(localizeFieldErrors(error, dictionary));
       setMessage(error.status === 503 ? copy.notSetUp : localizeApiError(error, dictionary));
+      isBusyRef.current = false;
       setIsBusy(false);
       return;
     }
@@ -219,7 +249,14 @@ export function CheckoutForm({ product }) {
       goToSuccess(created.order);
       return;
     }
+    isBusyRef.current = false;
     await payOrder(created);
+  }
+
+  function updateDetails(event) {
+    const { name, value } = event.target;
+    editedFieldsRef.current.add(name);
+    setDetails((current) => ({ ...current, [name]: value }));
   }
 
   const isFree = totalPaise === 0;
@@ -235,14 +272,17 @@ export function CheckoutForm({ product }) {
       <div className="grid items-start gap-5 lg:grid-cols-[1fr_22rem] lg:gap-8">
         <Card padding="md" className="order-2 lg:order-1">
           <h2 className="text-h4 text-ink">{copy.detailsTitle}</h2>
-          <form key={user?._id ?? 'guest'} onSubmit={handleSubmit} noValidate className="mt-4 space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="mt-4 space-y-4" aria-busy={isBusy}>
+            <fieldset disabled={isBusy || Boolean(pendingPayment)} className="min-w-0 space-y-4">
+              <legend className="sr-only">{copy.detailsTitle}</legend>
             <div className="grid gap-4 sm:grid-cols-2">
               <TextField
                 id="checkout-name"
                 label={copy.fullName}
                 name="FullName"
                 autoComplete="name"
-                defaultValue={user?.FullName ?? ''}
+                value={details.FullName}
+                onChange={updateDetails}
                 required
                 error={fieldErrors.FullName}
               />
@@ -252,7 +292,8 @@ export function CheckoutForm({ product }) {
                 name="Email"
                 type="email"
                 autoComplete="email"
-                defaultValue={user?.Email ?? ''}
+                value={details.Email}
+                onChange={updateDetails}
                 required
                 error={fieldErrors.Email}
               />
@@ -263,7 +304,8 @@ export function CheckoutForm({ product }) {
                 type="tel"
                 autoComplete="tel"
                 placeholder={copy.phonePlaceholder}
-                defaultValue={user?.Phone ?? ''}
+                value={details.Phone}
+                onChange={updateDetails}
                 required
                 error={fieldErrors.Phone}
               />
@@ -280,34 +322,35 @@ export function CheckoutForm({ product }) {
             />
             <CheckboxField id="checkout-consent" name="ConsentGiven" error={fieldErrors.ConsentGiven}>
               {copy.consentBefore}
-              <LocaleLink href="/legal/terms" className="font-semibold text-primary underline underline-offset-4">
+              <LocaleLink href="/legal/terms" className="font-semibold text-primary-dark underline underline-offset-4">
                 {copy.consentLink}
               </LocaleLink>
               {copy.consentAfter}
             </CheckboxField>
             {isWhatsAppOptInEnabled && <WhatsAppOptInField />}
+            </fieldset>
 
             {message && (
               <InlineAlert tone="error">
                 <p>{message}</p>
-                {pendingPayment && !isBusy && (
-                  <Button variant="link" onClick={() => payOrder(pendingPayment)} className="mt-1">
-                    {copy.retry}
-                  </Button>
-                )}
               </InlineAlert>
             )}
 
-            <Button type="submit" size="lg" isFullWidth disabled={isBusy}>
-              {isBusy ? copy.processing : isFree ? copy.placeOrder : copy.pay(format.rupees(totalPaise))}
+            <Button type="submit" size="lg" isFullWidth disabled={isBusy || isCouponChecking}>
+              {isBusy ? copy.processing : pendingPayment?.response ? copy.verifyPayment : pendingPayment ? copy.retry : isFree ? copy.placeOrder : copy.pay(format.rupees(totalPaise))}
             </Button>
+            {pendingPayment && !pendingPayment.response && (
+              <Button variant="link" disabled={isBusy} onClick={() => { setPendingPayment(null); setMessage(''); }}>
+                {copy.editDetails}
+              </Button>
+            )}
             <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-ink-muted">
               <span className="flex items-center gap-1.5">
                 <Lock aria-hidden="true" className="size-3.5 text-success" strokeWidth={2} />
                 {dictionary.ux.checkoutTrust.secure}
               </span>
               <span aria-hidden="true">·</span>
-              <LocaleLink href="/legal/refund-cancellation" className="font-semibold text-primary hover:underline">
+              <LocaleLink href="/legal/refund-cancellation" className="font-semibold text-primary-dark hover:underline">
                 {dictionary.ux.checkoutTrust.refundPolicy}
               </LocaleLink>
             </p>
@@ -332,6 +375,8 @@ export function CheckoutForm({ product }) {
               <CouponField
                 items={items}
                 appliedCoupon={appliedCoupon}
+                isDisabled={isBusy || Boolean(pendingPayment)}
+                onChecking={setIsCouponChecking}
                 onApplied={setAppliedCoupon}
                 onRemoved={() => setAppliedCoupon(null)}
               />

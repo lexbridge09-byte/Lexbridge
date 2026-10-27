@@ -123,6 +123,8 @@ export const commerce = {
     notSetUp: 'Online payments aren’t available right now. Please contact us.',
     scriptFailed: 'Couldn’t open the payment window. Check your connection.',
     retry: 'Try again',
+    verifyPayment: 'Check payment status',
+    editDetails: 'Change order details',
     orderReference: (referenceCode) => `Order ${referenceCode}`,
   },
 

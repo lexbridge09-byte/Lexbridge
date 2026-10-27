@@ -50,6 +50,7 @@ export function LoginForm({ nextPath = '' }) {
   }
 
   async function sendCode(emailAddress) {
+    if (isBusy) return;
     setIsBusy(true);
     setFieldErrors({});
     setMessage(null);
@@ -74,6 +75,7 @@ export function LoginForm({ nextPath = '' }) {
 
   async function handleCodeSubmit(event) {
     event.preventDefault();
+    if (isBusy) return;
     const code = String(new FormData(event.currentTarget).get('Code') ?? '').replace(/\s/g, '');
     setIsBusy(true);
     setFieldErrors({});
@@ -118,11 +120,13 @@ export function LoginForm({ nextPath = '' }) {
           {isBusy ? copy.code.busy : copy.code.submit}
         </Button>
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-          <Button variant="link" disabled={isBusy || secondsUntilResend > 0} onClick={() => sendCode(email)} className="disabled:text-ink-muted">
+          <Button type="button" variant="link" disabled={isBusy || secondsUntilResend > 0} onClick={() => sendCode(email)} className="disabled:text-ink-muted">
             {secondsUntilResend > 0 ? copy.code.resendIn(secondsUntilResend) : copy.code.resend}
           </Button>
           <Button
+            type="button"
             variant="link"
+            disabled={isBusy}
             onClick={() => {
               setStep('email');
               setMessage(null);

@@ -741,6 +741,31 @@ async function runStatsAndOverviewTests({ admin }) {
   check('service requests store a preferred language; internal sources are rejected',
     withLanguage.status === 201 && stored?.PreferredLanguage === 'bn' && badLanguage.status === 400 && internalSource.status === 400,
     `${withLanguage.status} ${stored?.PreferredLanguage} ${badLanguage.status} ${internalSource.status}`);
+
+  const availableSlots = await api('/api/consultations/slots');
+  check('an empty consultation calendar is a successful empty availability response',
+    availableSlots.status === 200 && availableSlots.json?.slots?.length === 0);
+  const consultationCount = await db.collection('consultations').countDocuments();
+  const requirement = await api('/api/service-requests', {
+    method: 'POST',
+    body: {
+      ...requestBody,
+      ServiceCategory: 'legal-consultation',
+      Subtype: '',
+      IntakeDetails: {},
+      Source: 'contact-form',
+      PreferredLanguage: 'hi',
+      Description: 'Consultation request (no available slot).\nType: quick\nPreferred mode: phone\nMatter category: Not specified\n\nPlease discuss my rental agreement next week.',
+    },
+  });
+  const storedRequirement = await db.collection('serviceRequests').findOne({ ReferenceCode: requirement.json?.ReferenceCode });
+  check('no-slot guest consultation creates a trackable requirement, not a confirmed appointment',
+    requirement.status === 201 && /^LB-/.test(requirement.json?.ReferenceCode ?? '')
+      && storedRequirement?.ServiceCategory === 'legal-consultation'
+      && storedRequirement?.PreferredLanguage === 'hi'
+      && storedRequirement?.Status === 'submitted'
+      && storedRequirement?.Description.includes('Preferred mode: phone')
+      && await db.collection('consultations').countDocuments() === consultationCount);
 }
 
 // ---------- Feature flags ----------

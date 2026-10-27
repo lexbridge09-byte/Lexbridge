@@ -8,6 +8,7 @@ import { Button, Card } from '@/components/ui';
 import { requestApi } from '@/lib/apiClient';
 import { localizeApiError, localizeFieldErrors } from '@/lib/apiErrors';
 import { redirectToLogin, useApiData } from '@/lib/useApiData';
+import { refreshSession } from '@/lib/session';
 
 export function ProfileForm() {
   const dictionary = useDictionary();
@@ -19,6 +20,7 @@ export function ProfileForm() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (isSaving) return;
     const formData = new FormData(event.currentTarget);
     const updates = {};
     const fullName = String(formData.get('FullName') ?? '').trim();
@@ -31,6 +33,7 @@ export function ProfileForm() {
     setMessage(null);
     try {
       await requestApi('/auth/me', { method: 'PATCH', body: updates });
+      await refreshSession();
       setMessage({ tone: 'success', text: copy.saved });
       reload();
     } catch (saveError) {
@@ -53,8 +56,8 @@ export function ProfileForm() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-h3 text-ink">{copy.title}</h1>
-        <p className="mt-0.5 text-sm text-ink-muted">{copy.intro}</p>
+        <h1 className="text-h3 text-on-canvas">{copy.title}</h1>
+        <p className="mt-0.5 text-sm text-on-canvas-muted">{copy.intro}</p>
       </div>
 
       <Card padding="md" className="max-w-2xl">

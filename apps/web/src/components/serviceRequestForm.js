@@ -3,7 +3,7 @@
 import { ArrowLeft } from 'lucide-react';
 import { getIntakeFields, getIntakeSubtypes } from '@lexbridge/shared';
 import { createElement, useRef, useState } from 'react';
-import { useDictionary } from '@/brand/localeContext';
+import { useDictionary, useLocale } from '@/brand/localeContext';
 import { CheckboxField, FieldError, SelectField, TextAreaField, TextField } from '@/components/formFields';
 import { LocaleLink } from '@/components/localeLink';
 import { Button, InlineAlert, StepIndicator } from '@/components/ui';
@@ -96,6 +96,7 @@ export function ServiceRequestForm({
   submitLabel,
 }) {
   const dictionary = useDictionary();
+  const locale = useLocale();
   const isAccountsEnabled = useIsFeatureEnabled('clientAccounts');
   const isWhatsAppOptInEnabled = useIsFeatureEnabled('whatsAppNotifications');
   const copy = dictionary.forms.serviceRequest;
@@ -150,7 +151,7 @@ export function ServiceRequestForm({
   function continueToDetails() {
     const errors = validateMatter();
     setFieldErrors(errors);
-    const firstInvalid = MATTER_FIELDS.find((field) => errors[field]);
+    const firstInvalid = Object.keys(errors)[0];
     if (firstInvalid) {
       formRef.current?.elements.namedItem(firstInvalid)?.focus?.();
       return;
@@ -160,6 +161,7 @@ export function ServiceRequestForm({
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (isSubmitting) return;
     // Enter inside step one moves forward rather than submitting half a form
     if (step === MATTER_STEP) {
       continueToDetails();
@@ -183,7 +185,8 @@ export function ServiceRequestForm({
           Description: formData.get('Description'),
           Source: source,
           ConsentGiven: formData.get('ConsentGiven') === 'on',
-          WhatsAppOptIn: formData.get('WhatsAppOptIn') === 'on',
+           WhatsAppOptIn: formData.get('WhatsAppOptIn') === 'on',
+           PreferredLanguage: locale,
         },
       });
       setReferenceCode(data.ReferenceCode);
@@ -191,7 +194,7 @@ export function ServiceRequestForm({
       const errors = localizeFieldErrors(error, dictionary);
       setFieldErrors(errors);
       setFormError(localizeApiError(error, dictionary));
-      const matterError = MATTER_FIELDS.find((field) => errors[field]);
+      const matterError = Object.keys(errors).find((field) => MATTER_FIELDS.includes(field) || field.startsWith('IntakeDetails.'));
       if (matterError) goToStep(MATTER_STEP, matterError);
     } finally {
       setIsSubmitting(false);
@@ -247,7 +250,7 @@ export function ServiceRequestForm({
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} noValidate>
-      <StepIndicator label={copy.stepsLabel} steps={stepNames} current={step} className="mb-4" />
+      <StepIndicator label={copy.stepsLabel} steps={stepNames} current={step} surface="light" className="mb-4" />
       <p ref={stepStatusRef} tabIndex={-1} aria-live="polite" className="sr-only">
         {copy.stepStatus(step, stepNames.length, stepNames[step - 1])}
       </p>
@@ -290,7 +293,7 @@ export function ServiceRequestForm({
           required
           error={fieldErrors.Description}
         />
-        <Button onClick={continueToDetails} className="w-full sm:w-auto sm:min-w-40">
+        <Button type="button" onClick={continueToDetails} className="w-full sm:w-auto sm:min-w-40">
           {copy.continue}
         </Button>
       </div>
@@ -323,7 +326,7 @@ export function ServiceRequestForm({
         {formError && Object.keys(fieldErrors).length === 0 && <InlineAlert tone="error">{formError}</InlineAlert>}
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
-          <Button variant="ghost" onClick={() => goToStep(MATTER_STEP)} className="sm:mr-auto">
+          <Button type="button" variant="ghost" onClick={() => goToStep(MATTER_STEP)} className="sm:mr-auto">
             <ArrowLeft aria-hidden="true" className="size-4" strokeWidth={2} />
             {copy.back}
           </Button>

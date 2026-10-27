@@ -14,16 +14,19 @@ export function redirectToLogin() {
 // Loads JSON from the API. Pass null as the path to skip loading. A 401 sends the visitor to sign in.
 export function useApiData(path) {
   const [reloadCount, setReloadCount] = useState(0);
-  const [result, setResult] = useState({ key: null, data: null, error: null });
-  const requestKey = path ? `${path}#${reloadCount}` : null;
+  const [resource, setResource] = useState({ path });
+  const [result, setResult] = useState({ resource: null, reloadCount: -1, data: null, error: null });
+
+  // A new resource identity also prevents A -> disabled -> A from resurrecting
+  // an old response. React retries this render before committing its children.
+  if (resource.path !== path) setResource({ path });
 
   useEffect(() => {
-    if (!path) return undefined;
+    if (!resource.path) return undefined;
     let isCancelled = false;
-    const key = `${path}#${reloadCount}`;
-    requestApi(path)
+    requestApi(resource.path)
       .then((data) => {
-        if (!isCancelled) setResult({ key, data, error: null });
+        if (!isCancelled) setResult({ resource, reloadCount, data, error: null });
       })
       .catch((error) => {
         if (isCancelled) return;
@@ -31,19 +34,21 @@ export function useApiData(path) {
           redirectToLogin();
           return;
         }
-        setResult({ key, data: null, error });
+        setResult({ resource, reloadCount, data: null, error });
       });
     return () => {
       isCancelled = true;
     };
-  }, [path, reloadCount]);
+  }, [resource, reloadCount]);
 
   const reload = useCallback(() => setReloadCount((count) => count + 1), []);
-  const isCurrent = result.key === requestKey;
+  const isSameResource = Boolean(path) && resource.path === path && result.resource === resource;
+  const isCurrent = isSameResource && result.reloadCount === reloadCount;
 
   return {
-    // Previous data stays visible while a reload is in flight
-    data: result.data,
+    // Keep the current response visible while it is being refreshed, but never
+    // show a response from a different path (or from a disabled request).
+    data: isSameResource ? result.data : null,
     error: isCurrent ? result.error : null,
     isLoading: Boolean(path) && !isCurrent,
     reload,

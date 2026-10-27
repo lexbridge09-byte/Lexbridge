@@ -27,7 +27,7 @@ export default async function TeamLayout({ children, params }) {
   ].filter(Boolean);
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-surface-alt flex">
+    <div className="flex min-h-[calc(100dvh-4rem)] flex-col bg-surface-alt md:flex-row">
       <OfficeSidebar label={copy.navLabel} links={links} />
       <div className="min-w-0 flex-1">
         <Container className="py-4 lg:py-6">{children}</Container>

@@ -39,7 +39,7 @@
   /* Text on light cards */
   --color-ink: #1a1d26;
   --color-ink-muted: #5c6270;
-  --color-ink-subtle: #707686;
+  --color-ink-subtle: #626979;
 
   /* Text on the dark canvas */
   --color-on-canvas: #ffffff;
@@ -51,7 +51,7 @@
   --color-surface-alt: #1b1f2a;
   --color-line: #e4e6ec;
   --color-line-hover: #c9cdd6;
-  --color-line-strong: #a6acba;
+  --color-line-strong: #858d9d;
 
   /* Latin glyphs come from the first font; Devanagari falls through to Noto Sans Devanagari */
   --font-display: var(--font-jakarta), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
@@ -159,6 +159,7 @@
 }
 
 :root {
+  --focus-ring-color: var(--color-primary);
   /* Lets the disclosure animation interpolate block-size to auto */
   interpolate-size: allow-keywords;
 }
@@ -381,6 +382,7 @@
     -webkit-text-size-adjust: 100%;
     /* Header (4rem) + promo strip (~2.3rem) that sits above it at the top of the page */
     scroll-padding-top: 6.5rem;
+    scroll-padding-bottom: calc(9rem + env(safe-area-inset-bottom));
     scrollbar-gutter: stable;
     scrollbar-width: thin;
     scrollbar-color: rgb(98 90 102 / 0.4) transparent;
@@ -430,13 +432,13 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--focus-ring-color);
     outline-offset: 2px;
   }
 
   ::selection {
-    background-color: rgb(197 160 89 / 0.35);
-    color: var(--color-on-canvas);
+    background-color: var(--color-primary-dark);
+    color: #ffffff;
   }
 
   /* Devanagari needs room above and below the headline for matras; negative tracking breaks conjuncts */
@@ -460,6 +462,7 @@
   .bg-card,
   .bg-card-hover,
   .bg-card-dim {
+    --focus-ring-color: var(--color-primary-dark);
     color: var(--color-ink);
   }
 
@@ -553,7 +556,9 @@
   .control {
     display: block;
     width: 100%;
-    min-height: 2.875rem;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 3rem;
     border: 1px solid var(--color-line-strong);
     border-radius: var(--radius-control);
     background-color: var(--color-card-hover);
@@ -568,21 +573,29 @@
       background-color var(--dur-150) var(--ease-out-soft);
   }
 
-  /* No resize grips anywhere: the two-line corner handle looks broken on a polished form */
+  /* Long legal descriptions need room to review; preserve width while allowing expansion. */
   textarea {
-    resize: none;
+    resize: vertical;
   }
 
-  /* Consistent dropdown treatment: native arrow off, one bronze-chevron for every select */
+  /* Keep native choice lists (keyboard, type-ahead and mobile picker support).
+     Reserve arrow space on every trigger, not only controls using .control. */
   select {
     appearance: none;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 2.75rem;
+    padding-right: 2.5rem;
+    color-scheme: light;
+    cursor: pointer;
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235c6270' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.7rem center;
+    background-size: 1rem;
   }
 
-  select.control {
-    padding-right: 2.5rem;
+  select:disabled {
+    cursor: not-allowed;
   }
 
   .control::placeholder {
@@ -590,13 +603,16 @@
     opacity: 1;
   }
 
-  .control:hover:not(:disabled):not(:focus) {
-    border-color: #8b93a3;
+  @media (hover: hover) {
+    .control:hover:not(:disabled):not(:focus) {
+      border-color: var(--color-primary-dark);
+    }
   }
 
   .control:focus,
   .control:focus-visible {
-    outline: none;
+    outline: 2px solid var(--color-primary-dark);
+    outline-offset: 2px;
     border-color: var(--color-primary-dark);
     box-shadow:
       inset 0 1px 2px rgb(26 29 38 / 0.04),
@@ -616,6 +632,7 @@
   }
 
   .control[aria-invalid='true']:focus {
+    outline-color: var(--color-danger);
     box-shadow: 0 0 0 3px rgb(198 40 40 / 0.16);
   }
 
@@ -694,7 +711,7 @@
     content: '';
     width: 0.7rem;
     height: 0.7rem;
-    background-color: #fff;
+    background-color: var(--color-canvas);
     clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
     opacity: 0;
     transform: scale(0.6);
@@ -708,7 +725,7 @@
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 999px;
-    background-color: #fff;
+    background-color: var(--color-canvas);
     opacity: 0;
     transform: scale(0.4);
     transition:
@@ -735,7 +752,7 @@
 
   .check:focus-visible,
   .radio:focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--focus-ring-color);
     outline-offset: 2px;
   }
 

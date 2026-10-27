@@ -51,7 +51,7 @@ export default async function HomePage({ params }) {
     <>
       {/* Hero: headline, subhead and primary action render immediately (no entrance animation).
           Only the decorative background is clipped — the search dropdown must overflow freely. */}
-      <section className="relative isolate bg-hero text-white">
+      <section className="relative isolate z-10 bg-hero text-white">
         <div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden">
           <div className="absolute inset-0 bg-grid-lines [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_75%)]" />
           <div className="absolute -top-40 left-[18%] size-[34rem] rounded-full bg-primary/15 blur-[130px]" />

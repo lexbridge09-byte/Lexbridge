@@ -52,12 +52,12 @@ export function RequestDetail({ referenceCode }) {
           {copy.breadcrumb}
         </LocaleLink>
         <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="text-h3 text-ink">{request.Subtype || labels.service(request.ServiceCategory)}</h1>
+          <h1 className="text-h3 text-on-canvas">{request.Subtype || labels.service(request.ServiceCategory)}</h1>
           <RequestStatusBadge status={request.Status} />
         </div>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">
           <ReferenceCodeTag code={request.ReferenceCode} />
-          <span className="text-sm text-ink-muted">{format.dateTime(request.createdAt)}</span>
+          <span className="text-sm text-on-canvas-muted">{format.dateTime(request.createdAt)}</span>
         </div>
       </div>
 
@@ -89,7 +89,9 @@ export function RequestDetail({ referenceCode }) {
               <h2 id="request-documents" className="mb-3 text-h4 text-ink">
                 {copy.documents}
               </h2>
-              {documentsData.error ? (
+              {documentsData.isLoading && !documentsData.data ? (
+                <LoadingNote />
+              ) : documentsData.error ? (
                 <ErrorNote error={documentsData.error} onRetry={documentsData.reload} />
               ) : (
                 <DocumentList documents={requestDocuments} emptyText={copy.noDocuments} />

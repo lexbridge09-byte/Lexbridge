@@ -14,7 +14,7 @@ export function FieldError({ id, message }) {
   return (
     <p id={id} className="mt-1.5 flex items-start gap-1.5 text-sm font-medium text-danger">
       <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" strokeWidth={2} />
-      <span>{message}</span>
+      <span className="min-w-0 break-words">{message}</span>
     </p>
   );
 }
@@ -35,7 +35,7 @@ export function TextField({ id, label, name, error, hint, prefix, className = ''
     />
   );
   return (
-    <div className={className}>
+    <div className={`min-w-0 ${className}`}>
       <label htmlFor={fieldId} className={LABEL_CLASS}>
         {label}
       </label>
@@ -64,7 +64,7 @@ export function TextAreaField({ id, label, name, error, hint, className = '', ..
   const errorId = `${fieldId}-error`;
   const hintId = hint ? `${fieldId}-hint` : undefined;
   return (
-    <div className={className}>
+    <div className={`min-w-0 ${className}`}>
       <label htmlFor={fieldId} className={LABEL_CLASS}>
         {label}
       </label>
@@ -90,7 +90,7 @@ export function SelectField({ id, label, name, error, options, placeholder, clas
   const fieldId = id ?? name;
   const errorId = `${fieldId}-error`;
   return (
-    <div className={className}>
+    <div className={`min-w-0 ${className}`}>
       <label htmlFor={fieldId} className={LABEL_CLASS}>
         {label}
       </label>
@@ -118,8 +118,8 @@ export function SelectField({ id, label, name, error, options, placeholder, clas
 export function CheckboxField({ id, name, error, className = '', children, ...inputProps }) {
   const errorId = `${id ?? name}-error`;
   return (
-    <div className={className}>
-      <label className="flex cursor-pointer items-start gap-3 rounded-lg py-1 text-sm leading-6 text-ink-muted">
+    <div className={`min-w-0 ${className}`}>
+      <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg py-2 text-sm leading-6 text-ink-muted">
         <input
           id={id}
           type="checkbox"
@@ -129,7 +129,7 @@ export function CheckboxField({ id, name, error, className = '', children, ...in
           className="check mt-[3px]"
           {...inputProps}
         />
-        <span>{children}</span>
+        <span className="min-w-0 break-words">{children}</span>
       </label>
       <FieldError id={errorId} message={error} />
     </div>

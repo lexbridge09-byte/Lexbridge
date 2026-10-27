@@ -13,3 +13,4 @@ export { TestimonialCarousel } from './testimonialCarousel.js';
 export { ValueStrip } from './valueStrip.js';
 export { StepIndicator } from './stepIndicator.js';
 export { ProcessSteps } from './processSteps.js';
+export { TaskPage, TaskHelp } from './taskPage.js';

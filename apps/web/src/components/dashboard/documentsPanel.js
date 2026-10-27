@@ -31,8 +31,8 @@ export function DocumentsPanel() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-h3 text-ink">{copy.title}</h1>
-        <p className="mt-0.5 text-sm text-ink-muted">{copy.intro}</p>
+        <h1 className="text-h3 text-on-canvas">{copy.title}</h1>
+        <p className="mt-0.5 text-sm text-on-canvas-muted">{copy.intro}</p>
       </div>
 
       <div className="grid items-start gap-5 lg:grid-cols-[1.3fr_1fr]">

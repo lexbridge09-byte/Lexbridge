@@ -20,6 +20,14 @@ function matchesPrefix(pathname, prefix) {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
 
+// Once someone starts a form, keep navigation/help but remove competing promotions.
+export function isFocusedTaskPath(pathname) {
+  if (!pathname) return false;
+  const path = stripLocale(pathname);
+  return ['/consultation', '/drafting', '/document-review', '/find-my-solution', '/contact', '/checkout', '/login']
+    .some((prefix) => matchesPrefix(path, prefix));
+}
+
 export function isAdminPath(pathname) {
   return Boolean(pathname) && matchesPrefix(stripLocale(pathname), '/admin');
 }
@@ -38,7 +46,7 @@ export function isLoginPath(pathname) {
 }
 
 export function hasMobileTabBar(pathname) {
-  return !isOfficePath(pathname);
+  return !isOfficePath(pathname) && !isFocusedTaskPath(pathname);
 }
 
 // Product pages carry their own sticky buy bar instead of the generic one

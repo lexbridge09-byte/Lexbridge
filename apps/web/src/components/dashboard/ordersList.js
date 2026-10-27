@@ -24,8 +24,8 @@ export function OrdersList() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-h3 text-ink">{copy.title}</h1>
-        <p className="mt-0.5 text-sm text-ink-muted">{copy.intro}</p>
+        <h1 className="text-h3 text-on-canvas">{copy.title}</h1>
+        <p className="mt-0.5 text-sm text-on-canvas-muted">{copy.intro}</p>
       </div>
 
       {isLoading && !data ? (
@@ -36,7 +36,7 @@ export function OrdersList() {
         <Card padding="md">
           <p className="text-ink-muted">
             {copy.empty}{' '}
-            <LocaleLink href="/services" className="font-semibold text-primary underline-offset-4 hover:underline">
+            <LocaleLink href="/services" className="font-semibold text-primary-dark underline-offset-4 hover:underline">
               {copy.emptyCta}
             </LocaleLink>
           </p>

@@ -4,8 +4,8 @@ export const consultation = {
     description: 'Talk to a qualified legal professional by phone or video.',
   },
   header: {
-    title: 'Book a consultation',
-    lead: 'Talk to a legal professional by phone or video.',
+    title: 'Arrange a consultation',
+    lead: 'Tell us what you need. Choose an available time, or send a request for our team to arrange one.',
   },
 
   sections: {
@@ -25,8 +25,11 @@ export const consultation = {
     emptyBefore: 'No times open right now.',
     emptyLink: 'Send your requirement',
     emptyAfter: 'and we’ll arrange one.',
-    taken: 'That time was just booked. Please pick another.',
+    taken: 'That time was just booked. We’re checking the remaining availability. Your details are still here.',
     retry: 'Try again',
+    available: 'Times are available. Choose your consultation below, then pick a date and time.',
+    errorTitle: 'We couldn’t check availability',
+    errorBody: 'Your choices are still here. Retry the availability check before continuing.',
   },
 
   fields: {
@@ -42,6 +45,29 @@ export const consultation = {
     mode: 'Choose phone or video.',
     slot: 'Choose a date and time.',
     consent: 'Please accept to continue.',
+    phone: 'Enter a valid phone number.',
+    description: 'Describe what you would like to discuss in at least 10 characters.',
+  },
+
+  request: {
+    steps: ['Consultation', 'Contact & requirement'],
+    title: 'Consultation request',
+    noticeTitle: 'No appointment times are available right now',
+    noticeBody: 'You can still send your requirement. Our team will contact you to agree a time and fee. This sends a request; it does not confirm a booking.',
+    checkAgain: 'Check availability again',
+    fullName: 'Full name',
+    email: 'Email for updates',
+    phoneHint: 'Our team will use this number to arrange your consultation.',
+    descriptionHint: 'Tell us about your matter and preferred days or times. Include any urgent deadline.',
+    nameError: 'Enter your full name.',
+    emailError: 'Enter a valid email address.',
+    descriptionError: 'Describe your requirement in at least 20 characters.',
+    timePending: 'To be agreed with you',
+    submit: 'Send consultation request',
+    busy: 'Sending request…',
+    successTitle: 'Consultation request received',
+    successBody: 'No appointment has been booked yet. Our team will contact you to discuss your requirement, time and fee. Keep this reference; sign in with the same email to track your request.',
+    viewRequest: 'Track my request',
   },
 
   consent: {

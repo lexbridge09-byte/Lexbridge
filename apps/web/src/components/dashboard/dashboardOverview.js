@@ -12,7 +12,7 @@ import { useCatalogLabels, useFormatters } from '@/lib/localeTools';
 import { useApiData } from '@/lib/useApiData';
 
 const CLOSED_REQUEST_STATUSES = ['completed', 'closed'];
-const LINK_CLASS = 'text-sm font-semibold text-primary underline-offset-4 hover:underline';
+const LINK_CLASS = 'text-sm font-semibold text-primary-dark underline-offset-4 hover:underline';
 
 function SummaryCard({ icon: Icon, title, children, action }) {
   return (
@@ -52,8 +52,8 @@ export function DashboardOverview() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-h3 text-ink">{copy.welcome(firstName)}</h1>
-        <p className="mt-0.5 text-sm text-ink-muted">{copy.intro}</p>
+        <h1 className="text-h3 text-on-canvas">{copy.welcome(firstName)}</h1>
+        <p className="mt-0.5 text-sm text-on-canvas-muted">{copy.intro}</p>
       </div>
 
       <Card as="section" padding="md" aria-labelledby="active-requests">

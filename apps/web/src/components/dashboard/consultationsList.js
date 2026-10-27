@@ -136,7 +136,7 @@ export function ConsultationsList() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-h3 text-ink">{copy.title}</h1>
+        <h1 className="text-h3 text-on-canvas">{copy.title}</h1>
         <ButtonLink href="/consultation" size="sm">
           {copy.book}
         </ButtonLink>
@@ -149,11 +149,11 @@ export function ConsultationsList() {
       ) : (
         <>
           <section aria-labelledby="upcoming-heading">
-            <h2 id="upcoming-heading" className="text-h4 text-ink">
+            <h2 id="upcoming-heading" className="text-h4 text-on-canvas">
               {copy.upcoming}
             </h2>
             {upcoming.length === 0 ? (
-              <p className="mt-1 text-sm text-ink-muted">{copy.noUpcoming}</p>
+              <p className="mt-1 text-sm text-on-canvas-muted">{copy.noUpcoming}</p>
             ) : (
               <ul className="mt-3 space-y-3">
                 {upcoming.map((consultation) => (
@@ -165,7 +165,7 @@ export function ConsultationsList() {
 
           {past.length > 0 && (
             <details className="group">
-              <summary className="cursor-pointer list-none text-h4 text-ink [&::-webkit-details-marker]:hidden">
+              <summary className="cursor-pointer list-none text-h4 text-on-canvas [&::-webkit-details-marker]:hidden">
                 {copy.past} ({past.length})
               </summary>
               <ul className="mt-3 space-y-3">

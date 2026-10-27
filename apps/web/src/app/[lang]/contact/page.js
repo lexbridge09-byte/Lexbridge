@@ -4,7 +4,7 @@ import { getDictionary, getServerFeatures } from '@/brand';
 import { CallbackRequestButton } from '@/components/callbackRequestButton';
 import { LocaleLink } from '@/components/localeLink';
 import { ServiceRequestForm } from '@/components/serviceRequestForm';
-import { ButtonLink, Card, PageHeader, Section } from '@/components/ui';
+import { ButtonLink, Card, TaskPage } from '@/components/ui';
 import { formatRupees } from '@/lib/formatValues';
 import { deriveTelHref, deriveWhatsAppHref, SUPPORT_EMAIL, SUPPORT_PHONE } from '@/lib/publicContact';
 
@@ -27,10 +27,7 @@ export default async function ContactPage({ params, searchParams }) {
   const whatsAppHref = features.whatsAppAiAssistant ? deriveWhatsAppHref(dictionary.whatsapp.greeting) : '';
 
   return (
-    <>
-      <PageHeader title={copy.header.title} lead={copy.header.lead} />
-
-      <Section tone="alt" size="sm">
+    <TaskPage title={copy.header.title} lead={copy.header.lead}>
         <div className="grid items-start gap-6 lg:grid-cols-[1.7fr_1fr] lg:gap-8">
           <Card padding="lg">
             <h2 className="mb-5 text-h3 text-ink">{copy.formTitle}</h2>
@@ -107,7 +104,6 @@ export default async function ContactPage({ params, searchParams }) {
             )}
           </div>
         </div>
-      </Section>
-    </>
+    </TaskPage>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, ChevronLeft, LoaderCircle } from 'lucide-react';
+import { ChevronLeft, LoaderCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDictionary } from '@/brand/localeContext';
 import { ReferenceCodeTag } from '@/components/copyButton';
@@ -24,8 +24,8 @@ const PENDING_STATUSES = ['queued', 'processing'];
 const STAGE_START_SECONDS = [0, 4, 20, 40];
 
 /*
-  E1: staged progress while the review runs. Stages advance with elapsed time (the worker reports no finer
-  progress), and the last stage holds until the report arrives, so nothing ever claims to be done early.
+   Time-based waiting copy only: the worker reports no per-stage progress, so never
+   show completion ticks until it returns a completed report.
 */
 function ReviewProgress({ review, now, copy }) {
   const elapsedSeconds = review.Status === 'queued' ? 0 : Math.max(0, (now - new Date(review.createdAt).getTime()) / 1000);
@@ -35,26 +35,10 @@ function ReviewProgress({ review, now, copy }) {
     <Card padding="md" role="status" aria-live="polite">
       <p className="font-semibold text-ink">{copy.processingTitle}</p>
       <p className="text-sm text-ink-muted">{copy.processingBody}</p>
-      <ol className="mt-4 space-y-3">
-        {copy.stages.map((stage, stageIndex) => {
-          const isDone = stageIndex < activeStage;
-          const isActive = stageIndex === activeStage;
-          return (
-            <li key={stage} className={`flex items-center gap-3 text-sm ${isDone || isActive ? 'text-ink' : 'text-ink-subtle'}`}>
-              <span
-                className={`flex size-6 shrink-0 items-center justify-center rounded-full transition-colors duration-(--dur-300) ${isDone ? 'bg-success text-white' : isActive ? 'bg-primary-50 text-primary-dark' : 'bg-card-dim'}`}
-              >
-                {isDone ? (
-                  <Check aria-hidden="true" className="size-3.5 motion-safe:animate-fade-in" strokeWidth={3} />
-                ) : isActive ? (
-                  <LoaderCircle aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" strokeWidth={2.5} />
-                ) : null}
-              </span>
-              <span className={isActive ? 'font-semibold' : ''}>{stage}</span>
-            </li>
-          );
-        })}
-      </ol>
+      <div className="mt-4 flex items-center gap-3 rounded-control bg-primary-50 p-3 text-sm font-semibold text-primary-dark">
+        <LoaderCircle aria-hidden="true" className="size-5 shrink-0 animate-spin motion-reduce:animate-none" strokeWidth={2} />
+        <p>{copy.stages[activeStage]}</p>
+      </div>
     </Card>
   );
 }
@@ -167,15 +151,16 @@ export function DocumentReviewDetail({ referenceCode }) {
   const isPending = PENDING_STATUSES.includes(review?.Status);
   const [now, setNow] = useState(() => Date.now());
 
-  // Poll until the worker finishes; the interval stops as soon as the status settles
+  // Wait for each response before scheduling another poll. A fixed interval
+  // repeatedly cancelled requests on slow connections before any could complete.
   useEffect(() => {
-    if (!isPending) return undefined;
-    const timer = setInterval(() => {
+    if (!isPending || isLoading) return undefined;
+    const timer = setTimeout(() => {
       setNow(Date.now());
       reload();
     }, POLL_INTERVAL_MS);
-    return () => clearInterval(timer);
-  }, [isPending, reload]);
+    return () => clearTimeout(timer);
+  }, [isPending, isLoading, reload]);
 
   if (isLoading && !data) return <LoadingNote />;
   if (error?.status === 404) {
@@ -200,12 +185,12 @@ export function DocumentReviewDetail({ referenceCode }) {
           {copy.breadcrumb}
         </LocaleLink>
         <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="break-all text-h3 text-ink">{review.OriginalName}</h1>
+          <h1 className="break-all text-h3 text-on-canvas">{review.OriginalName}</h1>
           {review.Status === 'completed' ? <RiskBadge level={review.RiskLevel} /> : <DocumentReviewStatusBadge status={review.Status} />}
         </div>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">
           <ReferenceCodeTag code={review.ReferenceCode} />
-          <span className="text-sm text-ink-muted">{format.dateTime(review.createdAt)}</span>
+          <span className="text-sm text-on-canvas-muted">{format.dateTime(review.createdAt)}</span>
         </div>
       </div>
 
@@ -220,7 +205,7 @@ export function DocumentReviewDetail({ referenceCode }) {
       {review.Status === 'completed' && (
         <>
           <DocumentReviewReport report={review.Report} />
-          {review.FileDeletedAt && <p className="text-xs text-ink-muted">{copy.fileDeleted}</p>}
+          {review.FileDeletedAt && <p className="text-xs text-on-canvas-muted">{copy.fileDeleted}</p>}
           <LawyerReviewPanel key={review.ServiceRequestReference || 'open'} review={review} onRequested={reload} />
         </>
       )}

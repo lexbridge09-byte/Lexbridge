@@ -1,6 +1,6 @@
 import { getDictionary, requireFeaturePage } from '@/brand';
 import { ServiceRequestForm } from '@/components/serviceRequestForm';
-import { Card, PageHeader, Section } from '@/components/ui';
+import { Card, TaskPage } from '@/components/ui';
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -8,7 +8,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function DraftingPage({ params }) {
-  requireFeaturePage('legalDrafting');
+  await requireFeaturePage('legalDrafting');
   const { lang } = await params;
   const { header, documentTypes, steps, request } = getDictionary(lang).drafting;
   // Stored subtype stays in English so the team sees one consistent value whatever language the client used
@@ -24,11 +24,7 @@ export default async function DraftingPage({ params }) {
   }));
 
   return (
-    <>
-      <PageHeader title={header.title} lead={header.lead} />
-
-      {/* The whole request fits on one screen: a two-step form beside a short "how it works" */}
-      <Section tone="alt" size="sm">
+    <TaskPage title={header.title} lead={header.lead}>
         <div className="grid items-start gap-6 lg:grid-cols-[1.6fr_1fr] lg:gap-8">
           <Card padding="lg" id="request">
             <h2 className="text-h3 text-ink">{request.title}</h2>
@@ -63,7 +59,6 @@ export default async function DraftingPage({ params }) {
             </ol>
           </Card>
         </div>
-      </Section>
-    </>
+    </TaskPage>
   );
 }
